@@ -3,12 +3,11 @@
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
-# Date: July 2025
+# Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
 import sys
-from itertools import count
 from time import sleep
 from utilities.animations import show_activity_animation
 from utilities.status_bar import update_status_bar

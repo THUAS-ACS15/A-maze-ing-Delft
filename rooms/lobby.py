@@ -1,9 +1,10 @@
 # -----------------------------------------------------------------------------
 # File: lobby.py
-# ACS School Project - Simple Maze Example
+# ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
-# Date: July 2025
+# Date: September 2026
+# Contributors: Leon
 # -----------------------------------------------------------------------------
 
 import sys
