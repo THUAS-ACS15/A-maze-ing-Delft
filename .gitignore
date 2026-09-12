@@ -1,0 +1,5 @@
+.idea/
+.venv/
+*.pyc
+./rooms/__pycache__/
+.,/utilities/__pycache__
