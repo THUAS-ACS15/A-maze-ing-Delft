@@ -20,6 +20,7 @@ forklifts = [[], [], []]
 def enterLabD2001(state):
     # --- Room entry description ---
     clearScreen(state)
+    state["visited"]["labd2001"] = True
     print("🧪 You enter Lab D2.001.")
     print("You find a work-in-progress construction project. Various materials and tools are laid out on the floor.")
     print("You spot three forklifts on one side of the room, and six boxes on the other.")
@@ -53,7 +54,7 @@ def enterLabD2001(state):
 
     def handle_look():
         """Describe the room and give clues."""
-        if not state["visited"]["labd2001"]:
+        if not state["completed"]["labd2001"]:
             print("You take a closer look at the forklifts.")
             print("You make out a label on the forklifts that says \"MAX. 100kg\".")
             print("It seems that they can only have space for two boxes at a time.")
@@ -68,7 +69,7 @@ def enterLabD2001(state):
         """List available commands."""
         print("\nAvailable commands:")
         print("- look around         : Examine the room for clues.")
-        if not state["visited"]["labd2001"]:
+        if not state["completed"]["labd2001"]:
             print("- start stacking      : Try stacking the boxes.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- ?                   : Show this help message.")
@@ -107,7 +108,7 @@ def enterLabD2001(state):
             else:
                 print_puzzle_instructions()
         if box_puzzle_check():
-            state["visited"]["labd2001"] = True
+            state["completed"]["labd2001"] = True
             clearScreen(state)
             print('Looks like you stacked the boxes correctly, congratulations!')
 
