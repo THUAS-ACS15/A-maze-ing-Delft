@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 
 import os
-from utilities.status_bar import update_status_bar
+from utilities.status_bar import updateStatusBar
 
 def clearScreen():
     from main import state
@@ -16,4 +16,4 @@ def clearScreen():
         print("\n" * 50)  # fallback for PyCharm
     else:
         os.system('cls' if os.name == 'nt' else 'clear')
-    update_status_bar(state)
+    updateStatusBar(state)
