@@ -8,22 +8,23 @@
 # -----------------------------------------------------------------------------
 
 from time import sleep
-from utilities.utils import clearScreen
+from utilities.clear_screen import clearScreen
 from utilities.animation_frames import puzzle_frames
 
-def show_activity_animation(type: str, state: dict):
+def showActivityAnimation(type: str, state: dict) -> None:
     """
     Clears the screen and displays the specified animation, frame-by-frame.
 
-    This function takes the specified type, clears the screen and displays that animation
-    in the CLI.
+    This function takes the specified type, clears the screen and prints 
+    that animation in the CLI.
 
     Inputs:
         - type (str): only "puzzle" currently, more TBD
         - state (dict): the game state dict, to pass to clearScreen
     
-    No outputs.
+    Outputs: NONE
     """
+
     if type == "puzzle":
         for frame in puzzle_frames[:-2]:
             clearScreen()

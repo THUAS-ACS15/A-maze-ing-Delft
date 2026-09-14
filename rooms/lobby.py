@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.utils import clearScreen
+from utilities.clear_screen import clearScreen
 
 def enterLobby(state):
     clearScreen()

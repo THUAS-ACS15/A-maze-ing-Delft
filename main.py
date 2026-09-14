@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 
 from rooms import enterLobby, enterLabD2001
-from utilities.utils import clearScreen
+from utilities.clear_screen import clearScreen
 import time
 
 start_time = time.time()

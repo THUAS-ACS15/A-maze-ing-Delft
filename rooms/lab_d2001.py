@@ -9,16 +9,16 @@
 
 import sys
 from time import sleep
-from utilities.animations import show_activity_animation
-from utilities.status_bar import update_status_bar
-from utilities.utils import clearScreen
+from utilities.animations import showActivityAnimation
+from utilities.clear_screen import clearScreen
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
 forklifts = [[], [], []]
 
-def enterLabD2001(state):
-    # --- Room entry description ---
+def enterLabD2001(state: dict) -> str:
+    """Starter function for Lab D2.001."""
+
     clearScreen()
     state["visited"]["labd2001"] = True
     print("🧪 You enter Lab D2.001.")
@@ -26,8 +26,22 @@ def enterLabD2001(state):
     print("You spot three forklifts on one side of the room, and six boxes on the other.")
     print("Maybe you should check it out.")
 
-    # Function to print puzzle instructions so we don't have to copy-paste 5 lines
-    def print_puzzle_instructions():
+    # +-------------------------+
+    # | Puzzle helper functions |
+    # +-------------------------+
+
+    def printPuzzleInstructions() -> None:
+        """
+        Helper function to print puzzle instructions.
+        
+        This function prints the instructions for the box stacking puzzle,
+        along with the status of the forklifts and available boxes.
+        
+        Inputs: NONE
+        
+        Outputs: NONE
+        """
+
         clearScreen()
         print(" First, type the kilogram value of one of the available boxes, and then the which of the forklifts to place it on.")
         print(f"    - Available boxes: {available_boxes}")
@@ -35,8 +49,20 @@ def enterLabD2001(state):
         print(f"    - Forklift 2: {forklifts[1]}")
         print(f"    - Forklift 3: {forklifts[2]}")
 
-    # Checker for if the box puzzle solve is valid
-    def box_puzzle_check():
+    def boxPuzzleCheck() -> bool:
+        """
+        Checks if the box puzzle is solved correctly. Returns True if solved, False otherwise.
+        
+        The function checks if the puzzle is solved correctly,
+        i.e. if each forklift has exactly two boxes and the total 
+        weight of the boxes on each forklift is exactly 100kg.
+        
+        Inputs: NONE
+        
+        Outputs:
+            - bool: True if the puzzle is solved correctly, False otherwise.
+        """
+
         correct_count = 0
         for forklift in forklifts:
             if len(forklift) < 2:
@@ -50,10 +76,23 @@ def enterLabD2001(state):
         else:
             return False
 
-    # --- Command handlers ---
+    # +------------------+
+    # | Command handlers |
+    # +------------------+
 
-    def handle_look():
-        """Describe the room and give clues."""
+    def handleLook() -> None:
+        """
+        Describes the room and gives clues.
+        
+        This function describes the room and gives clues to the player about the 
+        box stacking puzzle. It also shows the possible exits and the 
+        player's current inventory.
+        
+        Inputs: NONE
+        
+        Outputs: NONE
+        """
+
         if not state["completed"]["labd2001"]:
             print("You take a closer look at the forklifts.")
             print("You make out a label on the forklifts that says \"MAX. 100kg\".")
@@ -65,8 +104,17 @@ def enterLabD2001(state):
         print("- Possible exits: lobby")
         print("- Your current inventory:", state["inventory"])
 
-    def handle_help():
-        """List available commands."""
+    def handleHelp() -> None:
+        """
+        Lists available commands.
+        
+        This function lists the available commands for the player to use in the room.
+        
+        Inputs: NONE
+        
+        Outputs: NONE
+        """
+
         print("\nAvailable commands:")
         print("- look around         : Examine the room for clues.")
         if not state["completed"]["labd2001"]:
@@ -75,7 +123,7 @@ def enterLabD2001(state):
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handle_go(destination):
+    def handleGo(destination: str) -> str:
         """Handle movement out of the room."""
         if destination in ["lobby", "back"]:
             print("You decide to get out of the lab and return to the lobby.")
@@ -84,54 +132,61 @@ def enterLabD2001(state):
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handle_puzzle_start():
-        show_activity_animation("puzzle", state)
+    def handlePuzzleStart() -> None:
+        showActivityAnimation("puzzle", state)
         sleep(1)
-        print_puzzle_instructions()
-        while box_puzzle_check() != True:
-            box = input("\nChoose a box > ").strip().lower()
+        printPuzzleInstructions()
+        while boxPuzzleCheck() != True:
+            try:
+                box = input("\nChoose a box > ").strip().lower()
+                box_int = int(box)
+            except ValueError:
+                printPuzzleInstructions()
+                continue
 
-            if box in ["exit", "quit"]:
-                break
-
-            box_int = int(box)
             if box.isnumeric() and box_int in available_boxes:
-                print_puzzle_instructions()
-                forklift = input("\nChoose a forklift > ").strip().lower()
-                if forklift in ["exit", "quit"]:
-                    break
+                printPuzzleInstructions()
+                try:
+                    forklift = input("\nChoose a forklift > ").strip().lower()
+                except ValueError:
+                    printPuzzleInstructions()
+                    continue
+
                 if forklift.isnumeric() and int(forklift) in range(1, 4):
                     box_index = available_boxes.index(box_int)
                     box_to_add = available_boxes.pop(box_index)
                     forklifts[int(forklift) - 1].append(box_to_add)
-                    print_puzzle_instructions()
+                    printPuzzleInstructions()
             else:
-                print_puzzle_instructions()
-        if box_puzzle_check():
+                printPuzzleInstructions()
+        if boxPuzzleCheck():
             state["completed"]["labd2001"] = True
             clearScreen()
             print('Looks like you stacked the boxes correctly, congratulations!')
 
-    # --- Main command loop ---
+    # +--------------+
+    # | Command loop |
+    # +--------------+
+
     while True:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
             clearScreen()
-            handle_look()
+            handleLook()
 
         elif command == "?":
             clearScreen()
-            handle_help()
+            handleHelp()
 
         elif command.startswith("go "):
             destination = command[3:].strip()
-            result = handle_go(destination)
+            result = handleGo(destination)
             if result:
                 return result
 
         elif command == "start stacking":
-            handle_puzzle_start()
+            handlePuzzleStart()
 
         elif command == "quit":
             clearScreen()
