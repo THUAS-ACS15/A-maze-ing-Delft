@@ -8,3 +8,4 @@
 
 from .lobby import enterLobby
 from .lab_d2001 import enterLabD2001
+from .teachers_room_1 import enterTeachersRoom1
