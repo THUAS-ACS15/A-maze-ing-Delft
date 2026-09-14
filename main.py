@@ -29,7 +29,7 @@ state = {
     "inventory": []
 }
 
-clearScreen(state)
+clearScreen()
 print("****************************************************************************")
 print("*                      Welcome to the School Maze!                         *")
 print("*        Your goal is to explore all important rooms in the school.        *")

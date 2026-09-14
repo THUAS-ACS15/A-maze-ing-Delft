@@ -11,7 +11,7 @@ import sys
 from utilities.utils import clearScreen
 
 def enterLobby(state):
-    clearScreen(state)
+    clearScreen()
     print("🚶 You are standing in the school's main lobby.")
     print("You see a long corridor with many doors and glass walls on both side. Behind these door are rooms, waiting to be explored.")
 
@@ -22,14 +22,14 @@ def enterLobby(state):
 
     def handle_look():
         """Describe the corridor and show where the player can go."""
-        clearScreen(state)
+        clearScreen()
         print("You take a look around.")
         print("Students and teachers are walking in both directions along the corridor. You see several labeled doors.")
         print(f"- Possible doors: {', '.join(available_rooms)}")
         print("- You current inventory:", state["inventory"])
 
     def handle_help():
-        clearScreen(state)
+        clearScreen()
         """List available commands and explain navigation."""
         print("Available commands:")
         print("- look around         : See what's in the corridor and where you can go.")
@@ -39,7 +39,7 @@ def enterLobby(state):
 
     def handle_go(room_name):
         """Move to a listed room."""
-        clearScreen(state)
+        clearScreen()
         room = room_name.lower()
         if room in available_rooms:
             print(f"You walk toward the door to {room}.")
@@ -66,10 +66,10 @@ def enterLobby(state):
                 return result
 
         elif command == "quit":
-            clearScreen(state)
+            clearScreen()
             print("👋 You leave the school and the adventure comes to an end. Game over.")
             sys.exit()
 
         else:
-            clearScreen(state)
+            clearScreen()
             print("❓ Unknown command. Type '?' to see available commands.")

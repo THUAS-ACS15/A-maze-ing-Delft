@@ -26,16 +26,16 @@ def show_activity_animation(type: str, state: dict):
     """
     if type == "puzzle":
         for frame in puzzle_frames[:-2]:
-            clearScreen(state)
+            clearScreen()
             print(frame)
             sleep(0.30)
         repeat_counter = 0
-        clearScreen(state)
+        clearScreen()
         while repeat_counter < 3:
             for frame in puzzle_frames[-2:]:
-                clearScreen(state)
+                clearScreen()
                 print(frame)
                 sleep(0.30)
             repeat_counter += 1
-        clearScreen(state)
+        clearScreen()
         print(puzzle_frames[6])

@@ -9,7 +9,9 @@
 import os
 from utilities.status_bar import update_status_bar
 
-def clearScreen(state):
+def clearScreen():
+    from main import state
+
     if os.getenv("PYCHARM_HOSTED"):
         print("\n" * 50)  # fallback for PyCharm
     else:
@@ -25,7 +27,7 @@ def chooseNextRoom(choices):
     try:
         index = int(choice) - 1
         if 0 <= index < len(choices):
-            clearScreen()  # ✅ Clear screen before entering the selected room
+            clearScreen()
             return choices[index]
         else:
             print("Invalid choice.")

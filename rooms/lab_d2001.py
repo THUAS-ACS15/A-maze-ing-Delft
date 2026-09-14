@@ -19,7 +19,7 @@ forklifts = [[], [], []]
 
 def enterLabD2001(state):
     # --- Room entry description ---
-    clearScreen(state)
+    clearScreen()
     state["visited"]["labd2001"] = True
     print("🧪 You enter Lab D2.001.")
     print("You find a work-in-progress construction project. Various materials and tools are laid out on the floor.")
@@ -28,7 +28,7 @@ def enterLabD2001(state):
 
     # Function to print puzzle instructions so we don't have to copy-paste 5 lines
     def print_puzzle_instructions():
-        clearScreen(state)
+        clearScreen()
         print(" First, type the kilogram value of one of the available boxes, and then the which of the forklifts to place it on.")
         print(f"    - Available boxes: {available_boxes}")
         print(f"    - Forklift 1: {forklifts[0]}")
@@ -109,7 +109,7 @@ def enterLabD2001(state):
                 print_puzzle_instructions()
         if box_puzzle_check():
             state["completed"]["labd2001"] = True
-            clearScreen(state)
+            clearScreen()
             print('Looks like you stacked the boxes correctly, congratulations!')
 
     # --- Main command loop ---
@@ -117,11 +117,11 @@ def enterLabD2001(state):
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen(state)
+            clearScreen()
             handle_look()
 
         elif command == "?":
-            clearScreen(state)
+            clearScreen()
             handle_help()
 
         elif command.startswith("go "):
@@ -134,10 +134,10 @@ def enterLabD2001(state):
             handle_puzzle_start()
 
         elif command == "quit":
-            clearScreen(state)
+            clearScreen()
             print("👋 You sit on one of the chairs in the Lab and close your eyes. Game over.")
             sys.exit()
 
         else:
-            clearScreen(state)
+            clearScreen()
             print("❓ Unknown command. Type '?' to see available commands.")
