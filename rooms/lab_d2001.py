@@ -124,8 +124,21 @@ def enterLabD2001(state: dict) -> str:
         print("- quit                : Quit the game completely.")
 
     def handleGo(destination: str) -> str:
-        """Handle movement out of the room."""
-        if destination in ["lobby", "back"]:
+        """
+        Handles movement out of the room.
+        
+        This function checks if the player can move to the given destination from this room.
+        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+
+        Inputs:
+            - destination (str): The destination the player wants to go to.
+        
+        Outputs:
+            - location (str): The destination if valid, None otherwise.
+        """
+        valid_destinations = ["lobby", "back"]
+        
+        if destination in valid_destinations:
             print("You decide to get out of the lab and return to the lobby.")
             return "lobby"
         else:
@@ -133,9 +146,24 @@ def enterLabD2001(state: dict) -> str:
             return None
 
     def handlePuzzleStart() -> None:
-        showActivityAnimation("puzzle", state)
+        """
+        Handles starting the box stacking puzzle.
+
+        This function starts the box stacking puzzle by showing an animation, printing the puzzle instructions,
+        and allowing the player to input their choices for stacking boxes on forklifts until the puzzle is solved correctly.
+
+        Once the puzzle is solved, it updates the state dict to mark the puzzle as completed.
+
+        Inputs: NONE
+
+        Outputs: NONE
+        """
+
+        showActivityAnimation("puzzle")
         sleep(1)
         printPuzzleInstructions()
+
+        # Loops until function returns true, i.e. if puzzle is completed
         while boxPuzzleCheck() != True:
             try:
                 box = input("\nChoose a box > ").strip().lower()
@@ -144,6 +172,8 @@ def enterLabD2001(state: dict) -> str:
                 printPuzzleInstructions()
                 continue
 
+            # Check if box exists in available_boxes, same with forklift, if both pass
+            # then add box to forklift and remove from available_boxes
             if box.isnumeric() and box_int in available_boxes:
                 printPuzzleInstructions()
                 try:
@@ -159,6 +189,8 @@ def enterLabD2001(state: dict) -> str:
                     printPuzzleInstructions()
             else:
                 printPuzzleInstructions()
+
+        # When loop exits, re-check if solve is valid and then set room as completed
         if boxPuzzleCheck():
             state["completed"]["labd2001"] = True
             clearScreen()
