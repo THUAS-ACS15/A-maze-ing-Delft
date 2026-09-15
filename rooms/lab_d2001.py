@@ -115,7 +115,7 @@ def enterLabD2001(state: dict) -> str:
         Outputs: NONE
         """
 
-        print("\nAvailable commands:")
+        print("Available commands:")
         print("- look around         : Examine the room for clues.")
         if not state["completed"]["labd2001"]:
             print("- start stacking      : Try stacking the boxes.")
