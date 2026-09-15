@@ -190,11 +190,14 @@ def enterLabD2001(state: dict) -> str:
             else:
                 printPuzzleInstructions()
 
-        # When loop exits, re-check if solve is valid and then set room as completed
+        # When loop exits, re-check if solve is valid and then set room as
         if boxPuzzleCheck():
             state["completed"]["labd2001"] = True
+            state["coin_balance"] += 10
             clearScreen()
-            print('Looks like you stacked the boxes correctly, congratulations!')
+            print("Looks like you stacked the boxes correctly, congratulations!")
+            print("You hear a loud \"click\" sound, and one of the boxes falls open.")
+            print("Inside, you find some coins, which you pick up. (+10 coins)")
 
     # +--------------+
     # | Command loop |

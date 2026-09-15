@@ -22,12 +22,12 @@ def updateStatusBar(state: dict) -> None:
     room_name = room_fancy_names[current_room]
     time_played = math.ceil(time.time() - state["start_time"])
     if current_room in ["lobby"]:
-        room_completion = "⭐ Special Room              "
+        room_completion = "⭐ Special Room             "
     else:
         if state["completed"][current_room]:
-            room_completion = "✅ Room complete!       "
+            room_completion = "✅ Room complete!      "
         else:
-            room_completion = "❌ Room not complete.   "
+            room_completion = "❌ Room not complete.  "
 
-    print(f"{room_name} | {room_completion}                                                                       ⌛ {time_played}s")
+    print(f"{room_name} | {room_completion}                                                                  🪙 {state['coin_balance']} ⌛ {time_played}s")
     print("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████\n")

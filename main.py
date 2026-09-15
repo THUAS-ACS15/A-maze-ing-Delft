@@ -16,6 +16,7 @@ state = {
     "current_room": "lobby",
     "previous_room": "lobby",
     "start_time": start_time,
+    "coin_balance": 0,
     "visited": {
         "labd2001": False,
         "projectroom2": False,
