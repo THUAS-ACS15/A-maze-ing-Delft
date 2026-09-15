@@ -6,7 +6,7 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
-from rooms import enterLobby, enterLabD2001, enterTeachersRoom1
+from rooms import enterLobby, enterLabD2001, enterTeachersRoom1, enterTeachersRoom2
 from utilities.clear_screen import clearScreen
 import time
 
@@ -47,6 +47,8 @@ while True:
         state["current_room"] = enterLabD2001(state)
     elif current == "teachersroom1":
         state["current_room"] = enterTeachersRoom1(state)
+    elif current == "teachersroom2":
+        state["current_room"] = enterTeachersRoom2(state)
 
     else:
         print("Unknown room. Exiting game.")
