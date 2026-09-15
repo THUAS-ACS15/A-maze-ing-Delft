@@ -16,7 +16,7 @@ def enterLobby(state):
     print("You see a long corridor with many doors and glass walls on both side. Behind these door are rooms, waiting to be explored.")
 
     # --- List of accessible rooms from here ---
-    available_rooms = ["labd2001", "teachersroom1"]
+    available_rooms = ["labd2001", "teachersroom1", "teachersroom2"]
 
     # --- Command handlers ---
 
@@ -46,7 +46,7 @@ def enterLobby(state):
             state["previous_room"] = "corridor"
             return room
         else:
-            print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")
+            print(f" '{room_name}' is not a valid exit. Use 'look around' to see available options.")
             return None
 
     # --- Main corridor command loop ---
