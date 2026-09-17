@@ -54,11 +54,45 @@ def calculateTimePlayed(start_time: float) -> str:
 
     return final_time
 
+def getExplorationPercent(state: dict) -> float:
+    """
+    Calculates the percentage of the map that has been explored.
+
+    This function takes the state dict and calculates the percentage of the map that has been explored by counting the number of completed rooms and dividing by the total number of rooms.
+
+    Inputs:
+        state (dict): The current game state.
+
+    Outputs:
+        float: The percentage of the map that has been explored, rounded to 2 decimal places.
+    """
+    completed_dict = state["completed"]
+
+    total_rooms = len(completed_dict)
+    completed_rooms = sum(completed_dict.values()) # This counts the number of True values (i.e. completed rooms)
+
+    exploration_percent = (completed_rooms / total_rooms) * 100
+    exploration_percent = round(exploration_percent, 2) # Round to 2 decimals
+
+    return exploration_percent
+
 def updateStatusBar(state: dict) -> None:
+    """
+    Updates the status bar with the current room, completion status, coin balance, and time played.
+
+    This function takes the state dict and uses it to display the current room, the total exploration percentage,
+    whether the room is completed, the coin balance, and the time played since the start of the game.
+
+    Inputs:
+        - state (dict): The current game state.
+
+    Outputs: NONE
+    """
     current_room = state["current_room"]
     room_name = room_fancy_names[current_room]
     time_played = calculateTimePlayed(state["start_time"])
-
+    exploration_percent = getExplorationPercent(state)
+    
     # Starting / ending rooms don't have challenges, so display a special message for them
     if current_room in ["lobby"]:
         room_completion = "⭐ Special Room"
@@ -73,7 +107,7 @@ def updateStatusBar(state: dict) -> None:
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
-    left_status_data = f"{room_name} | {room_completion}"
+    left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion}"
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
     # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each
