@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 
 from .lobby import enterLobby
+from .store import enterStore
 from .lab_d2001 import enterLabD2001
 from .teachersroom1 import enterTeachersRoom1
 from .teachersroom2 import enterTeachersRoom2
