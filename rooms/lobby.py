@@ -13,10 +13,10 @@ from utilities.clear_screen import clearScreen
 def enterLobby(state):
     clearScreen()
     print("🚶 You are standing in the school's main lobby.")
-    print("You see a long corridor with many doors and glass walls on both side. Behind these door are rooms, waiting to be explored.")
+    print("You see a long corridor with many doors and glass walls on both side. Behind these doors are rooms, waiting to be explored.")
 
     # --- List of accessible rooms from here ---
-    available_rooms = ["labd2001", "teachersroom1", "teachersroom2"]
+    available_rooms = ["labd2001", "store", "teachersroom1", "teachersroom2"]
 
     # --- Command handlers ---
 
@@ -26,7 +26,7 @@ def enterLobby(state):
         print("You take a look around.")
         print("Students and teachers are walking in both directions along the corridor. You see several labeled doors.")
         print(f"- Possible doors: {', '.join(available_rooms)}")
-        print("- You current inventory:", state["inventory"])
+        print("- Your current inventory:", state["inventory"])
 
     def handle_help():
         clearScreen()
