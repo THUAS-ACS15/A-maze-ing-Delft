@@ -16,7 +16,7 @@ state = {
     "current_room": "lobby",
     "previous_room": "lobby",
     "start_time": start_time,
-    "coin_balance": 9999,
+    "coin_balance": 0,
     # FORMAT: item name, price
     "store_available_items": [
         ["Eeyore plushie", 25],
