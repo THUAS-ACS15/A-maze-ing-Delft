@@ -99,10 +99,13 @@ def updateStatusBar(state: dict) -> None:
         room_completion = "⭐ Special Room"
     # If the room is a challenge room, display whether the room is marked as completed in the state dict
     else:
-        if state["completed"][current_room]:
-            room_completion = "✅ Room complete!"
-        else:
-            room_completion = "❌ Room not complete."
+        try:
+            if state["completed"][current_room]:
+                room_completion = "✅ Room complete!"
+            else:
+                room_completion = "❌ Room not complete."
+        except KeyError:
+            room_completion = "⚠️ ROOM NOT IN STATE DICT"
 
     # Get terminal size, while falling back to the default of 126x20, we only need columns though
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
