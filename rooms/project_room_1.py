@@ -8,7 +8,6 @@ except ImportError:
         import os
         os.system("cls" if os.name == "nt" else "clear")
 
-# Status bar utility (tracks timer, player name, and exploration %)
 try:
     import utilities.status_bar as sb
     if hasattr(sb, "display_status_bar"):
@@ -62,14 +61,14 @@ def show_local_inventory(game_state):
 
 
 def display_room_header():
-    """Prints the title header for Project Room 1."""
+
     print("=" * 64)
     print("           PROJECT ROOM 1 - ESCAPE PROFESSOR VANCE           ")
     print("=" * 64)
 
 
 def show_help_menu():
-    """Displays available commands matching the original design."""
+
     print("\n--- HELP MENU ---")
     print("COMMANDS:")
     print("  look around                    - Inspect where you are right now")
@@ -82,11 +81,15 @@ def show_help_menu():
 
 
 def project_room_1(game_state):
-        if "rooms" in game_state and isinstance(game_state["rooms"], dict):
+    if "rooms" in game_state and isinstance(game_state["rooms"], dict):
         game_state["rooms"]["project_room_1"] = True
+
+    # 2. Shared inventory reference
     if "inventory" not in game_state or not isinstance(game_state["inventory"], list):
         game_state["inventory"] = []
     inventory = game_state["inventory"]
+
+    # 3. Persistent state for Sadanand's original room elements
     if "project_room_1_state" not in game_state:
         game_state["project_room_1_state"] = {
             "location": "room",
@@ -102,7 +105,6 @@ def project_room_1(game_state):
         }
 
     room_state = game_state["project_room_1_state"]
-    location = room_state["location"]
     corner_items = room_state["corner_items"]
     lockers = room_state["lockers"]
 
@@ -111,8 +113,6 @@ def project_room_1(game_state):
     # 4. Main Command Loop
     while True:
         clear_screen()
-
-        # Shared Status Bar (shows player name, timer, and exploration %)
         if display_status_bar is not None:
             try:
                 display_status_bar(game_state)
@@ -125,7 +125,7 @@ def project_room_1(game_state):
             print(f"\n{feedback_message}\n")
             feedback_message = ""
 
-        # Command prompt
+        location = room_state["location"]
         cmd = input(f"Project Room 1 [{location}] > ").strip().lower()
 
         # Quit
@@ -144,22 +144,18 @@ def project_room_1(game_state):
 
         # Movement commands
         elif cmd in ["go to board", "board"]:
-            location = "board"
             room_state["location"] = "board"
             feedback_message = "You walk to the front of the class near the whiteboard."
 
         elif cmd in ["go to desks", "desks"]:
-            location = "desks"
             room_state["location"] = "desks"
             feedback_message = "You walk over between the student desks."
 
         elif cmd in ["go to corner", "corner"]:
-            location = "corner"
             room_state["location"] = "corner"
             feedback_message = "You walk over to the messy corner pile."
 
         elif cmd in ["go to room", "room", "go back"]:
-            location = "room"
             room_state["location"] = "room"
             feedback_message = "You return to the center of the classroom facing the 5 lockers."
 
