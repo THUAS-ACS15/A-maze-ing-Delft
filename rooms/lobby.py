@@ -44,7 +44,7 @@ def enterLobby(state):
         print("You take a look around.")
         print("Students and teachers are walking in both directions along the corridor. You see several labeled doors:")
         print(f"- Possible doors: {', '.join(available_rooms)}")
-        print(f"- Your inventory: {state["inventory"]}")
+        print(f"- Your inventory: {state['inventory']}")
 
     def handle_help():
         """
