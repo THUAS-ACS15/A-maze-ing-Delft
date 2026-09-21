@@ -7,244 +7,372 @@
 # Contributors: Sadanand
 # -----------------------------------------------------------------------------
 
-import time
+import sys
+from time import sleep
+from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
 
+# Loose items in the pile of broken furniture in the corner.
+# The brass key in here is what opens locker 2.
+corner_items = ["marker", "lecture notes", "brass key"]
 
-def showHelp() -> str:
-    """
-    Builds the help menu text.
-
-    Returns the text instead of printing it, so the caller can show it
-    through the feedback panel and it stays on screen after the redraw.
-
-    Inputs: NONE
-
-    Outputs:
-        - str: the formatted help menu.
-    """
-    return (
-        "--- HELP MENU ---\n"
-        "  look around                     - Inspect where you are right now\n"
-        "  go to <board/desks/corner/room> - Move to a specific area to search\n"
-        "  take <item>                     - Pick up an item you spotted\n"
-        "  inventory                       - View carried items in your backpack\n"
-        "  open locker <1-5>               - Attempt to unlock a locker\n"
-        "  unlock door / escape            - Swipe the master keycard for the full escape\n"
-        "  go lobby / back / leave         - Walk out and return to the Lobby\n"
-        "  quit                            - Exit the game"
-    )
-
-
-def describe(location: str, data: dict) -> str:
-    """
-    Builds the description of the area the player is standing in.
-
-    Returns the text instead of printing it, so it can be passed back as
-    feedback and survive the next clearScreen() call.
-
-    Inputs:
-        - location (str): the area the player is in (room/board/desks/corner).
-        - data (dict): this room's saved data from the game state.
-
-    Outputs:
-        - str: the description of that area.
-    """
-    corner_items = data["corner_items"]
-
-    if location == "board":
-        return (
-            "You look closely at the whiteboard:\n"
-            "  Main Challenge: Box A: 2+6*30 | Box B: (2+6)*3 | Box C: 36/6+2\n"
-            "  Bonus scratch in the bottom corner: '(10 + 10) / 2'"
-        )
-
-    if location == "desks":
-        return "You check the desks. Carved into the side of desk #3 you spot: '50 - 5 * 4'."
-
-    if location == "corner":
-        text = "You dig into the pile. On the chair you spot a sticker: '2^4 + 3 * 10'."
-        if corner_items:
-            text += "\nLying around in the pile: " + ", ".join(corner_items)
-        else:
-            text += "\nNo more loose items left in the pile."
-        return text
-
-    return (
-        "Front: Prof Vance standing by the whiteboard.\n"
-        "Center: Rows of wooden student desks.\n"
-        "Back wall: 5 metal lockers (1 to 5) and the exit door.\n"
-        "Corner: A messy pile of broken desks and chairs.\n"
-        "(Move closer with 'go to board', 'go to desks' or 'go to corner')\n"
-        "Exits: the door back to the Lobby ('go lobby')."
-    )
+# The five lockers on the back wall.
+#   code  : what the player has to type in, worked out from a BODMAS clue
+#           hidden somewhere in the room. Locker 2 has no code, it takes the key.
+#   coins : money inside, which is added straight to the coin balance
+#   item  : an object that goes into the inventory, or None
+# Every clue in this room maps to exactly one locker, so nothing is a dead end.
+lockers = {
+    "1": {"open": False, "code": 182, "coins": 50, "item": None},
+    "2": {"open": False, "code": None, "coins": 0,  "item": "master keycard"},
+    "3": {"open": False, "code": 24,  "coins": 20, "item": None},
+    "4": {"open": False, "code": 30,  "coins": 0,  "item": None},
+    "5": {"open": False, "code": 46,  "coins": 0,  "item": "equinox membership card"}
+}
 
 
 def enterProjectRoom1(state: dict) -> str:
     """Starter function for Project Room 1."""
 
-    state["current_room"] = "projectroom1"
+    clearScreen()
     state["visited"]["projectroom1"] = True
+    print("🔐 You walk into Project Room 1 and the door clicks shut behind you.")
+    print("Professor Vance is at the front, capping a whiteboard marker.")
+    print("\"Ah. Five lockers, five combinations, and every number you need is")
+    print("somewhere in this room. Nobody takes the prize without earning it.\"")
+    print("He shrugs. \"You can walk out any time, of course. Most of them do.\"")
 
-    if "projectroom1_data" not in state:
-        state["projectroom1_data"] = {
+    # Progress is stored in the state dict so it survives leaving and returning.
+    if "projectroom1_progress" not in state:
+        state["projectroom1_progress"] = {
             "location": "room",
-            "corner_items": ["pen", "marker", "notes", "key"],
-            "lockers": {
-                "1": {"open": False, "code": "182", "item": "50 euro"},
-                "2": {"open": False, "code": "key", "item": "master keycard"},
-                "3": {"open": False, "code": "30",  "item": None},
-                "4": {"open": False, "code": "46",  "item": "50 euro"},
-                "5": {"open": False, "code": "10",  "item": None}
-            },
-            "door_unlocked": False
+            "money_found": 0
         }
 
-    data = state["projectroom1_data"]
-    lockers = data["lockers"]
-    corner_items = data["corner_items"]
+    progress = state["projectroom1_progress"]
 
-    feedback = (
-        "Professor Vance glances up from his desk: 'Nobody gets the prize without solving "
-        "the lockers. You may leave whenever you like, though.'\n"
-        "Type 'help' for the list of commands."
-    )
+    # +-------------------------+
+    # | Puzzle helper functions |
+    # +-------------------------+
 
-    while True:
-        clearScreen()
+    def printLockerWall() -> None:
+        """
+        Helper function to print the state of the five lockers.
 
-        print("=" * 64)
-        print("           PROJECT ROOM 1 - ESCAPE PROFESSOR VANCE           ")
-        print("=" * 64)
+        This function draws each locker with an open or closed marker, so the
+        player can see at a glance which ones they have already cracked.
 
-        location = data["location"]
-        print(f"\nYou are at: {location}")
+        Inputs: NONE
 
-        if feedback:
-            print(f"\n{feedback}\n")
-            feedback = ""
+        Outputs: NONE
+        """
 
-        cmd = input(f"Project Room 1 [{location}] > ").strip().lower()
-
-        if cmd == "quit":
-            return "quit"
-
-        elif cmd in ["help", "?"]:
-            feedback = showHelp()
-
-        elif cmd in ["inventory", "inv", "backpack"]:
-            carried = ", ".join(state["inventory"]) if state["inventory"] else "empty"
-            feedback = (
-                f"Your backpack: {carried}\n"
-                f"Current coin balance: €{state.get('coin_balance', 0)}"
-            )
-
-        elif cmd in ["go to board", "board"]:
-            data["location"] = "board"
-            feedback = "You walk to the front of the class near the whiteboard.\n\n" + describe("board", data)
-
-        elif cmd in ["go to desks", "desks"]:
-            data["location"] = "desks"
-            feedback = "You walk over between the student desks.\n\n" + describe("desks", data)
-
-        elif cmd in ["go to corner", "corner"]:
-            data["location"] = "corner"
-            feedback = "You walk over to the messy corner pile.\n\n" + describe("corner", data)
-
-        elif cmd in ["go to room", "room", "go back", "back to room"]:
-            data["location"] = "room"
-            feedback = "You return to the centre of the classroom facing the 5 lockers.\n\n" + describe("room", data)
-
-        elif cmd in ["look around", "look"]:
-            feedback = describe(location, data)
-
-        elif cmd.startswith("take "):
-            item = cmd.replace("take ", "").strip()
-            if location != "corner":
-                feedback = "There are no loose items to pick up here. Try searching the corner pile!"
-            elif item in corner_items:
-                corner_items.remove(item)
-                state["inventory"].append(item)
-                feedback = f"You picked up: {item}"
+        print("    Back wall:")
+        for number in ["1", "2", "3", "4", "5"]:
+            if lockers[number]["open"]:
+                print(f"    - Locker {number}: 🔓 hanging open.")
             else:
-                feedback = f"'{item}' isn't in the corner pile."
+                print(f"    - Locker {number}: 🔒 shut.")
 
-        elif cmd.startswith("open locker") or cmd.startswith("unlock locker"):
-            parts = cmd.split()
-            if len(parts) >= 3 and parts[-1].isdigit():
-                num = parts[-1]
+    def describeArea(location: str) -> None:
+        """
+        Prints the description of whichever part of the room the player is in.
+
+        Each area of the room hides one or more of the BODMAS clues needed for
+        the locker codes, so this is where the puzzle information lives.
+
+        Inputs:
+            - location (str): the area the player is standing in
+              (room, board, desks or corner).
+
+        Outputs: NONE
+        """
+
+        if location == "board":
+            print("You step up to the whiteboard. Vance's handwriting is terrible.")
+            print("    \"LOCKER 1:  2 + 6 * 30\"")
+            print("    \"LOCKER 3:  (2 + 6) * 3\"")
+            print("(Two more codes are written somewhere else in the room.)")
+
+        elif location == "desks":
+            print("You walk between the rows of wooden student desks.")
+            print("Someone has carved into the side of desk #3, deep enough to feel:")
+            print("    \"LOCKER 4:  50 - 5 * 4\"")
+
+        elif location == "corner":
+            print("You dig through the pile of broken desks and chairs.")
+            print("There's a sticker peeling off the back of a snapped chair:")
+            print("    \"LOCKER 5:  2 ** 4 + 3 * 10\"")
+            if corner_items:
+                print("Half buried in the pile:", ", ".join(corner_items))
             else:
-                num = input("Which locker do you want to open (1-5)? > ").strip()
+                print("Nothing else worth pulling out of the pile.")
 
-            if num not in lockers:
-                feedback = "Invalid locker number. Choose a locker from 1 to 5."
-                continue
+        else:
+            print("You are standing in the middle of the room.")
+            print("Front: Professor Vance, waiting by the whiteboard ('go to board').")
+            print("Centre: rows of wooden student desks ('go to desks').")
+            print("Corner: a pile of broken desks and chairs ('go to corner').")
+            printLockerWall()
+            print("Next to the lockers is the exit door, with a card scanner beside it.")
 
-            lock = lockers[num]
-            if lock["open"]:
-                feedback = f"Locker {num} is already wide open."
-                continue
+    # +------------------+
+    # | Command handlers |
+    # +------------------+
 
-            if num == "2":
-                if "key" in state["inventory"]:
-                    lock["open"] = True
-                    found_item = lock["item"]
-                    state["inventory"].append(found_item)
-                    feedback = (
-                        "You insert the brass key from the corner. Click! Locker 2 opens!\n"
-                        f"Inside you found: {found_item}! (Added to inventory)"
-                    )
-                else:
-                    feedback = "Locker 2 has a physical padlock. You need to find a key in the room!"
-            else:
-                code = input(f"Enter code for Locker {num}: ").strip()
-                if code == lock["code"]:
-                    lock["open"] = True
-                    if lock["item"]:
-                        found_item = lock["item"]
-                        state["inventory"].append(found_item)
-                        if found_item == "50 euro":
-                            state["coin_balance"] = state.get("coin_balance", 0) + 50
-                        feedback = (
-                            f"Click! Locker {num} unlocks!\n"
-                            f"Jackpot! You found: {found_item}! (Added to backpack and balance)"
-                        )
-                    else:
-                        feedback = f"Click! Locker {num} unlocks! It's completely empty... just old dust."
-                else:
-                    feedback = "Wrong code! Buzzer sounds: BZZT."
+    def handleLook() -> None:
+        """
+        Describes the current area and gives clues.
 
-        # --- The full escape: only this wins the room ---
-        elif cmd in ["unlock door", "open door", "escape", "swipe keycard"]:
-            if data["door_unlocked"] or "master keycard" in state["inventory"]:
-                data["door_unlocked"] = True
-                state["completed"]["projectroom1"] = True
-                clearScreen()
-                print("\nYou swipe the master keycard on the door scanner...")
-                print("BEEP! Green light! The exit door clicks open!")
-                money = state["inventory"].count("50 euro") * 50
-                print(f"You escaped Prof Vance's room with €{money} from the lockers!")
-                print("Stepping back out into the Lobby...")
-                time.sleep(1.5)
-                state["previous_room"] = "projectroom1"
-                return "lobby"
-            else:
-                feedback = (
-                    "The keycard scanner blinks red. You don't have the master keycard yet.\n"
-                    "(You can still walk out the normal way with 'go lobby' and come back later.)"
-                )
+        This function describes whichever part of the room the player has moved
+        to, and always shows the exits and the player's current inventory
+        underneath, the same as the other rooms in the game.
 
-        # --- Plain exit: always works, matches the other rooms ---
-        elif cmd in ["go lobby", "go to lobby", "lobby", "leave", "exit", "back", "go back to lobby", "out"]:
-            clearScreen()
+        Inputs: NONE
+
+        Outputs: NONE
+        """
+
+        describeArea(progress["location"])
+        print("- Possible exits: lobby")
+        print("- Your current inventory:", state["inventory"])
+
+    def handleHelp() -> None:
+        """
+        Lists available commands.
+
+        This function lists the available commands for the player to use in the room.
+
+        Inputs: NONE
+
+        Outputs: NONE
+        """
+
+        print("Available commands:")
+        print("- look around         : Examine wherever you're standing.")
+        print("- go to board         : Walk up to the whiteboard.")
+        print("- go to desks         : Walk between the student desks.")
+        print("- go to corner        : Search the pile of broken furniture.")
+        print("- go to room          : Step back to the middle of the room.")
+        print("- take <item>         : Pick up something from the corner pile.")
+        print("- open locker <1-5>   : Try a locker on the back wall.")
+        if not state["completed"]["projectroom1"]:
+            print("- swipe keycard       : Use the master keycard on the exit scanner.")
+        print("- go lobby / back     : Walk out the normal way, back to the corridor.")
+        print("- ?                   : Show this help message.")
+        print("- quit                : Quit the game completely.")
+
+    def handleTake(item: str) -> None:
+        """
+        Handles picking up an item from the corner pile.
+
+        Items can only be taken from the corner, so this function first checks
+        where the player is standing before checking the pile itself.
+
+        Inputs:
+            - item (str): The name of the item the player wants to take.
+
+        Outputs: NONE
+        """
+
+        if progress["location"] != "corner":
+            print("There's nothing loose to pick up here. Try the corner pile.")
+        elif item in corner_items:
+            corner_items.remove(item)
+            state["inventory"].append(item)
+            print(f"You pull the {item} out of the pile.")
+        else:
+            print(f"❌ There's no '{item}' in the pile.")
+
+    def handleGo(destination: str) -> str:
+        """
+        Handles movement, both inside the room and out of it.
+
+        Moving to an area inside the room updates the saved location and prints
+        the new description, and returns None so the command loop carries on.
+        Moving to the Lobby returns "lobby" so main.py switches rooms.
+
+        Inputs:
+            - destination (str): where the player wants to go.
+
+        Outputs:
+            - location (str): "lobby" if leaving, None otherwise.
+        """
+
+        # Areas inside the room, mapped to the phrasing the player might use
+        inside_areas = {
+            "to board": "board",
+            "board": "board",
+            "to desks": "desks",
+            "desks": "desks",
+            "to corner": "corner",
+            "corner": "corner",
+            "to room": "room",
+            "room": "room"
+        }
+
+        if destination in inside_areas:
+            progress["location"] = inside_areas[destination]
+            describeArea(progress["location"])
+            return None
+
+        if destination in ["lobby", "back"]:
             if state["completed"]["projectroom1"]:
-                print("\nYou stroll back out into the Lobby.")
+                print("You stroll back out into the Lobby, keycard in hand.")
             else:
-                print("\nYou push the door handle and slip out into the Lobby.")
-                print("Prof Vance calls after you: 'The lockers will still be here!'")
-            time.sleep(1.0)
+                print("You push the handle and slip out into the Lobby.")
+                print("Vance calls after you: \"The lockers will still be here!\"")
             state["previous_room"] = "projectroom1"
             return "lobby"
 
+        print(f"❌ You can't go to '{destination}' from here.")
+        return None
+
+    def handleOpenLocker(number: str) -> None:
+        """
+        Handles opening one of the five lockers on the back wall.
+
+        Locker 2 has a physical padlock and needs the brass key from the corner
+        pile. The other four take a numeric code worked out from a BODMAS clue.
+        Any money inside is added straight to the coin balance in the status bar,
+        and any object inside goes into the inventory.
+
+        Inputs:
+            - number (str): the locker number the player chose, as text.
+
+        Outputs: NONE
+        """
+
+        if number not in lockers:
+            print("❌ There are only five lockers, numbered 1 to 5.")
+            return
+
+        locker = lockers[number]
+
+        if locker["open"]:
+            print(f"Locker {number} is already hanging open.")
+            return
+
+        # Locker 2 is the odd one out: a padlock, not a keypad
+        if locker["code"] is None:
+            if "brass key" not in state["inventory"]:
+                print(f"Locker {number} has an old brass padlock on it, not a keypad.")
+                print("You'd need to find the key somewhere in this room.")
+                return
+            print("You try the brass key from the corner pile. Click, it turns.")
         else:
-            feedback = f"Unknown command: '{cmd}'. Type 'help' to see what you can do."
+            code = input(f"Enter the code for locker {number} > ").strip()
+
+            # Reject anything that isn't a plain number before comparing
+            if not code.isnumeric():
+                print("The keypad only takes digits.")
+                return
+
+            if int(code) != locker["code"]:
+                print("BZZT. The keypad flashes red and resets.")
+                print("Check your order of operations on that clue.")
+                return
+
+            print(f"Click. The keypad goes green and locker {number} swings open.")
+
+        locker["open"] = True
+
+        # Pay out whatever was inside
+        if locker["coins"] > 0:
+            state["coin_balance"] += locker["coins"]
+            progress["money_found"] += locker["coins"]
+            print(f"There's cash inside. (+{locker['coins']} coins)")
+
+        if locker["item"]:
+            state["inventory"].append(locker["item"])
+            print(f"You also find: {locker['item']}. (Added to your inventory)")
+
+        if locker["coins"] == 0 and locker["item"] is None:
+            print("Inside: one very old sandwich. You close the door again, quickly.")
+
+    def handleSwipeKeycard() -> str:
+        """
+        Handles the real escape: swiping the master keycard on the exit scanner.
+
+        Walking out through the normal door is always allowed, but only swiping
+        the keycard counts as completing the room. This function checks for the
+        keycard, marks the room complete, and returns "lobby" so main.py moves
+        the player on.
+
+        Inputs: NONE
+
+        Outputs:
+            - location (str): "lobby" on a successful escape, None otherwise.
+        """
+
+        if "master keycard" not in state["inventory"]:
+            print("The scanner blinks red. You haven't got the master keycard yet.")
+            print("It's locked away somewhere on that back wall.")
+            return None
+
+        showActivityAnimation("qte")
+        sleep(1)
+        clearScreen()
+
+        state["completed"]["projectroom1"] = True
+
+        print("You hold the master keycard against the scanner.")
+        print("BEEP. Green light. The bolt retracts and the exit door swings wide.")
+        print("")
+        print("Professor Vance actually applauds, once.")
+        print(f"\"{progress['money_found']} coins and my keycard. Go on, get out.\"")
+        print("")
+        print("Stepping back out into the Lobby...")
+
+        state["previous_room"] = "projectroom1"
+        return "lobby"
+
+    # +--------------+
+    # | Command loop |
+    # +--------------+
+
+    while True:
+        command = input("\n> ").strip().lower()
+
+        if command == "look around":
+            clearScreen()
+            handleLook()
+
+        elif command == "?":
+            clearScreen()
+            handleHelp()
+
+        elif command.startswith("take "):
+            clearScreen()
+            item = command[5:].strip()
+            handleTake(item)
+
+        elif command.startswith("go "):
+            clearScreen()
+            destination = command[3:].strip()
+            result = handleGo(destination)
+            if result:
+                return result
+
+        elif command.startswith("open locker"):
+            clearScreen()
+            # Everything after "open locker" is the number, e.g. "open locker 3"
+            number = command[11:].strip()
+            if not number:
+                number = input("Which locker (1-5)? > ").strip()
+            handleOpenLocker(number)
+
+        elif command in ["swipe keycard", "unlock door", "escape"]:
+            clearScreen()
+            result = handleSwipeKeycard()
+            if result:
+                return result
+
+        elif command == "quit":
+            clearScreen()
+            print("👋 You sit down at one of Vance's desks and give up. Game over.")
+            sys.exit()
+
+        else:
+            clearScreen()
+            print("❓ Unknown command. Type '?' to see available commands.")
