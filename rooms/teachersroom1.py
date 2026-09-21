@@ -4,11 +4,15 @@
 # Organization: THUAS
 # Location: Delft
 # Date: September 2026
-#Contribution: Made the base skeleton for fucntions and interactions, still need to connect them to the rest of the main code
+#Contribution: fixed status bar not updating
+
+import sys
+from utilities.clear_screen import clearScreen
 
 
+def enterTeachersRoom1(state: dict) -> str:
 
-def enterTeachersRoom1(state):
+    state["visited"]["teachesroom1"] = True
     print("\nYou step into Teachers Room 1.")
     print("A teacher is sat over a laptop, muttering under their breath at the screen.")
     print("Sticky notes covered in function names are scattered across the desk.")
@@ -83,32 +87,38 @@ def enterTeachersRoom1(state):
         else:
             print("The teacher shakes their head: \"Not quite. Think about how you check if a number is even.\"")
 
-    # --- Command loop ---
     while True:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
+            clearScreen()
             handle_look()
 
         elif command == "?":
+            clearScreen()
             handle_help()
 
         elif command.startswith("take "):
+            clearScreen()
             item = command[5:].strip()
             handle_take(item)
 
         elif command.startswith("go "):
+            clearScreen()
             destination = command[3:].strip()
             result = handle_go(destination)
             if result:
                 return result
 
         elif command.startswith("answer "):
+            clearScreen()
             answer = command[7:].strip()
             handle_answer(answer)
 
         elif command == "quit":
-            print("You leave the teacher to their code and exit the maze.")
+            clearScreen()
+            print("You leave the teacher to their code and exit the room.")
 
         else:
+            clearScreen()
             print("Unknown command. Type '?' to see available commands.")
