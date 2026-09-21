@@ -26,6 +26,7 @@ state = {
     "previous_room": "lobby",
     "start_time": start_time,
     "coin_balance": 0,
+    "student_id_obtained": False,
     "store_available_items": [
         ["Eeyore plushie", 25],
         ["Delft mug", 10],
