@@ -180,6 +180,9 @@ def enterProjectRoom2(state: dict) -> str:
             state["completed"]["projectroom2"] = True
             clearScreen()
             print("🌈 The slides light up in perfect rainbow order, congratulations!")
+            state["inventory"].append("labd2003keycard")
+            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it.")
+            print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
 
     # +--------------+
     # | Command loop |
