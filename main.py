@@ -16,7 +16,6 @@ from rooms import (
     enterTeachersRoom2,
     enterProjectRoom1,
     enterProjectRoom2,
-    enterProjectRoom2,
     enterFrontDesk,
     enterClassroomD2015,
     enterClassroomD2035
@@ -89,20 +88,16 @@ while True:
     elif current == "projectroom2":
         state["current_room"] = enterProjectRoom2(state)
 
-    elif current in ["projectroom1", "project_room_1"]:
+    elif current == "projectroom1":
         state["current_room"] = enterProjectRoom1(state)
 
-    elif current in ["frontdesk", "front_desk"]:
+    elif current == "frontdesk":
         state["current_room"] = enterFrontDesk(state)
 
-    elif current in ["classroomd2015", "classroom_d2.015", "classroom_d2015"]:
-        if enterClassroomD2015:
-            state["current_room"] = enterClassroomD2015(state)
-        else:
-            print("Classroom D2.015 could not be loaded.")
-            state["current_room"] = "lobby"
+    elif current == "classroomd2015":
+        state["current_room"] = enterClassroomD2015(state)
 
-    elif current in ["classroomd2035", "classroom_d2035", "classroom_d2.035"]:
+    elif current == "classroomd2035":
         state["current_room"] = enterClassroomD2035(state)
 
     elif current in ["quit", "exit"]:
