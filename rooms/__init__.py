@@ -5,31 +5,31 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
-import importlib
 
-from .lobby import lobby
-from .project_room_1 import project_room_1
-from .lab_d2001 import lab_d2001
-from .store import store
-from .teachersroom1 import teachersroom1
-from .teachersroom2 import teachersroom2
+import importlib.util
+from pathlib import Path
 
-try:
-    from .front_desk import front_desk
-except Exception:
-    front_desk = None
+from .lobby import enterLobby
+from .store import enterStore
+from .lab_d2001 import enterLabD2001
+from .teachersroom1 import enterTeachersRoom1
+from .teachersroom2 import enterTeachersRoom2
 
-try:
-    from .project_room_2 import project_room_2
-except Exception:
-    project_room_2 = None
+from .project_room_1 import enterProjectRoom1
+from .front_desk import enterFrontDesk
 
-# Dynamically import classroom_d2.015 since it contains a dot in the filename
-try:
-    d2015_module = importlib.import_module(".classroom_d2.015", package=__name__)
-    classroom_d2_015 = getattr(d2015_module, "classroom_d2_015", getattr(d2015_module, "classroom_d2015", None))
-except Exception:
-    try:
-        from .classroom_d2_015 import classroom_d2_015
-    except Exception:
-        classroom_d2_015 = None
+enterClassroomD2015 = None
+_current_dir = Path(__file__).parent
+
+for candidate_filename in ["classroom_d2.015.py", "classroom_d2_015.py"]:
+    candidate_path = _current_dir / candidate_filename
+    if candidate_path.exists():
+        try:
+            spec = importlib.util.spec_from_file_location("classroom_d2_015", str(candidate_path))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            enterClassroomD2015 = getattr(mod, "enterClassroomD2015", None)
+            if enterClassroomD2015 is not None:
+                break
+        except Exception:
+            pass
