@@ -26,12 +26,10 @@ state = {
     "previous_room": "lobby",
     "start_time": start_time,
     "coin_balance": 0,
-    # FORMAT: item name, price
     "store_available_items": [
         ["Eeyore plushie", 25],
         ["Delft mug", 10],
     ],
-    # Registered rooms for exploration % (Fixes BUG-06)
     "visited": {
         "lobby": True,
         "labd2001": False,
@@ -43,7 +41,6 @@ state = {
         "frontdesk": False,
         "classroomd2015": False
     },
-    # Puzzle completion tracking
     "completed": {
         "labd2001": False,
         "store": False,
@@ -77,8 +74,6 @@ while True:
     elif current == "teachersroom2":
         state["current_room"] = enterTeachersRoom2(state)
 
-    
-    # Aliases included defensively so slight naming variations never crash the loop
     elif current in ["projectroom1", "project_room_1"]:
         state["current_room"] = enterProjectRoom1(state)
 
@@ -89,7 +84,7 @@ while True:
         if enterClassroomD2015:
             state["current_room"] = enterClassroomD2015(state)
         else:
-            print("Classroom D2.015 module could not be loaded.")
+            print("Classroom D2.015 could not be loaded.")
             state["current_room"] = "lobby"
 
     elif current in ["quit", "exit"]:
@@ -97,5 +92,6 @@ while True:
         break
 
     else:
-        print(f"Unknown room '{current}'. Exiting game.")
-        break
+        print(f"Unknown room '{current}'. Returning to Lobby...")
+        time.sleep(1.0)
+        state["current_room"] = "lobby"
