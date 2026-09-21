@@ -16,7 +16,7 @@ def enterLobby(state):
     print("You see a long corridor with many doors and glass walls on both side. Behind these door are rooms, waiting to be explored.")
 
     # --- List of accessible rooms from here ---
-    available_rooms = ["labd2001", "teachersroom1", "teachersroom2"]
+    available_rooms = ["labd2001", "teachersroom1", "teachersroom2", "projectroom1", "projectroom2"]
 
     # --- Command handlers ---
 
