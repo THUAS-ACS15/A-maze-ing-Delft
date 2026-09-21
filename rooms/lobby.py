@@ -14,6 +14,8 @@ def enterLobby(state):
     clearScreen()
     print("🚶 You are standing in the school's main lobby.")
     print("You see a long corridor with many doors and glass walls on both side. Behind these doors are rooms, waiting to be explored.")
+    if not state["student_id_obtained"]:
+        print("You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one.")
 
     # --- List of accessible rooms from here ---
     available_rooms = ["labd2001", "store", "teachersroom1", "teachersroom2"]
