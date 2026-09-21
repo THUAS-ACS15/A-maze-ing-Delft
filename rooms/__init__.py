@@ -14,6 +14,7 @@ from .store import enterStore
 from .lab_d2001 import enterLabD2001
 from .teachersroom1 import enterTeachersRoom1
 from .teachersroom2 import enterTeachersRoom2
+from .classroom_d2035 import enterClassroomD2035
 
 from .project_room_1 import enterProjectRoom1
 from .front_desk import enterFrontDesk
