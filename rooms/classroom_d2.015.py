@@ -1,92 +1,33 @@
 import time
-
-try:
-    from utilities.clear_screen import clear_screen
-except ImportError:
-    def clear_screen():
-        import os
-        os.system("cls" if os.name == "nt" else "clear")
+from utilities.clear_screen import clearScreen
 
 try:
     import utilities.status_bar as sb
-    if hasattr(sb, "display_status_bar"):
-        display_status_bar = sb.display_status_bar
-    elif hasattr(sb, "status_bar"):
-        display_status_bar = sb.status_bar
-    else:
-        display_status_bar = None
-except ImportError:
-    display_status_bar = None
-
-try:
-    import utilities.inventory_viewer as iv
-    if hasattr(iv, "display_inventory"):
-        show_inventory = iv.display_inventory
-    elif hasattr(iv, "show_inventory"):
-        show_inventory = iv.show_inventory
-    elif hasattr(iv, "view_inventory"):
-        show_inventory = iv.view_inventory
-    else:
-        show_inventory = None
-except ImportError:
-    show_inventory = None
+    statusBar = getattr(sb, "statusBar", getattr(sb, "display_status_bar", None))
+except Exception:
+    statusBar = None
 
 
-def show_local_inventory(game_state):
-    """Displays items currently in the shared backpack."""
-    inventory = game_state.get("inventory", [])
-    if show_inventory is not None:
-        try:
-            show_inventory(inventory)
-            return
-        except TypeError:
-            try:
-                show_inventory(game_state)
-                return
-            except Exception:
-                pass
-
-    print("\n--- INVENTORY ---")
-    if not inventory:
-        print("Your backpack is currently empty.")
-    else:
-        for item in inventory:
-            if isinstance(item, dict):
-                print(f"- {item.get('name', 'Item')}: {item.get('description', '')}")
-            else:
-                print(f"- {item}")
-    print("-----------------\n")
-
-
-def show_help():
-    """Displays commands matching the original script."""
+def showHelp():
     print("\n--- HELP MENU ---")
     print("COMMANDS:")
-    print("  look around               - Inspect your current surroundings")
+    print("  look around              - Inspect your current surroundings")
     print("  go to <bench/track/room> - Move to a specific workstation")
-    print("  take <item>               - Pick up an item from the workbench")
-    print("  inventory                 - View items in your backpack")
-    print("  set power <val>           - Set the DC power supply voltage")
-    print("  calibrate rover <val>     - Send the IR frequency code to the rover")
-    print("  start rover               - Run the rover after setting power and frequency")
-    print("  go lobby / leave          - Exit back to the Lobby")
-    print("  quit                      - Exit game\n")
+    print("  take <item>              - Pick up an item from the workbench")
+    print("  inventory                - View items in your backpack")
+    print("  set power <val>          - Set the DC power supply voltage")
+    print("  calibrate rover <val>    - Send the IR frequency code to the rover")
+    print("  start rover              - Run the rover after setting power and frequency")
+    print("  go lobby                 - Return back to the Lobby")
+    print("  quit                     - Exit game\n")
 
 
-def classroom_d2_015(game_state):
-    """
-    Main loop for Classroom D2.015.
-    Preserves Sadanand's original rover puzzle and workstation navigation.
-    """
-    if "rooms" in game_state and isinstance(game_state["rooms"], dict):
-        game_state["rooms"]["classroom_d2.015"] = True
+def enterClassroomD2015(state):
+    state["current_room"] = "classroomd2015"
+    state["visited"]["classroomd2015"] = True
 
-    if "inventory" not in game_state or not isinstance(game_state["inventory"], list):
-        game_state["inventory"] = []
-    inventory = game_state["inventory"]
-
-    if "classroom_d2015_state" not in game_state:
-        game_state["classroom_d2015_state"] = {
+    if "classroomd2015_data" not in state:
+        state["classroomd2015_data"] = {
             "location": "room",
             "bench_items": ["usb cable", "resistor", "multimeter"],
             "power_set": False,
@@ -94,67 +35,64 @@ def classroom_d2_015(game_state):
             "rover_fixed": False
         }
 
-    lab_state = game_state["classroom_d2015_state"]
-    bench_items = lab_state["bench_items"]
+    data = state["classroomd2015_data"]
+    bench_items = data["bench_items"]
 
-    feedback_message = (
-        "=== CLASSROOM D2.015: EMBEDDED SYSTEMS LAB ===\n"
-        "You enter D2.015. A test arena dominates the room with a small robot rover stuck inside.\n"
-        "The door lock is humming. Type 'help' at any time to see commands."
-    )
+    feedback = "You enter D2.015. A test arena dominates the room with a small robot rover stuck inside."
 
     while True:
-        clear_screen()
-        if display_status_bar is not None:
+        clearScreen()
+        if statusBar:
             try:
-                display_status_bar(game_state)
+                statusBar(state)
             except Exception:
                 pass
 
         print("=" * 64)
-        print("           CLASSROOM D2.015: EMBEDDED SYSTEMS LAB             ")
+        print("           CLASSROOM D2.015: EMBEDDED SYSTEMS LAB            ")
         print("=" * 64)
 
-        if feedback_message:
-            print(f"\n{feedback_message}\n")
-            feedback_message = ""
+        if feedback:
+            print(f"\n{feedback}\n")
+            feedback = ""
 
-        cmd = input(f"D2.015 [{lab_state['location']}] > ").strip().lower()
+        location = data["location"]
+        cmd = input(f"D2.015 [{location}] > ").strip().lower()
 
         if cmd == "quit":
             return "quit"
 
         elif cmd == "help":
-            show_help()
+            showHelp()
             input("Press Enter to continue...")
 
-        elif cmd in ["inventory", "i", "inv"]:
-            show_local_inventory(game_state)
-            input("Press Enter to return...")
+        elif cmd in ["inventory", "inv"]:
+            print("\nYour backpack:", state["inventory"] if state["inventory"] else "empty")
+            print(f"Current coin balance: €{state.get('coin_balance', 0)}")
+            input("\nPress Enter to continue...")
 
         elif cmd in ["go to bench", "bench"]:
-            lab_state["location"] = "bench"
-            feedback_message = "You step up to the messy electronics workbench. Type 'look around'."
+            data["location"] = "bench"
+            feedback = "You step up to the messy electronics workbench."
 
         elif cmd in ["go to track", "track", "go to rover"]:
-            lab_state["location"] = "track"
-            feedback_message = "You kneel beside the robot testing track in the center. Type 'look around'."
+            data["location"] = "track"
+            feedback = "You kneel beside the robot testing track in the center."
 
         elif cmd in ["go to room", "room", "go back"]:
-            lab_state["location"] = "room"
-            feedback_message = "You step back into the center of Classroom D2.015."
+            data["location"] = "room"
+            feedback = "You step back into the center of Classroom D2.015."
 
         elif cmd in ["look around", "look"]:
-            loc = lab_state["location"]
             print()
-            if loc == "room":
+            if location == "room":
                 print("Room D2.015 is filled with electronics gear.")
-                print("East side: A workbench glowing with test equipment (type 'go to bench').")
-                print("Floor: A marked test track with a stuck robot rover (type 'go to track').")
+                print("East side: A workbench glowing with test equipment ('go to bench').")
+                print("Floor: A marked test track with a stuck robot rover ('go to track').")
                 print("Power unit: A bench supply waiting for a target voltage ('set power <val>').")
-                print("Exits: Door back to Lobby (type 'go lobby').")
+                print("Exits: Door back to Lobby ('go lobby').")
 
-            elif loc == "bench":
+            elif location == "bench":
                 print("The workbench has soldering irons and a lab notebook open to a page titled:")
                 print("  'BENCH SUPPLY CALCULATION: Set line voltage to: 12 - 2 * 4 + 6'")
                 if bench_items:
@@ -162,10 +100,10 @@ def classroom_d2_015(game_state):
                 else:
                     print("The workbench mat has no more loose items.")
 
-            elif loc == "track":
+            elif location == "track":
                 print("The miniature rover sits unpowered. A sticker on its chassis reads:")
                 print("  'IR CARRIER FREQUENCY: (40 + 20) / 2 kHz'")
-                if lab_state["rover_fixed"]:
+                if data["rover_fixed"]:
                     print("The rover's green indicator is solid. It has completed the run!")
                 else:
                     print("Status screen: 'OFFLINE - Needs power unit active and correct frequency calibration.'")
@@ -173,60 +111,61 @@ def classroom_d2_015(game_state):
 
         elif cmd.startswith("take "):
             item = cmd.replace("take ", "").strip()
-            if lab_state["location"] != "bench":
-                feedback_message = "There are no loose items to pick up here. Check the workbench!"
+            if location != "bench":
+                feedback = "There are no loose items to pick up here. Check the workbench!"
             elif item in bench_items:
                 bench_items.remove(item)
-                inventory.append(item)
-                feedback_message = f"You picked up: {item}"
+                state["inventory"].append(item)
+                feedback = f"You picked up: {item}"
             else:
-                feedback_message = "That item isn't on the bench!"
+                feedback = f"'{item}' isn't on the workbench!"
 
-        elif cmd.startswith("set power "):
-            val = cmd.replace("set power ", "").strip()
+        elif cmd.startswith("set power"):
+            parts = cmd.split()
+            val = parts[-1] if len(parts) >= 3 else input("Enter target DC voltage: ").strip()
             if val == "10":
-                lab_state["power_set"] = True
-                feedback_message = "Click-turn! The power supply stabilizes at 10V. The track rails energize!"
+                data["power_set"] = True
+                feedback = "Click-turn! The power supply stabilizes at 10V. The track rails energize!"
             else:
-                feedback_message = "BZZT! Overvoltage warning on the display. Check your BODMAS math: 12 - 2 * 4 + 6."
+                feedback = f"BZZT! {val}V is an overvoltage. Check your BODMAS math: 12 - 2 * 4 + 6."
 
-        elif cmd.startswith("calibrate rover "):
-            val = cmd.replace("calibrate rover ", "").strip()
-            if not lab_state["power_set"]:
-                feedback_message = "Nothing happens. The track rails have no power yet! Set the power supply first."
+        elif cmd.startswith("calibrate rover"):
+            parts = cmd.split()
+            val = parts[-1] if len(parts) >= 3 else input("Enter IR carrier frequency in kHz: ").strip()
+            if not data["power_set"]:
+                feedback = "Nothing happens. The track rails have no power yet! Set the power supply first."
             elif val == "30":
-                lab_state["rover_calibrated"] = True
-                feedback_message = "Beep-boop! The rover's IR sensor syncs to 30 kHz. Ready to run!"
+                data["rover_calibrated"] = True
+                feedback = "Beep-boop! The rover's IR sensor syncs to 30 kHz. Ready to run!"
             else:
-                feedback_message = "Wrong frequency! The rover's receiver chirps an error tone."
+                feedback = f"BEEP! {val} kHz is rejected. Check: (40 + 20) / 2."
 
         elif cmd == "start rover":
-            if not lab_state["power_set"]:
-                feedback_message = "The track has no power. Adjust the power supply first ('set power 10')!"
-            elif not lab_state["rover_calibrated"]:
-                feedback_message = "The rover's frequency is not calibrated. Calibrate the IR sensor first!"
-            elif lab_state["rover_fixed"]:
-                feedback_message = "The rover has already completed its route."
+            if not data["power_set"]:
+                feedback = "The track has no power. Adjust the power supply first ('set power 10')!"
+            elif not data["rover_calibrated"]:
+                feedback = "The rover's frequency is not calibrated. Calibrate the IR sensor first!"
+            elif data["rover_fixed"]:
+                feedback = "The rover has already completed its route."
             else:
-                lab_state["rover_fixed"] = True
-                if "security dongle" not in inventory:
-                    inventory.append("security dongle")
-                if "50 euro" not in inventory:
-                    inventory.append("50 euro")
-                game_state["coins"] = game_state.get("coins", 0) + 50
-
-                feedback_message = (
+                data["rover_fixed"] = True
+                state["completed"]["classroomd2015"] = True
+                state["inventory"].append("security dongle")
+                state["inventory"].append("50 euro")
+                state["coin_balance"] = state.get("coin_balance", 0) + 50
+                feedback = (
                     "The rover's twin motors buzz to life!\n"
                     "It speeds through the test track, maneuvers around obstacles, and hits the target pad.\n"
                     "A hidden compartment pops open on its side!\n"
-                    "Inside you find: a 'security dongle' and a '50 euro' lab prize! (Added to inventory & coins)"
+                    "Inside you find: a 'security dongle' and a '50 euro' lab prize! (Added to backpack and balance)"
                 )
 
-        elif cmd in ["go lobby", "go to lobby", "leave", "exit", "lobby", "door"]:
-            clear_screen()
+        elif cmd in ["go lobby", "go to lobby", "leave", "exit", "lobby"]:
+            clearScreen()
             print("\nYou exit Classroom D2.015 and return to the Lobby...")
             time.sleep(0.8)
+            state["previous_room"] = "classroomd2015"
             return "lobby"
 
         else:
-            feedback_message = "Unknown command. Type 'help' to see what you can do."
+            feedback = "Unknown command. Type 'help' to see what you can do."
