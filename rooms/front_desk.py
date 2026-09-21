@@ -1,6 +1,5 @@
 import time
 
-# Screen clearing utility
 try:
     from utilities.clear_screen import clear_screen
 except ImportError:
@@ -8,7 +7,6 @@ except ImportError:
         import os
         os.system("cls" if os.name == "nt" else "clear")
 
-# Status bar utility
 try:
     import utilities.status_bar as sb
     if hasattr(sb, "display_status_bar"):
@@ -20,7 +18,6 @@ try:
 except ImportError:
     display_status_bar = None
 
-# Inventory viewer utility
 try:
     import utilities.inventory_viewer as iv
     if hasattr(iv, "display_inventory"):
@@ -79,7 +76,7 @@ def show_map():
 
 
 def show_help():
-    
+    """Displays available commands matching the original script."""
     print("\n--- HELP MENU ---")
     print("COMMANDS:")
     print("  look around   - Inspect the front desk office")
@@ -96,16 +93,13 @@ def front_desk(game_state):
     Main loop for Front Desk Office.
     Preserves Sadanand's original receptionist interaction and student ID verification.
     """
-    # 1. Update exploration progress (fixes BUG-06)
     if "rooms" in game_state and isinstance(game_state["rooms"], dict):
         game_state["rooms"]["front_desk"] = True
 
-    # 2. Shared inventory reference
     if "inventory" not in game_state or not isinstance(game_state["inventory"], list):
         game_state["inventory"] = []
     inventory = game_state["inventory"]
 
-    # 3. Persistent state for Front Desk
     if "front_desk_state" not in game_state:
         game_state["front_desk_state"] = {
             "desk_items": ["pen", "visitor badge", "campus flyer"],
@@ -116,7 +110,6 @@ def front_desk(game_state):
     desk_state = game_state["front_desk_state"]
     desk_items = desk_state["desk_items"]
 
-    # 4. Initial student onboarding interaction (runs on first visit)
     if not desk_state["onboarding_done"]:
         clear_screen()
         if display_status_bar is not None:
@@ -131,7 +124,6 @@ def front_desk(game_state):
         print("A staff member looks up from his laptop and asks: ")
         print("'Why are you walking around without your student ID card?'\n")
 
-        
         name = game_state.get("player_name", "").strip()
         if not name or name.lower() == "student":
             name = input("Staff asks: 'What is your name?' > ").strip()
@@ -157,7 +149,6 @@ def front_desk(game_state):
 
     feedback_text = "You are at the Front Desk Office. The receptionist is typing on his laptop."
 
-    # 5. Room Command Loop
     while True:
         clear_screen()
         if display_status_bar is not None:
@@ -176,21 +167,17 @@ def front_desk(game_state):
 
         cmd = input("Front Desk > ").strip().lower()
 
-        # Quit
         if cmd == "quit":
             return "quit"
 
-        # Help
         elif cmd == "help":
             show_help()
             input("Press Enter to continue...")
 
-        # Inventory
         elif cmd in ["inventory", "i", "inv"]:
             show_local_inventory(game_state)
             input("Press Enter to return...")
 
-        # Look around
         elif cmd in ["look around", "look"]:
             print("\nThe front desk staff is typing on his laptop.")
             print("Hanging on the office wall is a large 2nd Floor Campus Map (type 'look at map').")
@@ -201,14 +188,12 @@ def front_desk(game_state):
             print("Exits: Door back to Lobby (type 'go lobby'), or head to Equinox ('go to equinox').")
             input("\nPress Enter to continue...")
 
-        # Campus map
         elif cmd in ["look at map", "view map", "map"]:
             print("\n--- 2ND FLOOR CAMPUS MAP ---")
             show_map()
             print("Tip: The Equinox room is south across the E-W corridor between Teachers Room 3 and Project Room 3.")
             input("\nPress Enter to continue...")
 
-        # Take items
         elif cmd.startswith("take "):
             item = cmd.replace("take ", "").strip()
             if item in desk_items:
@@ -218,14 +203,12 @@ def front_desk(game_state):
             else:
                 feedback_text = "That item isn't on the desk."
 
-        # Navigation: Go to Equinox
         elif cmd in ["go to equinox", "equinox"]:
             clear_screen()
             print("\nYou exit the Front Desk Office, cross into the E-W corridor, and head toward the Equinox room...")
             time.sleep(1.2)
             return "equinox_student_society"
 
-        # Navigation: Go back to Lobby
         elif cmd in ["go lobby", "go to lobby", "leave", "exit", "lobby"]:
             clear_screen()
             print("\nYou step back out into the Lobby...")
