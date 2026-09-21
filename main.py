@@ -16,6 +16,7 @@ from rooms import (
     enterTeachersRoom2,
     enterProjectRoom1,
     enterProjectRoom2,
+    enterprojectRoom2,
     enterFrontDesk,
     enterClassroomD2015,
     enterClassroomD2035
