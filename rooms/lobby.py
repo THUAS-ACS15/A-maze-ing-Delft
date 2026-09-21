@@ -26,7 +26,8 @@ def enterLobby(state):
         "frontdesk",
         "projectroom1",
         "projectroom2",
-        "classroomd2015"
+        "classroomd2015",
+        "classroomd2035"
     ]
 
     def handle_look():
