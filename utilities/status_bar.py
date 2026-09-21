@@ -16,7 +16,7 @@ room_fancy_names = {
     "lobby": "🏠 Lobby",
     "labd2001": "🧪 Lab D2.001",
     "store": "🏪 Store",
-    "projectroom2": "🖥️ Project Room 2",
+    "projectroom2": "🖥️     Project Room 2",
     "teachersroom1": "👩 Teacher's Room 1",
     "teachersroom2": "👩 Teacher's Room 2"
 }
@@ -90,7 +90,12 @@ def updateStatusBar(state: dict) -> None:
     Outputs: NONE
     """
     current_room = state["current_room"]
-    room_name = room_fancy_names[current_room]
+
+    try:
+        room_name = room_fancy_names[current_room]
+    except KeyError:
+        room_name = "⚠️ ROOM FANCY NAME NOT FOUND"
+
     time_played = calculateTimePlayed(state["start_time"])
     exploration_percent = getExplorationPercent(state)
     
