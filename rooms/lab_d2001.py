@@ -43,7 +43,7 @@ def enterLabD2001(state: dict) -> str:
         """
 
         clearScreen()
-        print(" First, type the kilogram value of one of the available boxes, and then the which of the forklifts to place it on.")
+        print(" First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on.")
         print(f"    - Available boxes: {available_boxes}")
         print(f"    - Forklift 1: {forklifts[0]}")
         print(f"    - Forklift 2: {forklifts[1]}")
