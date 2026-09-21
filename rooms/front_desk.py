@@ -111,7 +111,7 @@ def enterFrontDesk(state: dict) -> str:
                 break
 
         # Registration succeeded, hand out the card and the deposit refund
-        state["inventory"].append("student id card")
+        state["inventory"].append("Student ID card")
         state["student_id_obtained"] = True
         state["completed"]["frontdesk"] = True
         state["coin_balance"] += ID_CARD_REFUND

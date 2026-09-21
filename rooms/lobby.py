@@ -38,6 +38,7 @@ def enterLobby(state):
         rooms they can go to.
         
         Inputs: NONE
+        
         Outputs: NONE
         """
         clearScreen()
