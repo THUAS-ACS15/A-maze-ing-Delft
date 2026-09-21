@@ -60,7 +60,11 @@ def enterTeachersRoom1(state: dict) -> str:
             elif "debug_notes" in state["inventory"]:
                 print("You already have the notebook in your backpack.")
             else:
+                state["coin_balance"] += 10
+                clearScreen()
                 print("You pick up the notebook. \"Take this, you've earned it,\" the teacher says.")
+                print("After taking the notebook the teacher is handing you, you notice something shiny in the corner of your eye.")
+                print("You look closer and realize you found some shiny coins, teacher allows you to take them (+ 10 coins)")
                 state["inventory"].append("debug_notes")
         else:
             print(f"There is no '{item}' here to take.")
@@ -79,10 +83,11 @@ def enterTeachersRoom1(state: dict) -> str:
             return
         # accept a few equivalent ways of writing "n % 2"
         normalized = answer.strip().lower().replace(" ", "")
-        accepted = ["%2", "n%2"]
+        accepted = ["%2", "n%2", "n % 2"]
         if normalized in accepted:
             print("Correct! The teacher's eyes light up: \"% 2 — of course! Thank you!\"")
             state["visited"]["teachersroom1"] = True
+            print("Here take this I have no use for this now, it didn't help anyways.")
             print("The teacher hands you a small notebook labeled 'Debug Notes'.")
         else:
             print("The teacher shakes their head: \"Not quite. Think about how you check if a number is even.\"")
