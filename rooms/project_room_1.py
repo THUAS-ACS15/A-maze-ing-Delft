@@ -1,97 +1,32 @@
 import time
-
-# Screen clearing utility
-try:
-    from utilities.clear_screen import clear_screen
-except ImportError:
-    def clear_screen():
-        import os
-        os.system("cls" if os.name == "nt" else "clear")
+from utilities.clear_screen import clearScreen
 
 try:
     import utilities.status_bar as sb
-    if hasattr(sb, "display_status_bar"):
-        display_status_bar = sb.display_status_bar
-    elif hasattr(sb, "status_bar"):
-        display_status_bar = sb.status_bar
-    else:
-        display_status_bar = None
-except ImportError:
-    display_status_bar = None
-
-# Inventory viewer utility
-try:
-    import utilities.inventory_viewer as iv
-    if hasattr(iv, "display_inventory"):
-        show_inventory = iv.display_inventory
-    elif hasattr(iv, "show_inventory"):
-        show_inventory = iv.show_inventory
-    elif hasattr(iv, "view_inventory"):
-        show_inventory = iv.view_inventory
-    else:
-        show_inventory = None
-except ImportError:
-    show_inventory = None
+    statusBar = getattr(sb, "statusBar", getattr(sb, "display_status_bar", None))
+except Exception:
+    statusBar = None
 
 
-def show_local_inventory(game_state):
-    """Displays items currently in the shared backpack."""
-    inventory = game_state.get("inventory", [])
-    if show_inventory is not None:
-        try:
-            show_inventory(inventory)
-            return
-        except TypeError:
-            try:
-                show_inventory(game_state)
-                return
-            except Exception:
-                pass
-
-    print("\n--- INVENTORY ---")
-    if not inventory:
-        print("Your backpack is currently empty.")
-    else:
-        for item in inventory:
-            if isinstance(item, dict):
-                print(f"- {item.get('name', 'Item')}: {item.get('description', '')}")
-            else:
-                print(f"- {item}")
-    print("-----------------\n")
-
-
-def display_room_header():
-
-    print("=" * 64)
-    print("           PROJECT ROOM 1 - ESCAPE PROFESSOR VANCE           ")
-    print("=" * 64)
-
-
-def show_help_menu():
-
+def showHelp():
     print("\n--- HELP MENU ---")
     print("COMMANDS:")
     print("  look around                    - Inspect where you are right now")
     print("  go to <board/desks/corner/room>- Move to a specific area to search")
     print("  take <item>                    - Pick up an item you spotted")
     print("  inventory                      - View carried items in your backpack")
-    print("  open locker <1-5>              - Attempt to open a locker")
-    print("  unlock door / escape           - Swipe the keycard to escape to Lobby")
+    print("  open locker <1-5>              - Attempt to unlock a locker")
+    print("  unlock door / escape           - Swipe master keycard to escape to Lobby")
+    print("  go lobby                       - Try to exit through the door")
     print("  quit                           - Exit the game\n")
 
 
-def project_room_1(game_state):
-    if "rooms" in game_state and isinstance(game_state["rooms"], dict):
-        game_state["rooms"]["project_room_1"] = True
+def enterProjectRoom1(state):
+    state["current_room"] = "projectroom1"
+    state["visited"]["projectroom1"] = True
 
-    # 2. Shared inventory reference
-    if "inventory" not in game_state or not isinstance(game_state["inventory"], list):
-        game_state["inventory"] = []
-    inventory = game_state["inventory"]
-
-    # 3. Persistent state for Sadanand's original room elements
-    if "project_room_1_state" not in game_state:
-        game_state["project_room_1_state"] = {
+    if "projectroom1_data" not in state:
+        state["projectroom1_data"] = {
             "location": "room",
             "corner_items": ["pen", "marker", "notes", "key"],
             "lockers": {
@@ -104,62 +39,60 @@ def project_room_1(game_state):
             "door_unlocked": False
         }
 
-    room_state = game_state["project_room_1_state"]
-    corner_items = room_state["corner_items"]
-    lockers = room_state["lockers"]
+    data = state["projectroom1_data"]
+    lockers = data["lockers"]
+    corner_items = data["corner_items"]
 
-    feedback_message = "Professor Vance locks the door: 'Nobody leaves without solving the lockers!'"
+    feedback = "Professor Vance locks the door: 'Nobody leaves without solving the lockers!'"
 
-    # 4. Main Command Loop
     while True:
-        clear_screen()
-        if display_status_bar is not None:
+        clearScreen()
+
+        if statusBar:
             try:
-                display_status_bar(game_state)
+                statusBar(state)
             except Exception:
                 pass
 
-        display_room_header()
+        print("=" * 64)
+        print("           PROJECT ROOM 1 - ESCAPE PROFESSOR VANCE           ")
+        print("=" * 64)
 
-        if feedback_message:
-            print(f"\n{feedback_message}\n")
-            feedback_message = ""
+        if feedback:
+            print(f"\n{feedback}\n")
+            feedback = ""
 
-        location = room_state["location"]
+        location = data["location"]
         cmd = input(f"Project Room 1 [{location}] > ").strip().lower()
 
-        # Quit
         if cmd == "quit":
             return "quit"
 
-        # Help
         elif cmd == "help":
-            show_help_menu()
+            showHelp()
             input("Press Enter to continue...")
 
-        # Inventory
-        elif cmd in ["inventory", "i", "inv"]:
-            show_local_inventory(game_state)
-            input("Press Enter to return...")
+        elif cmd in ["inventory", "inv", "backpack"]:
+            print("\nYour backpack:", state["inventory"] if state["inventory"] else "empty")
+            print(f"Current coin balance: €{state.get('coin_balance', 0)}")
+            input("\nPress Enter to continue...")
 
-        # Movement commands
         elif cmd in ["go to board", "board"]:
-            room_state["location"] = "board"
-            feedback_message = "You walk to the front of the class near the whiteboard."
+            data["location"] = "board"
+            feedback = "You walk to the front of the class near the whiteboard."
 
         elif cmd in ["go to desks", "desks"]:
-            room_state["location"] = "desks"
-            feedback_message = "You walk over between the student desks."
+            data["location"] = "desks"
+            feedback = "You walk over between the student desks."
 
         elif cmd in ["go to corner", "corner"]:
-            room_state["location"] = "corner"
-            feedback_message = "You walk over to the messy corner pile."
+            data["location"] = "corner"
+            feedback = "You walk over to the messy corner pile."
 
         elif cmd in ["go to room", "room", "go back"]:
-            room_state["location"] = "room"
-            feedback_message = "You return to the center of the classroom facing the 5 lockers."
+            data["location"] = "room"
+            feedback = "You return to the center of the classroom facing the 5 lockers."
 
-        # Look around based on exact location
         elif cmd in ["look around", "look"]:
             print()
             if location == "room":
@@ -167,7 +100,7 @@ def project_room_1(game_state):
                 print("Center: Rows of wooden student desks.")
                 print("Back wall: 5 metal lockers (1 to 5) and the locked exit door.")
                 print("Corner: A messy pile of broken desks and chairs.")
-                print("(Move closer to an area with 'go to <board/desks/corner>' to inspect it!)")
+                print("(Move closer with 'go to board', 'go to desks', or 'go to corner')")
 
             elif location == "board":
                 print("You look closely at the whiteboard:")
@@ -185,73 +118,77 @@ def project_room_1(game_state):
                     print("No more loose items left in the pile.")
             input("\nPress Enter to continue...")
 
-        # Picking up items
         elif cmd.startswith("take "):
             item = cmd.replace("take ", "").strip()
             if location != "corner":
-                feedback_message = "There are no loose items to pick up here. Try checking the corner!"
+                feedback = "There are no loose items to pick up here. Try searching the corner pile!"
             elif item in corner_items:
                 corner_items.remove(item)
-                inventory.append(item)
-                feedback_message = f"You picked up: {item}"
+                state["inventory"].append(item)
+                feedback = f"You picked up: {item}"
             else:
-                feedback_message = "That item isn't here!"
+                feedback = f"'{item}' isn't in the corner pile."
 
-        # Opening lockers
-        elif cmd.startswith("open locker ") or cmd.startswith("unlock locker "):
-            num = cmd.split()[-1]
+        elif cmd.startswith("open locker") or cmd.startswith("unlock locker"):
+            parts = cmd.split()
+            if len(parts) >= 3 and parts[-1].isdigit():
+                num = parts[-1]
+            else:
+                num = input("Which locker do you want to open (1-5)? > ").strip()
+
             if num not in lockers:
-                feedback_message = "Choose a valid locker from 1 to 5."
+                feedback = "Invalid locker number. Choose a locker from 1 to 5."
                 continue
 
             lock = lockers[num]
             if lock["open"]:
-                feedback_message = f"Locker {num} is already wide open."
+                feedback = f"Locker {num} is already wide open."
                 continue
 
             if num == "2":
-                if "key" in inventory:
+                if "key" in state["inventory"]:
                     lock["open"] = True
-                    item_found = lock["item"]
-                    inventory.append(item_found)
-                    feedback_message = (
+                    found_item = lock["item"]
+                    state["inventory"].append(found_item)
+                    feedback = (
                         f"You insert the brass key from the corner. Click! Locker 2 opens!\n"
-                        f"Inside you found: {item_found}! (Added to inventory)"
+                        f"Inside you found: {found_item}! (Added to inventory)"
                     )
                 else:
-                    feedback_message = "Locker 2 has a physical padlock. You need to find a key in the room!"
+                    feedback = "Locker 2 has a physical padlock. You need to find a key in the room!"
             else:
                 code = input(f"Enter code for Locker {num}: ").strip()
                 if code == lock["code"]:
                     lock["open"] = True
                     if lock["item"]:
-                        item_found = lock["item"]
-                        inventory.append(item_found)
-                        if item_found == "50 euro":
-                            game_state["coins"] = game_state.get("coins", 0) + 50
-                        feedback_message = (
+                        found_item = lock["item"]
+                        state["inventory"].append(found_item)
+                        if found_item == "50 euro":
+                            state["coin_balance"] = state.get("coin_balance", 0) + 50
+                        feedback = (
                             f"Click! Locker {num} unlocks!\n"
-                            f"Jackpot! You found: {item_found}! (Added to inventory and coins)"
+                            f"Jackpot! You found: {found_item}! (Added to backpack and balance)"
                         )
                     else:
-                        feedback_message = f"Click! Locker {num} unlocks! It's completely empty... just old dust."
+                        feedback = f"Click! Locker {num} unlocks! It's completely empty... just old dust."
                 else:
-                    feedback_message = "Wrong code! Buzzer sounds: BZZT."
+                    feedback = "Wrong code! Buzzer sounds: BZZT."
 
-        # Door escape & navigation back to Lobby
         elif cmd in ["unlock door", "open door", "escape", "go lobby", "exit", "door", "leave"]:
-            if room_state["door_unlocked"] or "master keycard" in inventory:
-                room_state["door_unlocked"] = True
-                clear_screen()
+            if data["door_unlocked"] or "master keycard" in state["inventory"]:
+                data["door_unlocked"] = True
+                state["completed"]["projectroom1"] = True
+                clearScreen()
                 print("\nYou swipe the master keycard on the door scanner...")
                 print("BEEP! Green light! The exit door clicks open!")
-                money = inventory.count("50 euro") * 50
-                print(f"You escaped Prof Vance's room with €{money} in your pocket!")
-                print("Stepping back into the Lobby...")
+                money = state["inventory"].count("50 euro") * 50
+                print(f"You escaped Prof Vance's room with €{money} from the lockers!")
+                print("Stepping back out into the Lobby...")
                 time.sleep(1.5)
+                state["previous_room"] = "projectroom1"
                 return "lobby"
             else:
-                feedback_message = "The exit door requires a master keycard. Keep cracking lockers!"
+                feedback = "The exit door is locked. Prof Vance: 'Nobody leaves without solving the lockers!'"
 
         else:
-            feedback_message = f"Unknown command: '{cmd}'. Type 'help' to see available actions."
+            feedback = f"Unknown command: '{cmd}'. Type 'help' to see what you can do."
