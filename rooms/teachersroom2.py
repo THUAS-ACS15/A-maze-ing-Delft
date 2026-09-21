@@ -11,6 +11,7 @@ from utilities.clear_screen import clearScreen
 
 def enterTeachersRoom2(state):
     clearScreen()
+    print("You walk towards Teachers Room 2 ...")
     print("You step into Teachers Room 2.")
     print("A teacher sits at the desk, surrounded by printed tables, tapping a pen anxiously against a mug of cold coffee.")
     print("You can tell he needs help with something...")

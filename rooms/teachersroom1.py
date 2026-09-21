@@ -6,12 +6,12 @@
 # Date: September 2026
 #Contribution: fixed status bar not updating
 
+
 import sys
 from utilities.clear_screen import clearScreen
-
-
+print(sys.version)
 def enterTeachersRoom1(state: dict) -> str:
-
+    clearScreen()
     state["visited"]["teachesroom1"] = True
     print("\nYou step into Teachers Room 1.")
     print("A teacher is sat over a laptop, muttering under their breath at the screen.")
