@@ -15,6 +15,7 @@ from rooms import (
     enterTeachersRoom1,
     enterTeachersRoom2,
     enterProjectRoom1,
+    enterProjectRoom2,
     enterFrontDesk,
     enterClassroomD2015,
     enterClassroomD2035
@@ -83,6 +84,7 @@ while True:
 
     elif current == "teachersroom2":
         state["current_room"] = enterTeachersRoom2(state)
+
     elif current == "projectroom2":
         state["current_room"] = enterProjectRoom2(state)
 
