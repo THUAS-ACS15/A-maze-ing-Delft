@@ -19,7 +19,7 @@ def enterLobby(state):
         print("You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one.")
 
     # --- List of accessible rooms from here ---
-    available_rooms = ["labd2001", "store", "teachersroom1", "teachersroom2"]
+    available_rooms = ["labd2001", "store", "teachersroom1", "teachersroom2","projectroom2"]
 
     # --- Command handlers ---
 
