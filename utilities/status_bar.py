@@ -18,7 +18,11 @@ room_fancy_names = {
     "store": "🏪 Store",
     "projectroom2": "🖥️ Project Room 2",
     "teachersroom1": "👩 Teacher's Room 1",
-    "teachersroom2": "👩 Teacher's Room 2"
+    "teachersroom2": "👩 Teacher's Room 2",
+    "projectroom1": "🔐 Project Room 1",
+    "frontdesk": "🛎️ Front Desk",
+    "classroomd2015": "🤖 Classroom D2.015",
+    "classroomd2035": "📚 Classroom D2.035"
 }
 
 def calculateTimePlayed(start_time: float) -> str:
