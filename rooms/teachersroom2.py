@@ -4,6 +4,7 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
+# Contributors: Dominik
 # -----------------------------------------------------------------------------
 
 import sys
@@ -49,7 +50,7 @@ Enrollments table:
 """)
             print("\"I know this student takes Python with Mr. der Linde. But I need to be sure they're NOT")
             print("also in Cybersecurity with Mr. Baker - otherwise I've got completely the wrong person.\"")
-            print("\"Can you work out who it is?")
+            print("\"Can you work out who it is?\"")
         else:
             print("The teacher looks much calmer now, sorting the printouts into a neat stack.")
             if "db_credentials" not in state["inventory"]:

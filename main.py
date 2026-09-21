@@ -29,6 +29,7 @@ state = {
     "start_time": start_time,
     "coin_balance": 0,
     "student_id_obtained": False,
+    # Format: item_name, item_price
     "store_available_items": [
         ["Eeyore plushie", 25],
         ["Delft mug", 10],
@@ -95,7 +96,7 @@ while True:
         state["current_room"] = enterClassroomD2035(state)
 
     elif current in ["quit", "exit"]:
-        print("Thank you for playing A-maze-ing Delft!")
+        print("Exiting... goodbye and thanks for playing!")
         break
 
     else:

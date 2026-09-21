@@ -93,7 +93,7 @@ def enterFrontDesk(state: dict) -> str:
 
         # Keep asking until the player gives an 8 digit number or cancels
         while True:
-            student_no = input("\"And your 8 digit student number?\" > ").strip()
+            student_no = input("\"And your 8-digit student number?\" > ").strip()
 
             if student_no.lower() == "cancel":
                 clearScreen()
@@ -103,7 +103,7 @@ def enterFrontDesk(state: dict) -> str:
             # Check length first, then that every character is a digit
             if len(student_no) != 8:
                 clearScreen()
-                print(f"\"That's {len(student_no)} characters. A student number is exactly 8.\"")
+                print(f"\"That's {len(student_no)} characters. A student number is exactly 8 digits long.\"")
             elif not student_no.isnumeric():
                 clearScreen()
                 print("\"Digits only, please. No letters in a student number.\"")
