@@ -16,7 +16,8 @@ from rooms import (
     enterTeachersRoom2,
     enterProjectRoom1,
     enterFrontDesk,
-    enterClassroomD2015
+    enterClassroomD2015,
+    enterClassroomD2035
 )
 
 start_time = time.time()
@@ -26,7 +27,6 @@ state = {
     "previous_room": "lobby",
     "start_time": start_time,
     "coin_balance": 0,
-    "student_id_obtained": False,
     "store_available_items": [
         ["Eeyore plushie", 25],
         ["Delft mug", 10],
@@ -40,7 +40,8 @@ state = {
         "teachersroom1": False,
         "teachersroom2": False,
         "frontdesk": False,
-        "classroomd2015": False
+        "classroomd2015": False,
+        "classroomd2035": False
     },
     "completed": {
         "labd2001": False,
@@ -50,7 +51,8 @@ state = {
         "teachersroom1": False,
         "teachersroom2": False,
         "frontdesk": False,
-        "classroomd2015": False
+        "classroomd2015": False,
+        "classroomd2035": False
     },
     "inventory": []
 }
@@ -87,6 +89,9 @@ while True:
         else:
             print("Classroom D2.015 could not be loaded.")
             state["current_room"] = "lobby"
+
+    elif current in ["classroomd2035", "classroom_d2035", "classroom_d2.035"]:
+        state["current_room"] = enterClassroomD2035(state)
 
     elif current in ["quit", "exit"]:
         print("Thank you for playing A-maze-ing Delft!")
