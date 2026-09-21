@@ -41,9 +41,8 @@ def checkStoreCompletion(state: dict) -> None:
     """
     if len(state["store_available_items"]) == 0:
         state["completed"]["store"] = True
-
-    clearScreen()
-    print("Looks like you've bought everything in the store. Congratulations!")
+        clearScreen()
+        print("Looks like you've bought everything in the store. Congratulations!")
 
 def enterStore(state: dict) -> str:
     """Starter function for the store."""
