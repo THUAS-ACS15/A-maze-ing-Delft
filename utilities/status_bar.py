@@ -16,7 +16,7 @@ room_fancy_names = {
     "lobby": "🏠 Lobby",
     "labd2001": "🧪 Lab D2.001",
     "store": "🏪 Store",
-    "projectroom2": "🖥️     Project Room 2",
+    "projectroom2": "🖥️ Project Room 2",
     "teachersroom1": "👩 Teacher's Room 1",
     "teachersroom2": "👩 Teacher's Room 2"
 }
