@@ -11,9 +11,10 @@ import sys
 from utilities.clear_screen import clearScreen
 
 def enterLobby(state):
+    """Starter function for the Lobby room."""
     clearScreen()
     print("🚶 You are standing in the school's main lobby.")
-    print("You see a long corridor with many doors and glass walls on both side. Behind these doors are rooms, waiting to be explored.")
+    print("You see a long corridor with many doors and glass walls on both sides. Behind these doors are rooms, waiting to be explored.")
     if not state["student_id_obtained"]:
         print("You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one.")
 
@@ -23,7 +24,17 @@ def enterLobby(state):
     # --- Command handlers ---
 
     def handle_look():
-        """Describe the corridor and show where the player can go."""
+        """
+        Describes the room and gives clues.
+        
+        This function describes the room and gives clues to the player which\
+        rooms they can go to.
+        
+        Inputs: NONE
+        
+        Outputs: NONE
+        """
+
         clearScreen()
         print("You take a look around.")
         print("Students and teachers are walking in both directions along the corridor. You see several labeled doors.")
@@ -31,8 +42,17 @@ def enterLobby(state):
         print("- Your current inventory:", state["inventory"])
 
     def handle_help():
+        """
+        Lists available commands.
+        
+        This function lists the available commands for the player to use in the room.
+        
+        Inputs: NONE
+        
+        Outputs: NONE
+        """
+
         clearScreen()
-        """List available commands and explain navigation."""
         print("Available commands:")
         print("- look around         : See what's in the corridor and where you can go.")
         print("- go <room name>      : Move to another room. Example: go classroom2015")
@@ -40,7 +60,19 @@ def enterLobby(state):
         print("- quit                : Quit the game.")
 
     def handle_go(room_name):
-        """Move to a listed room."""
+        """
+        Handles movement out of the room.
+        
+        This function checks if the player can move to the given destination from this room.
+        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+
+        Inputs:
+            - destination (str): The destination the player wants to go to.
+        
+        Outputs:
+            - location (str): The destination if valid, None otherwise.
+        """
+        
         clearScreen()
         room = room_name.lower()
         if room in available_rooms:
