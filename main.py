@@ -6,9 +6,18 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
-from rooms import enterLobby, enterStore, enterLabD2001, enterTeachersRoom1, enterTeachersRoom2
-from utilities.clear_screen import clearScreen
 import time
+from utilities.clear_screen import clearScreen
+from rooms import (
+    enterLobby,
+    enterStore,
+    enterLabD2001,
+    enterTeachersRoom1,
+    enterTeachersRoom2,
+    enterProjectRoom1,
+    enterFrontDesk,
+    enterClassroomD2015
+)
 
 start_time = time.time()
 
@@ -22,17 +31,28 @@ state = {
         ["Eeyore plushie", 25],
         ["Delft mug", 10],
     ],
+    # Registered rooms for exploration % (Fixes BUG-06)
     "visited": {
+        "lobby": True,
         "labd2001": False,
         "store": False,
+        "projectroom1": False,
         "projectroom2": False,
-        "teachersroom1": False
+        "teachersroom1": False,
+        "teachersroom2": False,
+        "frontdesk": False,
+        "classroomd2015": False
     },
+    # Puzzle completion tracking
     "completed": {
         "labd2001": False,
         "store": False,
+        "projectroom1": False,
         "projectroom2": False,
-        "teachersroom1": False
+        "teachersroom1": False,
+        "teachersroom2": False,
+        "frontdesk": False,
+        "classroomd2015": False
     },
     "inventory": []
 }
@@ -47,18 +67,35 @@ while True:
 
     elif current == "store":
         state["current_room"] = enterStore(state)
-    
+
     elif current == "labd2001":
         state["current_room"] = enterLabD2001(state)
-    
+
     elif current == "teachersroom1":
         state["current_room"] = enterTeachersRoom1(state)
-    
+
     elif current == "teachersroom2":
         state["current_room"] = enterTeachersRoom2(state)
 
-    else:
-        print("Unknown room. Exiting game.")
+    
+    # Aliases included defensively so slight naming variations never crash the loop
+    elif current in ["projectroom1", "project_room_1"]:
+        state["current_room"] = enterProjectRoom1(state)
+
+    elif current in ["frontdesk", "front_desk"]:
+        state["current_room"] = enterFrontDesk(state)
+
+    elif current in ["classroomd2015", "classroom_d2.015", "classroom_d2015"]:
+        if enterClassroomD2015:
+            state["current_room"] = enterClassroomD2015(state)
+        else:
+            print("Classroom D2.015 module could not be loaded.")
+            state["current_room"] = "lobby"
+
+    elif current in ["quit", "exit"]:
+        print("Thank you for playing A-maze-ing Delft!")
         break
 
-
+    else:
+        print(f"Unknown room '{current}'. Exiting game.")
+        break
