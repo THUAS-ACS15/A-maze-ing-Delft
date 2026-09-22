@@ -77,7 +77,7 @@ def enterLobby(state):
             state["previous_room"] = "lobby"
             return room_name
         else:
-            print(f" '{room_name}' is not a valid exit. Use 'look around' to see available options.")
+            print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")
             return None
 
     while True:
