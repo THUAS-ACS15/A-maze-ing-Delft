@@ -17,4 +17,3 @@ from .front_desk import enterFrontDesk
 from .equinox_student_society import enterEquinoxStudentSociety
 from .classroom_d2015 import enterClassroomD2015
 from .classroom_d2035 import enterClassroomD2035
-

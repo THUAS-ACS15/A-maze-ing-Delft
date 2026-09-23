@@ -44,7 +44,7 @@ state = {
         "teachersroom1": False,
         "teachersroom2": False,
         "frontdesk": False,
-        "equinox_student_society": False,
+        "equinoxstudentsociety": False,
         "classroomd2015": False,
         "classroomd2035": False
     },
@@ -56,7 +56,7 @@ state = {
         "teachersroom1": False,
         "teachersroom2": False,
         "frontdesk": False,
-        "equinox_student_society": False,
+        "equinoxstudentsociety": False,
         "classroomd2015": False,
         "classroomd2035": False
     },
@@ -92,11 +92,13 @@ while True:
     elif current == "frontdesk":
         state["current_room"] = enterFrontDesk(state)
 
-    elif current == "equinox_student_society":
+    elif current == "equinoxstudentsociety":
         if state["student_id_obtained"]:
             state["current_room"] = enterEquinoxStudentSociety(state)
         else:
             print("❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room.")
+            time.sleep(2.0)
+            state["current_room"] = "lobby"
 
     elif current == "classroomd2015":
         state["current_room"] = enterClassroomD2015(state)
