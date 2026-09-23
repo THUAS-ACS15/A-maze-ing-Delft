@@ -22,9 +22,10 @@ def enterEquinoxStudentSociety(state: dict) -> str:
     clearScreen()
     state["visited"]["equinox_student_society"] = True
     print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
-    print("You find a work-in-progress construction project. Various materials and tools are laid out on the floor.")
-    print("You spot three forklifts on one side of the room, and six boxes on the other.")
-    print("Maybe you should check it out.")
+    print("You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board game box on it.")
+    print("Looks like they were in the middle of a Dungeons and Dragons campaign, but had to leave in a hurry.")
+    print("You also notice an office desk and chair, with some stuff on it.")
+    print("Maybe you should look around and see if you can find any interesting things around.")
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -41,40 +42,9 @@ def enterEquinoxStudentSociety(state: dict) -> str:
         
         Outputs: NONE
         """
-
+    
         clearScreen()
-        print(" First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on.")
-        print(f"    - Available boxes: {available_boxes}")
-        print(f"    - Forklift 1: {forklifts[0]}")
-        print(f"    - Forklift 2: {forklifts[1]}")
-        print(f"    - Forklift 3: {forklifts[2]}")
-
-    def boxPuzzleCheck() -> bool:
-        """
-        Checks if the box puzzle is solved correctly. Returns True if solved, False otherwise.
-        
-        The function checks if the puzzle is solved correctly,
-        i.e. if each forklift has exactly two boxes and the total 
-        weight of the boxes on each forklift is exactly 100kg.
-        
-        Inputs: NONE
-        
-        Outputs:
-            - bool: True if the puzzle is solved correctly, False otherwise.
-        """
-
-        correct_count = 0
-        for forklift in forklifts:
-            if len(forklift) < 2:
-                return False
-            elif sum(forklift) != 100:
-                return False
-            else:
-                correct_count += 1
-        if correct_count == 3:
-            return True
-        else:
-            return False
+        print(" Select an option to answer! Use the number keys to select option 1, 2, 3 or 4.")
 
     # +------------------+
     # | Command handlers |
@@ -94,13 +64,13 @@ def enterEquinoxStudentSociety(state: dict) -> str:
         """
 
         if not state["completed"]["equinox_society"]:
-            print("You take a closer look at the forklifts.")
-            print("You make out a label on the forklifts that says \"MAX. 100kg\".")
-            print("It seems that they can only have space for two boxes at a time.")
-            print("You turn to the boxes, and notice each of them have their weight listed on them: 5kg, 53kg, 95kg, 10kg, 47kg and 90kg.")
-            print("This looks like a puzzle. Maybe you should try stacking the boxes on the forklifts.")
+            print("You take a close look at the board game box, and notice that it contains a small statue of a dragon.")
+            print("Next to it, you find some coins. Looks like it was hoarding some treasure. Thankfully it's just a statue, so you pick them up. (+10 coins)")
+            state["coin_balance"] += 10
+            print("\nYou also notice that the computer on the desk is turned on! You quickly sit down and find a quiz on the screen.")
+            print("Looks like you need to answer some questions to find out what's on the computer.")
         else:
-            print("You've already stacked the boxes correctly. There's nothing more for you to do.")
+            print("You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
         print("- Possible exits: lobby")
         print("- Your current inventory:", state["inventory"])
 
@@ -118,7 +88,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
         print("Available commands:")
         print("- look around         : Examine the room for clues.")
         if not state["completed"]["labd2001"]:
-            print("- start stacking      : Try stacking the boxes.")
+            print("- start quiz  : Try answering the quiz on the computer.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
@@ -145,59 +115,25 @@ def enterEquinoxStudentSociety(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handlePuzzleStart() -> None:
+    def handleQuizStart() -> None:
         """
-        Handles starting the box stacking puzzle.
+        Handles starting the quiz.
 
-        This function starts the box stacking puzzle by showing an animation, printing the puzzle instructions,
-        and allowing the player to input their choices for stacking boxes on forklifts until the puzzle is solved correctly.
+        This function starts the quiz by showing an animation, printing the quiz instructions,
+        and allowing the player to input their answers until the quiz is completed correctly.
 
-        Once the puzzle is solved, it updates the state dict to mark the puzzle as completed.
+        Once the quiz is solved, it rewards the player and updates the state dict to mark the room as completed.
 
         Inputs: NONE
 
         Outputs: NONE
         """
 
-        showActivityAnimation("puzzle")
+        showActivityAnimation("quiz")
         sleep(1)
         printPuzzleInstructions()
 
-        # Loops until function returns true, i.e. if puzzle is completed
-        while boxPuzzleCheck() != True:
-            try:
-                box = input("\nChoose a box > ").strip().lower()
-                box_int = int(box)
-            except ValueError:
-                printPuzzleInstructions()
-                continue
 
-            # Check if box exists in available_boxes, same with forklift, if both pass
-            # then add box to forklift and remove from available_boxes
-            if box.isnumeric() and box_int in available_boxes:
-                printPuzzleInstructions()
-                try:
-                    forklift = input("\nChoose a forklift > ").strip().lower()
-                except ValueError:
-                    printPuzzleInstructions()
-                    continue
-
-                if forklift.isnumeric() and int(forklift) in range(1, 4):
-                    box_index = available_boxes.index(box_int)
-                    box_to_add = available_boxes.pop(box_index)
-                    forklifts[int(forklift) - 1].append(box_to_add)
-                    printPuzzleInstructions()
-            else:
-                printPuzzleInstructions()
-
-        # When loop exits, re-check if solve is valid and then set room as
-        if boxPuzzleCheck():
-            state["completed"]["equinox_society"] = True
-            state["coin_balance"] += 10
-            clearScreen()
-            print("Looks like you stacked the boxes correctly, congratulations!")
-            print("You hear a loud \"click\" sound, and one of the boxes falls open.")
-            print("Inside, you find some coins, which you pick up. (+10 coins)")
 
     # +--------------+
     # | Command loop |
