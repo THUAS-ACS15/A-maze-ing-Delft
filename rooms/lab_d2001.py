@@ -167,6 +167,9 @@ def enterLabD2001(state: dict) -> str:
         while boxPuzzleCheck() != True:
             try:
                 box = input("\nChoose a box > ").strip().lower()
+                if box == "quit":
+                    clearScreen()
+                    break
                 box_int = int(box)
             except ValueError:
                 printPuzzleInstructions()
