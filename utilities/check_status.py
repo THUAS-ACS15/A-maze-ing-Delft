@@ -46,7 +46,7 @@ def _format_time_played(start_time) -> str:
     return f"{elapsed}s"
 
 
-def check_status(state: dict, loading_time: float = 1.2, stream_delay: float = 0.015, pause: bool = False) -> None:
+def check_status(state: dict, loading_time: float = 1.2, stream_delay: float = 0.015, pause: bool = True) -> None:
     """
     Display the player's overall status with loading + streaming effect.
 
@@ -123,21 +123,21 @@ def check_status(state: dict, loading_time: float = 1.2, stream_delay: float = 0
         if pause:
             from utilities.inventory_viewer import item_descriptions
 
-            console.print("Available commands:")
-            console.print("- inventory : View item details")
+            console.print("\n \n Available commands:")
+            choices = ["exit"]
+            if inventory:
+                console.print("- inventory : View item details")
+                choices = ["inventory", "exit"]
             console.print(f"- exit      : Back to {current_room}")
             while Prompt.ask(
                 "Command",
-                choices=["inventory", "exit"],
+                choices=choices,
                 default="exit",
                 show_choices=True,
                 console=console,
             ) == "inventory":
-                if not inventory:
-                    console.print("No inventory.")
-                else:
-                    for item in inventory:
-                        console.print(f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}")
+                for item in inventory:
+                    console.print(f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}")
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)

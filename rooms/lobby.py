@@ -99,7 +99,7 @@ def enterLobby(state):
 
         elif command in ["status", "check status"]:
             clearScreen()
-            checkStatus(state, pause=True)
+            checkStatus(state)
 
         elif command == "quit":
             clearScreen()
