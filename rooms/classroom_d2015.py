@@ -4,13 +4,14 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from time import sleep
 from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 # Loose components lying on the antistatic mat, which the player can take.
 bench_items = ["usb cable", "resistor", "multimeter"]
@@ -347,6 +348,10 @@ def enterClassroomD2015(state: dict) -> str:
 
         elif command == "start rover":
             handleStartRover()
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

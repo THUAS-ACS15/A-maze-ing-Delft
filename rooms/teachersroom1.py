@@ -4,11 +4,12 @@
 # Organization: THUAS
 # Location: Delft
 # Date: September 2026
-# Contributors: Dominik
+# Contributors: Dominik, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 
 def enterTeachersRoom1(state: dict) -> str:
@@ -120,6 +121,10 @@ def enterTeachersRoom1(state: dict) -> str:
             clearScreen()
             answer = command[7:].strip()
             handle_answer(answer)
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

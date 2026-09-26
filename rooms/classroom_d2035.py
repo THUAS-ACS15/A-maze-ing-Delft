@@ -4,13 +4,14 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from time import sleep
 from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 # Loose items left behind on the front row of desks.
 desk_items = ["leather bookmark", "quill pen"]
@@ -329,6 +330,10 @@ def enterClassroomD2035(state: dict) -> str:
             result = handleGo(destination)
             if result:
                 return result
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

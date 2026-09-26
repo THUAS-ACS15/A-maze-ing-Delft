@@ -4,13 +4,14 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from time import sleep
 from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 # Loose items in the pile of broken furniture in the corner.
 # The brass key in here is what opens locker 2.
@@ -367,6 +368,10 @@ def enterProjectRoom1(state: dict) -> str:
             result = handleSwipeKeycard()
             if result:
                 return result
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()
