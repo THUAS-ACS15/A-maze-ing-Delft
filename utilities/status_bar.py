@@ -19,6 +19,7 @@ room_fancy_names = {
     "projectroom2": "🖥️ Project Room 2",
     "teachersroom1": "👩 Teacher's Room 1",
     "teachersroom2": "👩 Teacher's Room 2",
+    "teachersroom4": "👩 Teacher's Room 4",
     "projectroom1": "🔐 Project Room 1",
     "frontdesk": "🛎️ Front Desk",
     "equinox_student_society": "📚 Equinox Student Society",

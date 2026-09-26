@@ -24,6 +24,7 @@ def enterLobby(state):
         "store",
         "teachersroom1",
         "teachersroom2",
+        "teachersroom4",
         "frontdesk",
         "equinoxstudentsociety",
         "projectroom1",
