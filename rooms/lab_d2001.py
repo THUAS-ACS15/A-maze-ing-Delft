@@ -4,13 +4,14 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Leon
+# Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from time import sleep
 from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
@@ -225,6 +226,10 @@ def enterLabD2001(state: dict) -> str:
 
         elif command == "start stacking":
             handlePuzzleStart()
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

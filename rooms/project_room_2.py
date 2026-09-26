@@ -4,7 +4,7 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: João
+# Contributors: João, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
@@ -12,6 +12,7 @@ import random
 from time import sleep
 from utilities.animations import showActivityAnimation
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 rainbow_colors_correct = ["Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet"]
 
@@ -207,6 +208,10 @@ def enterProjectRoom2(state: dict) -> str:
 
         elif command == "start puzzle":
             handlePuzzleStart()
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()
