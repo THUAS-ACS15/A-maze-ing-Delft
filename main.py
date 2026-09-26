@@ -8,19 +8,7 @@
 
 import time
 from utilities.clear_screen import clearScreen
-from rooms import (
-    enterLobby,
-    enterStore,
-    enterLabD2001,
-    enterTeachersRoom1,
-    enterTeachersRoom2,
-    enterProjectRoom1,
-    enterProjectRoom2,
-    enterFrontDesk,
-    enterEquinoxStudentSociety,
-    enterClassroomD2015,
-    enterClassroomD2035
-)
+from rooms.dispatcher import enter_room
 
 start_time = time.time()
 
@@ -66,51 +54,7 @@ state = {
 clearScreen()
 
 while True:
-    current = state["current_room"]
-
-    if current == "lobby":
-        state["current_room"] = enterLobby(state)
-
-    elif current == "store":
-        state["current_room"] = enterStore(state)
-
-    elif current == "labd2001":
-        state["current_room"] = enterLabD2001(state)
-
-    elif current == "teachersroom1":
-        state["current_room"] = enterTeachersRoom1(state)
-
-    elif current == "teachersroom2":
-        state["current_room"] = enterTeachersRoom2(state)
-
-    elif current == "projectroom2":
-        state["current_room"] = enterProjectRoom2(state)
-
-    elif current == "projectroom1":
-        state["current_room"] = enterProjectRoom1(state)
-
-    elif current == "frontdesk":
-        state["current_room"] = enterFrontDesk(state)
-
-    elif current == "equinoxstudentsociety":
-        if state["student_id_obtained"]:
-            state["current_room"] = enterEquinoxStudentSociety(state)
-        else:
-            print("❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room.")
-            time.sleep(2.0)
-            state["current_room"] = "lobby"
-
-    elif current == "classroomd2015":
-        state["current_room"] = enterClassroomD2015(state)
-
-    elif current == "classroomd2035":
-        state["current_room"] = enterClassroomD2035(state)
-
-    elif current in ["quit", "exit"]:
-        print("Exiting... goodbye and thanks for playing!")
+    next_room = enter_room(state["current_room"], state)
+    if next_room in ("quit", "exit"):
         break
-
-    else:
-        print(f"Unknown room '{current}'. Returning to Lobby...")
-        time.sleep(1.0)
-        state["current_room"] = "lobby"
+    state["current_room"] = next_room
