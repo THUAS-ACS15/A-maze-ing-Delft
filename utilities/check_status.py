@@ -12,17 +12,11 @@ import time
 
 from rich.console import Console
 from rich.prompt import Prompt
-from rich.text import Text
+
+from utilities.print_line import print_line
 
 # Consistent text style
 HEADER_STYLE = "bold green"
-
-def _show_line(console: Console, text: str, style: str, delay: float) -> None:
-    """Print one styled line, pausing briefly to keep the streaming feel."""
-    console.print(Text(text, style=style or ""))
-    if delay > 0:
-        time.sleep(delay * 10)
-
 
 def _format_time_played(start_time) -> str:
     """Format elapsed seconds since start_time as 'Xs' / 'Ym Zs' / 'Xh Ym Zs'."""
@@ -96,29 +90,29 @@ def check_status(state: dict, loading_time: float = 1.2, stream_delay: float = 0
         id_str = "Yes" if has_id else "No - visit the Front Desk"
         console.print()
 
-        _show_line(console, f"Current room: {current_room}", HEADER_STYLE, stream_delay)
-        _show_line(console, f"Previous room: {previous_room}", HEADER_STYLE, stream_delay)
-        _show_line(console, f"Time played: {time_played_str}", HEADER_STYLE, stream_delay)
+        print_line(console, f"Current room: {current_room}", HEADER_STYLE, stream_delay)
+        print_line(console, f"Previous room: {previous_room}", HEADER_STYLE, stream_delay)
+        print_line(console, f"Time played: {time_played_str}", HEADER_STYLE, stream_delay)
         console.print()
 
-        _show_line(console, f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):", HEADER_STYLE, stream_delay)
-        _show_line(console, explored_str, "", stream_delay)
+        print_line(console, f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):", HEADER_STYLE, stream_delay)
+        print_line(console, explored_str, "", stream_delay)
         console.print()
 
-        _show_line(console, f"Not yet explored ({len(unexplored)}):", HEADER_STYLE, stream_delay)
-        _show_line(console, unexplored_str, "", stream_delay)
+        print_line(console, f"Not yet explored ({len(unexplored)}):", HEADER_STYLE, stream_delay)
+        print_line(console, unexplored_str, "", stream_delay)
         console.print()
 
-        _show_line(console, f"Challenges completed ({len(completed_rooms)}):", HEADER_STYLE, stream_delay)
-        _show_line(console, completed_str, "", stream_delay)
+        print_line(console, f"Challenges completed ({len(completed_rooms)}):", HEADER_STYLE, stream_delay)
+        print_line(console, completed_str, "", stream_delay)
         console.print()
 
-        _show_line(console, f"Coin balance: {coin_balance}", HEADER_STYLE, stream_delay)
-        _show_line(console, f"Student ID: {id_str}", HEADER_STYLE, stream_delay)
+        print_line(console, f"Coin balance: {coin_balance}", HEADER_STYLE, stream_delay)
+        print_line(console, f"Student ID: {id_str}", HEADER_STYLE, stream_delay)
         console.print()
 
-        _show_line(console, f"Inventory ({len(inventory)}):", HEADER_STYLE, stream_delay)
-        _show_line(console, inventory_str, "", stream_delay)
+        print_line(console, f"Inventory ({len(inventory)}):", HEADER_STYLE, stream_delay)
+        print_line(console, inventory_str, "", stream_delay)
 
         if pause:
             from utilities.inventory_viewer import item_descriptions

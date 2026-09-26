@@ -3,6 +3,7 @@
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
+# Contributors: Gift Odigwe
 # Date: September 2026
 # -----------------------------------------------------------------------------
 """Single entry point for entering rooms.
@@ -18,6 +19,7 @@ from .store import enterStore
 from .lab_d2001 import enterLabD2001
 from .teachersroom1 import enterTeachersRoom1
 from .teachersroom2 import enterTeachersRoom2
+from .teachersroom4 import enterTeachersRoom4
 from .project_room_1 import enterProjectRoom1
 from .project_room_2 import enterProjectRoom2
 from .front_desk import enterFrontDesk
@@ -31,6 +33,7 @@ ROOM_HANDLERS = {
     "labd2001": enterLabD2001,
     "teachersroom1": enterTeachersRoom1,
     "teachersroom2": enterTeachersRoom2,
+    "teachersroom4": enterTeachersRoom4,
     "projectroom1": enterProjectRoom1,
     "projectroom2": enterProjectRoom2,
     "frontdesk": enterFrontDesk,
