@@ -1,0 +1,7 @@
+[project]
+name = "a-maze-ing-delft"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "rich>=15.0.0",
+]

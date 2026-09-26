@@ -4,11 +4,12 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Leon
+# Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 def enterLobby(state):
     """Starter function for the Lobby room."""
@@ -95,6 +96,10 @@ def enterLobby(state):
             result = handle_go(room)
             if result:
                 return result
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

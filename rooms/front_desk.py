@@ -4,11 +4,12 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 # Items lying on the reception desk that the player can pick up.
 # list survives between visits to the room.
@@ -267,6 +268,10 @@ def enterFrontDesk(state: dict) -> str:
             result = handleGo(destination)
             if result:
                 return result
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

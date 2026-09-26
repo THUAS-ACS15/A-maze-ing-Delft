@@ -4,12 +4,13 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Leon
+# Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from random import choice
 from utilities.clear_screen import clearScreen
+from utilities.check_status import checkStatus
 
 def getAvailableItems(state: dict) -> list:
     """
@@ -195,6 +196,10 @@ def enterStore(state: dict) -> str:
             item_to_buy = command[4:].strip()
             item_to_buy.replace("_", " ")
             handleBuy(item_to_buy)
+
+        elif command in ["status", "check status"]:
+            clearScreen()
+            checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()

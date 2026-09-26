@@ -26,7 +26,7 @@ start_time = time.time()
 
 state = {
     "current_room": "lobby",
-    "previous_room": "lobby",
+    "previous_room": None,
     "start_time": start_time,
     "coin_balance": 0,
     "student_id_obtained": False,
