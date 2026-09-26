@@ -11,6 +11,7 @@ import os
 import time
 
 from rich.console import Console
+from rich.prompt import Prompt
 from rich.text import Text
 
 # Consistent text style
@@ -55,69 +56,93 @@ def check_status(state: dict, loading_time: float = 1.2, stream_delay: float = 0
         - stream_delay (float): pause between lines (0 = instant, for tests)
         - pause (bool): if True, wait for Enter at the end so clearScreen() doesn't wipe output
 
-    Outputs: NONE
+    Outputs: NONE (but shifts state["start_time"] forward by the time the
+        status screen was open, pausing game time while viewing status)
     """
-    console = Console(legacy_windows=False)
+    enter_time = time.time()
+    try:
+        console = Console(legacy_windows=False)
 
-    # 1. Loading state
-    if loading_time > 0:
-        if os.getenv("PYCHARM_HOSTED"):
-            print("Fetching player status...")
-            time.sleep(loading_time)
-        else:
-            with console.status("[bold cyan]Fetching player status...[/]", spinner="dots"):
+        # 1. Loading state
+        if loading_time > 0:
+            if os.getenv("PYCHARM_HOSTED"):
+                print("Fetching player status...")
                 time.sleep(loading_time)
+            else:
+                with console.status("[bold cyan]Fetching player status...[/]", spinner="dots"):
+                    time.sleep(loading_time)
 
-    # 2. Gather data (tolerant of missing keys)
-    visited = state.get("visited", {})
-    completed = state.get("completed", {})
-    coin_balance = state.get("coin_balance", 0)
-    has_id = state.get("student_id_obtained", False)
-    inventory = state.get("inventory", [])
-    current_room = state.get("current_room", "Unknown")
-    previous_room = state.get("previous_room", "Unknown")
-    start_time = state.get("start_time", None)
-    time_played_str = _format_time_played(start_time) if start_time is not None else "Unknown"
+        # 2. Gather data (tolerant of missing keys)
+        visited = state.get("visited", {})
+        completed = state.get("completed", {})
+        coin_balance = state.get("coin_balance", 0)
+        has_id = state.get("student_id_obtained", False)
+        inventory = state.get("inventory", [])
+        current_room = state.get("current_room", "Unknown")
+        previous_room = state.get("previous_room", "Unknown")
+        start_time = state.get("start_time", None)
+        time_played_str = _format_time_played(start_time) if start_time is not None else "Unknown"
 
-    explored = [k for k, v in visited.items() if v]
-    unexplored = [k for k, v in visited.items() if not v]
-    completed_rooms = [k for k, v in completed.items() if v]
-    total_rooms = len(visited)
-    explored_percent = round((len(explored) / total_rooms) * 100, 2) if total_rooms > 0 else 0.0
+        explored = [k for k, v in visited.items() if v]
+        unexplored = [k for k, v in visited.items() if not v]
+        completed_rooms = [k for k, v in completed.items() if v]
+        total_rooms = len(visited)
+        explored_percent = round((len(explored) / total_rooms) * 100, 2) if total_rooms > 0 else 0.0
 
-    explored_str = "[" + ", ".join(explored) + "]" if explored else "(none yet)"
-    unexplored_str = "[" + ", ".join(unexplored) + "]" if unexplored else "(all rooms visited!)"
-    completed_str = "[" + ", ".join(completed_rooms) + "]" if completed_rooms else "(none yet)"
-    inventory_str = "[" + ", ".join(inventory) + "]" if inventory else "Empty"
-    id_str = "Yes" if has_id else "No - visit the Front Desk"
-    console.print()
+        explored_str = "[" + ", ".join(explored) + "]" if explored else "(none yet)"
+        unexplored_str = "[" + ", ".join(unexplored) + "]" if unexplored else "(all rooms visited!)"
+        completed_str = "[" + ", ".join(completed_rooms) + "]" if completed_rooms else "(none yet)"
+        inventory_str = "[" + ", ".join(inventory) + "]" if inventory else "Empty"
+        id_str = "Yes" if has_id else "No - visit the Front Desk"
+        console.print()
 
-    _show_line(console, f"Current room: {current_room}", HEADER_STYLE, stream_delay)
-    _show_line(console, f"Previous room: {previous_room}", HEADER_STYLE, stream_delay)
-    _show_line(console, f"Time played: {time_played_str}", HEADER_STYLE, stream_delay)
-    console.print()
+        _show_line(console, f"Current room: {current_room}", HEADER_STYLE, stream_delay)
+        _show_line(console, f"Previous room: {previous_room}", HEADER_STYLE, stream_delay)
+        _show_line(console, f"Time played: {time_played_str}", HEADER_STYLE, stream_delay)
+        console.print()
 
-    _show_line(console, f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):", HEADER_STYLE, stream_delay)
-    _show_line(console, explored_str, "", stream_delay)
-    console.print()
+        _show_line(console, f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):", HEADER_STYLE, stream_delay)
+        _show_line(console, explored_str, "", stream_delay)
+        console.print()
 
-    _show_line(console, f"Not yet explored ({len(unexplored)}):", HEADER_STYLE, stream_delay)
-    _show_line(console, unexplored_str, "", stream_delay)
-    console.print()
+        _show_line(console, f"Not yet explored ({len(unexplored)}):", HEADER_STYLE, stream_delay)
+        _show_line(console, unexplored_str, "", stream_delay)
+        console.print()
 
-    _show_line(console, f"Challenges completed ({len(completed_rooms)}):", HEADER_STYLE, stream_delay)
-    _show_line(console, completed_str, "", stream_delay)
-    console.print()
+        _show_line(console, f"Challenges completed ({len(completed_rooms)}):", HEADER_STYLE, stream_delay)
+        _show_line(console, completed_str, "", stream_delay)
+        console.print()
 
-    _show_line(console, f"Coin balance: {coin_balance}", HEADER_STYLE, stream_delay)
-    _show_line(console, f"Student ID: {id_str}", HEADER_STYLE, stream_delay)
-    console.print()
+        _show_line(console, f"Coin balance: {coin_balance}", HEADER_STYLE, stream_delay)
+        _show_line(console, f"Student ID: {id_str}", HEADER_STYLE, stream_delay)
+        console.print()
 
-    _show_line(console, f"Inventory ({len(inventory)}):", HEADER_STYLE, stream_delay)
-    _show_line(console, inventory_str, "", stream_delay)
+        _show_line(console, f"Inventory ({len(inventory)}):", HEADER_STYLE, stream_delay)
+        _show_line(console, inventory_str, "", stream_delay)
 
-    if pause:
-        input("Press Enter to continue...")
+        if pause:
+            from utilities.inventory_viewer import item_descriptions
+
+            console.print("Available commands:")
+            console.print("- inventory : View item details")
+            console.print(f"- exit      : Back to {current_room}")
+            while Prompt.ask(
+                "Command",
+                choices=["inventory", "exit"],
+                default="exit",
+                show_choices=True,
+                console=console,
+            ) == "inventory":
+                if not inventory:
+                    console.print("No inventory.")
+                else:
+                    for item in inventory:
+                        console.print(f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}")
+    finally:
+        # Exclude the whole status screen duration from game time.
+        start_time = state.get("start_time", None)
+        if isinstance(start_time, (int, float)) and not isinstance(start_time, bool):
+            state["start_time"] = start_time + (time.time() - enter_time)
 
 
 # Alias preserving the original camelCase name used across rooms.
