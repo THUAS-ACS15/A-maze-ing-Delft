@@ -10,11 +10,21 @@
 import sys
 import random
 from time import sleep
-from utilities.animations import showActivityAnimation
+from utilities.animations import (
+    showActivityAnimation,
+)
 from utilities.clear_screen import clearScreen
 from utilities.check_status import checkStatus
 
-rainbow_colors_correct = ["Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet"]
+rainbow_colors_correct = [
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Indigo",
+    "Violet",
+]
 
 colors_on_projector = rainbow_colors_correct.copy()
 while colors_on_projector == rainbow_colors_correct:
@@ -28,7 +38,9 @@ def enterProjectRoom2(state: dict) -> str:
     state["visited"]["projectroom2"] = True
     print("🎨 You enter the Project Room.")
     print("In the middle of the room stands an old projector, humming quietly.")
-    print("It projects 7 colored slides onto the wall, but they look completely out of order.")
+    print(
+        "It projects 7 colored slides onto the wall, but they look completely out of order."
+    )
     print("Maybe you should take a closer look at the projector.")
 
     # +-------------------------+
@@ -48,7 +60,9 @@ def enterProjectRoom2(state: dict) -> str:
         """
 
         clearScreen()
-        print("Type two positions (1-7) to swap the colors shown there. Arrange them in rainbow order.")
+        print(
+            "Type two positions (1-7) to swap the colors shown there. Arrange them in rainbow order."
+        )
         print("Current order on the projector:")
         for position, color in enumerate(colors_on_projector, start=1):
             print(f"    {position}. {color}")
@@ -88,12 +102,19 @@ def enterProjectRoom2(state: dict) -> str:
         if not state["completed"]["projectroom2"]:
             print("You take a closer look at the projector.")
             print("The 7 slides show colors, but shuffled in a random order.")
-            print("It looks like they are meant to be arranged in the order of the rainbow.")
+            print(
+                "It looks like they are meant to be arranged in the order of the rainbow."
+            )
             print("Maybe you should try swapping the slides around.")
         else:
-            print("You've already arranged the colors correctly. There's nothing more for you to do.")
+            print(
+                "You've already arranged the colors correctly. There's nothing more for you to do."
+            )
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
@@ -167,10 +188,20 @@ def enterProjectRoom2(state: dict) -> str:
                 continue
 
             # Check if both positions are valid and different, then swap them
-            if first_int in range(1, 8) and second_int in range(1, 8) and first_int != second_int:
+            if (
+                first_int in range(1, 8)
+                and second_int in range(1, 8)
+                and first_int != second_int
+            ):
                 index_one = first_int - 1
                 index_two = second_int - 1
-                colors_on_projector[index_one], colors_on_projector[index_two] = colors_on_projector[index_two], colors_on_projector[index_one]
+                (
+                    colors_on_projector[index_one],
+                    colors_on_projector[index_two],
+                ) = (
+                    colors_on_projector[index_two],
+                    colors_on_projector[index_one],
+                )
                 printPuzzleInstructions()
             else:
                 printPuzzleInstructions()
@@ -182,8 +213,12 @@ def enterProjectRoom2(state: dict) -> str:
             clearScreen()
             print("🌈 The slides light up in perfect rainbow order, congratulations!")
             state["inventory"].append("labd2003keycard")
-            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it.")
-            print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
+            print(
+                "💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it."
+            )
+            print(
+                "It looks like it could open the door to LAB D2.003 somewhere else in the building."
+            )
 
     # +--------------+
     # | Command loop |
@@ -209,7 +244,10 @@ def enterProjectRoom2(state: dict) -> str:
         elif command == "start puzzle":
             handlePuzzleStart()
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 

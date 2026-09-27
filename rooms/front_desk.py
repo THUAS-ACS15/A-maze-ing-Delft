@@ -13,7 +13,11 @@ from utilities.check_status import checkStatus
 
 # Items lying on the reception desk that the player can pick up.
 # list survives between visits to the room.
-desk_items = ["pen", "visitor badge", "campus flyer"]
+desk_items = [
+    "pen",
+    "visitor badge",
+    "campus flyer",
+]
 
 # The reward for registering at the desk: the deposit refund on the old ID card.
 ID_CARD_REFUND = 5
@@ -77,14 +81,16 @@ def enterFrontDesk(state: dict) -> str:
 
         clearScreen()
         print("The staff member looks up over his glasses.")
-        print("\"Why are you walking around campus without your student ID card?\"")
-        print("\"Sit down, I'll print you a new one. Type 'cancel' if you're in a hurry.\"")
+        print('"Why are you walking around campus without your student ID card?"')
+        print(
+            "\"Sit down, I'll print you a new one. Type 'cancel' if you're in a hurry.\""
+        )
 
-        name = input("\n\"What's your name?\" > ").strip()
+        name = input('\n"What\'s your name?" > ').strip()
 
         if name.lower() == "cancel":
             clearScreen()
-            print("\"Fine, fine. Come back when you've got a minute.\"")
+            print('"Fine, fine. Come back when you\'ve got a minute."')
             return
 
         # Empty input still needs a name for the card, so fall back to a default
@@ -94,20 +100,22 @@ def enterFrontDesk(state: dict) -> str:
 
         # Keep asking until the player gives an 8 digit number or cancels
         while True:
-            student_no = input("\"And your 8-digit student number?\" > ").strip()
+            student_no = input('"And your 8-digit student number?" > ').strip()
 
             if student_no.lower() == "cancel":
                 clearScreen()
-                print("\"Suit yourself. The card will be waiting here.\"")
+                print('"Suit yourself. The card will be waiting here."')
                 return
 
             # Check length first, then that every character is a digit
             if len(student_no) != 8:
                 clearScreen()
-                print(f"\"That's {len(student_no)} characters. A student number is exactly 8 digits long.\"")
+                print(
+                    f'"That\'s {len(student_no)} characters. A student number is exactly 8 digits long."'
+                )
             elif not student_no.isnumeric():
                 clearScreen()
-                print("\"Digits only, please. No letters in a student number.\"")
+                print('"Digits only, please. No letters in a student number."')
             else:
                 break
 
@@ -118,14 +126,16 @@ def enterFrontDesk(state: dict) -> str:
         state["coin_balance"] += ID_CARD_REFUND
 
         clearScreen()
-        print(f"The printer whirs. \"There you go, {name}. Don't lose this one.\"")
+        print(f'The printer whirs. "There you go, {name}. Don\'t lose this one."')
         print("He slides a fresh student ID card across the counter.")
-        print(f"\"Oh, and here's the deposit back on your old card.\" (+{ID_CARD_REFUND} coins)")
+        print(
+            f'"Oh, and here\'s the deposit back on your old card." (+{ID_CARD_REFUND} coins)'
+        )
         print("")
         print("His desk phone rings. He picks up, and his face changes.")
-        print(">> \"Security? Yes, we filed the report. Something strange is going on\"")
-        print(">> \"down the E-W corridor, inside the Equinox student society room.\"")
-        print(">> \"Send someone over. Now.\"")
+        print('>> "Security? Yes, we filed the report. Something strange is going on"')
+        print('>> "down the E-W corridor, inside the Equinox student society room."')
+        print('>> "Send someone over. Now."')
         print("")
         print("He hangs up and pretends you didn't hear any of that.")
 
@@ -157,12 +167,18 @@ def enterFrontDesk(state: dict) -> str:
             print("Your new student ID card is already clipped to your bag.")
 
         if desk_items:
-            print("On the corner of the counter you spot:", ", ".join(desk_items))
+            print(
+                "On the corner of the counter you spot:",
+                ", ".join(desk_items),
+            )
         else:
             print("The counter is completely clear now.")
 
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
@@ -248,11 +264,15 @@ def enterFrontDesk(state: dict) -> str:
         elif command == "register":
             if state["completed"]["frontdesk"]:
                 clearScreen()
-                print("\"You've already got your card. Stop wasting my toner.\"")
+                print('"You\'ve already got your card. Stop wasting my toner."')
             else:
                 handleRegister()
 
-        elif command in ["read map", "look at map", "map"]:
+        elif command in [
+            "read map",
+            "look at map",
+            "map",
+        ]:
             clearScreen()
             print("--- 2ND FLOOR CAMPUS MAP ---")
             printFloorMap()
@@ -269,7 +289,10 @@ def enterFrontDesk(state: dict) -> str:
             if result:
                 return result
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 

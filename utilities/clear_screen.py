@@ -9,11 +9,12 @@
 import os
 from utilities.status_bar import updateStatusBar
 
+
 def clearScreen():
     from main import state
 
     if os.getenv("PYCHARM_HOSTED"):
         print("\n" * 50)  # fallback for PyCharm
     else:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        os.system("cls" if os.name == "nt" else "clear")
     updateStatusBar(state)

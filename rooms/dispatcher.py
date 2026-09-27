@@ -23,7 +23,9 @@ from .teachersroom4 import enterTeachersRoom4
 from .project_room_1 import enterProjectRoom1
 from .project_room_2 import enterProjectRoom2
 from .front_desk import enterFrontDesk
-from .equinox_student_society import enterEquinoxStudentSociety
+from .equinox_student_society import (
+    enterEquinoxStudentSociety,
+)
 from .classroom_d2015 import enterClassroomD2015
 from .classroom_d2035 import enterClassroomD2035
 
@@ -64,7 +66,9 @@ def enter_room(room_name: str, state: dict):
         return "lobby"
 
     if room_name == "equinoxstudentsociety" and not state.get("student_id_obtained"):
-        print("❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room.")
+        print(
+            "❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room."
+        )
         time.sleep(2.0)
         return "lobby"
 
