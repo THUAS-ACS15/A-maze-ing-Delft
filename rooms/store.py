@@ -12,15 +12,16 @@ from random import choice
 from utilities.clear_screen import clearScreen
 from utilities.check_status import checkStatus
 
+
 def getAvailableItems(state: dict) -> list:
     """
     Returns a list of available items in the store.
-    
+
     This function retrieves the list of available items in the store from the game state.
-    
+
     Inputs:
         - state (dict): The current game state dict.
-    
+
     Outputs:
         - available_items (list): A list of available items in the store, where each item is represented as a list containing its name, description, and price.
     """
@@ -28,11 +29,12 @@ def getAvailableItems(state: dict) -> list:
 
     return available_items
 
+
 def checkStoreCompletion(state: dict) -> None:
     """
     Checks if the store has been completed, i.e. if every item was bought.
 
-    This function checks if the store has been completed by verifying if there are any available items left in the store. 
+    This function checks if the store has been completed by verifying if there are any available items left in the store.
     If there are no available items, it updates the game state to mark it as completed.
 
     Inputs:
@@ -44,6 +46,7 @@ def checkStoreCompletion(state: dict) -> None:
         state["completed"]["store"] = True
         clearScreen()
         print("Looks like you've bought everything in the store. Congratulations!")
+
 
 def enterStore(state: dict) -> str:
     """Starter function for the store."""
@@ -61,13 +64,13 @@ def enterStore(state: dict) -> str:
     def handleLook() -> None:
         """
         Describes the room and gives clues.
-        
-        This function describes the room and gives clues to the player about the 
-        store. It also shows the possible exits and the 
+
+        This function describes the room and gives clues to the player about the
+        store. It also shows the possible exits and the
         player's current inventory.
-        
+
         Inputs: NONE
-        
+
         Outputs: NONE
         """
         if not state["completed"]["store"]:
@@ -77,18 +80,23 @@ def enterStore(state: dict) -> str:
             for item in getAvailableItems(state):
                 print(f"  - {item[0]} for €{item[1]}")
         else:
-            print("You've already bought everything useful in the store. You should probably explore elsewhere.")
+            print(
+                "You've already bought everything useful in the store. You should probably explore elsewhere."
+            )
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
         Lists available commands.
-        
+
         This function lists the available commands for the player to use in the room.
-        
+
         Inputs: NONE
-        
+
         Outputs: NONE
         """
 
@@ -103,18 +111,18 @@ def enterStore(state: dict) -> str:
     def handleGo(destination: str) -> str:
         """
         Handles movement out of the room.
-        
+
         This function checks if the player can move to the given destination from this room.
         If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.
-        
+
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
         valid_destinations = ["lobby", "back"]
-        
+
         if destination in valid_destinations:
             print("You decide to leave the store and return to the lobby.")
             return "lobby"
@@ -125,19 +133,23 @@ def enterStore(state: dict) -> str:
     def handleBuy(item_to_buy: str) -> None:
         """
         Handles the purchase of an item from the store.
-        
+
         This function checks if the item the player wants to buy is available in the store.
         If the item is available, it prompts the player for confirmation. If confirmed, it adds
         the item to the player's inventory, deducts the cost, and removes the item from the store's available items.
-        
+
         Inputs:
             - item_to_buy (str): The name of the item the player wants to buy.
-        
+
         Outputs: NONE
         """
         found = False
         # Random greetings chosen after confirming buy
-        congratulations = ["Congratulations!", "Nice!", "Happy day!"]
+        congratulations = [
+            "Congratulations!",
+            "Nice!",
+            "Happy day!",
+        ]
         available_items = getAvailableItems(state)
 
         # Lower input so we are sure they match
@@ -148,9 +160,15 @@ def enterStore(state: dict) -> str:
             if item[0].lower() == item_to_buy:
                 found = True
                 print(f"found {item[0]} id {id}")
-                confirmation = input(f"Confirm purchase of €{item[1]} for {item[0].capitalize()}? (y/n) > ")
+                confirmation = input(
+                    f"Confirm purchase of €{item[1]} for {item[0].capitalize()}? (y/n) > "
+                )
 
-                if confirmation in ["y", "ye", "yes"]:
+                if confirmation in [
+                    "y",
+                    "ye",
+                    "yes",
+                ]:
                     # Add item to inventory, remove cost and remove from stock
                     state["inventory"].append(item[0])
                     state["coin_balance"] -= item[1]
@@ -159,7 +177,9 @@ def enterStore(state: dict) -> str:
                     clearScreen()
 
                     chosen_congratulation = choice(congratulations)
-                    print(f"You bought {item[0]} for €{item[1]}. {chosen_congratulation}")
+                    print(
+                        f"You bought {item[0]} for €{item[1]}. {chosen_congratulation}"
+                    )
                     break
                 else:
                     clearScreen()
@@ -197,7 +217,10 @@ def enterStore(state: dict) -> str:
             item_to_buy.replace("_", " ")
             handleBuy(item_to_buy)
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 

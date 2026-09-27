@@ -4,9 +4,11 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
+# Contributor: Gift Odigwe
 # -----------------------------------------------------------------------------
 
 from utilities.clear_screen import clearScreen
+
 
 def chooseNextRoom(choices):
     print("\n🔀 Choose a door:")

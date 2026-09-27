@@ -35,7 +35,7 @@ state = {
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
-        "classroomd2035": False
+        "classroomd2035": False,
     },
     "completed": {
         "labd2001": False,
@@ -48,15 +48,30 @@ state = {
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
-        "classroomd2035": False
+        "classroomd2035": False,
     },
-    "inventory": []
+    "inventory": [],
 }
 
-clearScreen()
 
-while True:
-    next_room = enter_room(state["current_room"], state)
-    if next_room in ("quit", "exit"):
-        break
-    state["current_room"] = next_room
+def main():
+    clearScreen()
+
+    # Main room-navigation loop.
+    # Repeatedly reads the player's current room from state, falls back to "lobby"
+    # if the value is missing or invalid, and calls enter_room() to determine the
+    # next room. The loop continues until enter_room() returns "quit" or "exit",
+    # at which point the game ends. Otherwise, the returned room is saved back into
+    # state["current_room"] for the next iteration.
+    while True:
+        current = state.get("current_room", "lobby")
+        if not isinstance(current, str):
+            current = "lobby"
+        next_room = enter_room(current, state)
+        if next_room in ("quit", "exit"):
+            break
+        state["current_room"] = next_room
+
+
+if __name__ == "__main__":
+    main()

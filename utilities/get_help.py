@@ -14,9 +14,15 @@ they use today (e.g. hide a command once its challenge is completed).
 """
 
 DEFAULT_COMMANDS = [
-    ("look around", "Examine the room for clues."),
+    (
+        "look around",
+        "Examine the room for clues.",
+    ),
     ("status", "Show your overall progress."),
-    ("go lobby / back", "Leave the room and return to the lobby."),
+    (
+        "go lobby / back",
+        "Leave the room and return to the lobby.",
+    ),
     ("?", "Show this help message."),
     ("quit", "Quit the game completely."),
 ]

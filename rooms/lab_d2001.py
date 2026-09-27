@@ -9,7 +9,9 @@
 
 import sys
 from time import sleep
-from utilities.animations import showActivityAnimation
+from utilities.animations import (
+    showActivityAnimation,
+)
 from utilities.clear_screen import clearScreen
 from utilities.check_status import checkStatus
 
@@ -17,14 +19,19 @@ available_boxes = [5, 95, 47, 53, 10, 90]
 
 forklifts = [[], [], []]
 
+
 def enterLabD2001(state: dict) -> str:
     """Starter function for Lab D2.001."""
 
     clearScreen()
     state["visited"]["labd2001"] = True
     print("🧪 You enter Lab D2.001.")
-    print("You find a work-in-progress construction project. Various materials and tools are laid out on the floor.")
-    print("You spot three forklifts on one side of the room, and six boxes on the other.")
+    print(
+        "You find a work-in-progress construction project. Various materials and tools are laid out on the floor."
+    )
+    print(
+        "You spot three forklifts on one side of the room, and six boxes on the other."
+    )
     print("Maybe you should check it out.")
 
     # +-------------------------+
@@ -34,17 +41,19 @@ def enterLabD2001(state: dict) -> str:
     def printPuzzleInstructions() -> None:
         """
         Helper function to print puzzle instructions.
-        
+
         This function prints the instructions for the box stacking puzzle,
         along with the status of the forklifts and available boxes.
-        
+
         Inputs: NONE
-        
+
         Outputs: NONE
         """
 
         clearScreen()
-        print(" First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on.")
+        print(
+            " First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on."
+        )
         print(f"    - Available boxes: {available_boxes}")
         print(f"    - Forklift 1: {forklifts[0]}")
         print(f"    - Forklift 2: {forklifts[1]}")
@@ -53,13 +62,13 @@ def enterLabD2001(state: dict) -> str:
     def boxPuzzleCheck() -> bool:
         """
         Checks if the box puzzle is solved correctly. Returns True if solved, False otherwise.
-        
+
         The function checks if the puzzle is solved correctly,
-        i.e. if each forklift has exactly two boxes and the total 
+        i.e. if each forklift has exactly two boxes and the total
         weight of the boxes on each forklift is exactly 100kg.
-        
+
         Inputs: NONE
-        
+
         Outputs:
             - bool: True if the puzzle is solved correctly, False otherwise.
         """
@@ -84,35 +93,44 @@ def enterLabD2001(state: dict) -> str:
     def handleLook() -> None:
         """
         Describes the room and gives clues.
-        
-        This function describes the room and gives clues to the player about the 
-        box stacking puzzle. It also shows the possible exits and the 
+
+        This function describes the room and gives clues to the player about the
+        box stacking puzzle. It also shows the possible exits and the
         player's current inventory.
-        
+
         Inputs: NONE
-        
+
         Outputs: NONE
         """
 
         if not state["completed"]["labd2001"]:
             print("You take a closer look at the forklifts.")
-            print("You make out a label on the forklifts that says \"MAX. 100kg\".")
+            print('You make out a label on the forklifts that says "MAX. 100kg".')
             print("It seems that they can only have space for two boxes at a time.")
-            print("You turn to the boxes, and notice each of them have their weight listed on them: 5kg, 53kg, 95kg, 10kg, 47kg and 90kg.")
-            print("This looks like a puzzle. Maybe you should try stacking the boxes on the forklifts.")
+            print(
+                "You turn to the boxes, and notice each of them have their weight listed on them: 5kg, 53kg, 95kg, 10kg, 47kg and 90kg."
+            )
+            print(
+                "This looks like a puzzle. Maybe you should try stacking the boxes on the forklifts."
+            )
         else:
-            print("You've already stacked the boxes correctly. There's nothing more for you to do.")
+            print(
+                "You've already stacked the boxes correctly. There's nothing more for you to do."
+            )
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
         Lists available commands.
-        
+
         This function lists the available commands for the player to use in the room.
-        
+
         Inputs: NONE
-        
+
         Outputs: NONE
         """
 
@@ -127,18 +145,18 @@ def enterLabD2001(state: dict) -> str:
     def handleGo(destination: str) -> str:
         """
         Handles movement out of the room.
-        
+
         This function checks if the player can move to the given destination from this room.
         If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.
-        
+
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
         valid_destinations = ["lobby", "back"]
-        
+
         if destination in valid_destinations:
             print("You decide to get out of the lab and return to the lobby.")
             return "lobby"
@@ -200,7 +218,7 @@ def enterLabD2001(state: dict) -> str:
             state["coin_balance"] += 10
             clearScreen()
             print("Looks like you stacked the boxes correctly, congratulations!")
-            print("You hear a loud \"click\" sound, and one of the boxes falls open.")
+            print('You hear a loud "click" sound, and one of the boxes falls open.')
             print("Inside, you find some coins, which you pick up. (+10 coins)")
 
     # +--------------+
@@ -227,13 +245,18 @@ def enterLabD2001(state: dict) -> str:
         elif command == "start stacking":
             handlePuzzleStart()
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 
         elif command == "quit":
             clearScreen()
-            print("👋 You sit on one of the chairs in the Lab and close your eyes. Game over.")
+            print(
+                "👋 You sit on one of the chairs in the Lab and close your eyes. Game over."
+            )
             sys.exit()
 
         else:

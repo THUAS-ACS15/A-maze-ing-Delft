@@ -9,7 +9,9 @@
 
 import sys
 from time import sleep
-from utilities.animations import showActivityAnimation
+from utilities.animations import (
+    showActivityAnimation,
+)
 from utilities.clear_screen import clearScreen
 from utilities.check_status import checkStatus
 
@@ -25,7 +27,7 @@ acrostic_lines = [
     "Insight remains for the daring who seek.",
     "Night brings the hour of balance and sight,",
     "Over the halls where day equals night.",
-    "X marks the society hidden from light."
+    "X marks the society hidden from light.",
 ]
 
 # The word spelled out by the first letters above.
@@ -43,7 +45,9 @@ def enterClassroomD2035(state: dict) -> str:
 
     clearScreen()
     state["visited"]["classroomd2035"] = True
-    print("📚 You slip into Classroom D2.035, halfway through an English Literature lecture.")
+    print(
+        "📚 You slip into Classroom D2.035, halfway through an English Literature lecture."
+    )
     print("Tiered wooden seating climbs towards the back. Nobody looks up.")
     print("At the front, a lecturer is glaring at a poem chalked across the board")
     print("in handwriting that is clearly not hers.")
@@ -53,7 +57,7 @@ def enterClassroomD2035(state: dict) -> str:
     if "d2035_progress" not in state:
         state["d2035_progress"] = {
             "wrong_guesses": 0,
-            "talked_to_lecturer": False
+            "talked_to_lecturer": False,
         }
 
     progress = state["d2035_progress"]
@@ -85,7 +89,7 @@ def enterClassroomD2035(state: dict) -> str:
 
         print("|                                                             |")
         print("|  - scrawled below, in a different hand:                     |")
-        print("|      \"Read down, not across. Seven letters. Be there.\"      |")
+        print('|      "Read down, not across. Seven letters. Be there."      |')
         print("+-------------------------------------------------------------+")
 
         if state["completed"]["classroomd2035"]:
@@ -132,19 +136,29 @@ def enterClassroomD2035(state: dict) -> str:
         if not state["completed"]["classroomd2035"]:
             print("You take a look around the lecture hall.")
             print("Front: a chalkboard with a seven line poem on it ('read board').")
-            print("Podium: the lecturer, arms folded, clearly unimpressed ('talk to lecturer').")
+            print(
+                "Podium: the lecturer, arms folded, clearly unimpressed ('talk to lecturer')."
+            )
             print("Middle: rows of desks with open Shakespeare and cryptography notes.")
         else:
             print("The chalkboard has been wiped. The lecturer gives you a small nod.")
-            print("Whatever the Equinox Society is, she wants nothing more to do with it.")
+            print(
+                "Whatever the Equinox Society is, she wants nothing more to do with it."
+            )
 
         if desk_items:
-            print("Left on the front desk:", ", ".join(desk_items))
+            print(
+                "Left on the front desk:",
+                ", ".join(desk_items),
+            )
         else:
             print("The desks have been cleared.")
 
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
@@ -227,22 +241,30 @@ def enterClassroomD2035(state: dict) -> str:
         """
 
         if state["completed"]["classroomd2035"]:
-            print("Lecturer: \"Splendid deduction earlier. Now do me a favour.\"")
-            print("\"Whoever is running that society, don't let them know you can read.\"")
+            print('Lecturer: "Splendid deduction earlier. Now do me a favour."')
+            print(
+                '"Whoever is running that society, don\'t let them know you can read."'
+            )
             return
 
         progress["talked_to_lecturer"] = True
-        print("Lecturer: \"It was on my board when I unlocked this morning.\"")
-        print("\"Some student from the East Wing, I assume. It's an acrostic, obviously.\"")
+        print('Lecturer: "It was on my board when I unlocked this morning."')
+        print(
+            '"Some student from the East Wing, I assume. It\'s an acrostic, obviously."'
+        )
 
         # Only give the real hint once the player has struggled a bit
         if progress["wrong_guesses"] >= HINT_AFTER_GUESSES:
             print("")
             print("She sighs and taps the board with her chalk.")
-            print("\"The first letter of every line. Read them downwards, top to bottom.\"")
-            print("\"Seven lines, seven letters. The night where day and dark are equal.\"")
+            print(
+                '"The first letter of every line. Read them downwards, top to bottom."'
+            )
+            print(
+                '"Seven lines, seven letters. The night where day and dark are equal."'
+            )
         else:
-            print("\"Work it out yourself. That's rather the point of literature.\"")
+            print('"Work it out yourself. That\'s rather the point of literature."')
 
     def handleSolve() -> None:
         """
@@ -275,21 +297,23 @@ def enterClassroomD2035(state: dict) -> str:
             state["inventory"].append("equinox cipher note")
             state["coin_balance"] += CIPHER_REWARD
 
-            print(f"You say it out loud: \"{ACROSTIC_ANSWER.upper()}.\"")
+            print(f'You say it out loud: "{ACROSTIC_ANSWER.upper()}."')
             print("The lecture hall goes very quiet. A few students turn around.")
             print("")
             print("The lecturer pulls a folded note out of her jacket.")
-            print("\"This was pinned under the poem. I didn't want it on my board.\"")
+            print('"This was pinned under the poem. I didn\'t want it on my board."')
             print("It's an invitation, in the same handwriting. A date. A room number.")
             print("")
-            print(f"She also presses the department's puzzle prize into your hand. (+{CIPHER_REWARD} coins)")
+            print(
+                f"She also presses the department's puzzle prize into your hand. (+{CIPHER_REWARD} coins)"
+            )
         else:
             # Count the miss so handleTalk() knows when to offer the real hint
             progress["wrong_guesses"] += 1
-            print(f"\"{guess.upper()}\"? The lecturer doesn't even look up.")
+            print(f'"{guess.upper()}"? The lecturer doesn\'t even look up.')
 
             if progress["wrong_guesses"] >= HINT_AFTER_GUESSES:
-                print("\"Go on then, ask me. I can see you're stuck.\"")
+                print('"Go on then, ask me. I can see you\'re stuck."')
             else:
                 print("Look at how each line begins, not what it says.")
 
@@ -308,11 +332,19 @@ def enterClassroomD2035(state: dict) -> str:
             clearScreen()
             handleHelp()
 
-        elif command in ["read board", "look at board", "board"]:
+        elif command in [
+            "read board",
+            "look at board",
+            "board",
+        ]:
             clearScreen()
             printChalkboard()
 
-        elif command in ["talk to lecturer", "talk to professor", "lecturer"]:
+        elif command in [
+            "talk to lecturer",
+            "talk to professor",
+            "lecturer",
+        ]:
             clearScreen()
             handleTalk()
 
@@ -331,7 +363,10 @@ def enterClassroomD2035(state: dict) -> str:
             if result:
                 return result
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 
