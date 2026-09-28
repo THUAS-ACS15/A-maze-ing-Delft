@@ -7,20 +7,31 @@
 # -----------------------------------------------------------------------------
 import time
 
+from rich import syntax
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt
+from rich.syntax import Syntax
 from art import *
 
 from utilities.clear_screen import clearScreen
 from utilities.display_menu import display_menu
 from utilities.loader import loader
 from utilities.print_line import print_line
-from utilities.prompt import prompt
+from textwrap import dedent
 
 header_style = "bold green"
 
 items = ["computer", "paperclip", "note", "mug"]
+
+file_system_without_secret = dedent("""\
+.     just_another_folder            
+""")
+
+file_system_with_secret = dedent("""\
+.     .azure         .bashrc           .config    .local      .zprofile           [blue]super_secret_file.txt[/]
+..    .bash_history  .bashrc.original  .docker   .java        .profile           .sudo_as_admin_successful 
+.aws  .bash_logout   .cache            .emacs.d  .lesshst     
+""").strip()
 
 room_commands = [
     (
@@ -110,6 +121,14 @@ def _show_desk(console: Console, state: dict) -> None:
         )
 
 
+def _show_goodbye() -> None:
+    """Splash shown when leaving the computer (shutdown or logout)."""
+    clearScreen()
+    print_line(text2art("Good bye!", font="univers", chr_ignore=True), delay=0.002)
+    time.sleep(1)
+    clearScreen()
+
+
 def enter_teachers_room_4(state: dict) -> str:
     """Greet the player in Teachers Room 4 and send them back to the Lobby."""
     clearScreen()
@@ -130,7 +149,7 @@ def enter_teachers_room_4(state: dict) -> str:
     )
     state["previous_room"] = "teachersroom4"
 
-    choice = input(":")
+    choice = input("_")
     while choice not in ("leave", "exit"):
         match choice:
             case "?" | "help":
@@ -158,7 +177,7 @@ def enter_teachers_room_4(state: dict) -> str:
                             if not remaining:
                                 print_line("Nothing left but crumbs. Leave those too.")
                             else:
-                                taken = input(_)
+                                taken = input("_")
                                 state.setdefault(
                                     "inventory",
                                     [],
@@ -197,20 +216,12 @@ def enter_teachers_room_4(state: dict) -> str:
                             time.sleep(2)
                             clearScreen()
                             print_line(
-                                "Viola! you are half way in before you get in, you need to figure out the username and password. Get creative!",
+                                "Viola! you are half way in! Now explore the file system to see if you find anything interesting.",
                                 delay=0.015,
                             )
                             time.sleep(1)
                             print_line(text="[bold green]NIXOS // teacher-pc[/]")
                             print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                            print_line("Enter username and password to continue...")
-                            computer_choices = [
-                                "username",
-                                "password",
-                                "shutdown",
-                                "help",
-                                "?",
-                            ]
                             computer_commands = [
                                 (
                                     "shutdown",
@@ -221,8 +232,7 @@ def enter_teachers_room_4(state: dict) -> str:
                                     "Need a hint? Here’s the map. And no, you didn’t need to ask the teacher.",
                                 ),
                             ]
-                            attempt = 0
-                            computer = input("username: ")
+                            computer = input(_get_prompt())
                             while computer != "shutdown":
                                 match computer:
                                     case "?" | "help":
@@ -230,122 +240,32 @@ def enter_teachers_room_4(state: dict) -> str:
                                             console,
                                             computer_commands,
                                         )
-                                    case "username":
-                                        attempt = 0
-                                        print_line(
-                                            "Good job! now the final lap. just the password and you're in. make this count"
+                                    case "ls":
+                                        print_line(file_system_without_secret)
+                                    case "ls -a":
+                                        print_line(file_system_with_secret)
+                                    case "cat super_secret_file.txt":
+                                        code = """
+                                        # Congrats you completed this challenge!
+                                        """
+                                        syntax_disp = Syntax(code,"python",theme="monokai",line_numbers=True,highlight_lines={1}  # Highlights line 1
                                         )
-                                        print_line("[bold green]NIXOS // teacher-pc[/]")
-                                        print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                                        print_line(
-                                            "Enter username and password to continue..."
-                                        )
-                                        attempt = 0
-                                        password = input("password: ")
-                                        while password != "shutdown":
-                                            match password:
-                                                case "?" | "help":
-                                                    display_menu(
-                                                        console,
-                                                        computer_commands,
-                                                    )
-                                                case "password":
-                                                    logged_in_choices = [
-                                                        "logout",
-                                                        "help",
-                                                        "?",
-                                                    ]
-                                                    print_line(
-                                                        "Congrats, you completed this challenge! Not once did I doubt you",
-                                                        delay=0.015,
-                                                    )
-                                                    state.setdefault("inventory", []).append("teacher_password")
-                                                    print_line(
-                                                        "[yellow]New item added to inventory[/]"
-                                                    )
-                                                    print_line(
-                                                        "[bold green]NIXOS // teacher-pc[/]"
-                                                    )
-                                                    print_line(
-                                                        "[dim]NixOS 26.05 (Linux 6.12.1)[/]"
-                                                    )
-                                                    logged_in = input(_get_prompt())
-                                                    while logged_in not in ("logout", "shutdown"):
-                                                        match logged_in:
-                                                            case "?" | "help":
-                                                                display_menu(
-                                                                    console,
-                                                                    computer_commands,
-                                                                )
-                                                            case _:
-                                                                display_menu(
-                                                                    console,
-                                                                    computer_commands,
-                                                                )
-                                                        logged_in = input(_get_prompt(), )
-                                                    computer = "shutdown"
-                                                    break
-                                                case _:
-                                                    if attempt == 0:
-                                                        print_line(
-                                                            "Invalid Password! Try again"
-                                                        )
-                                                        attempt += 1
-                                                    elif attempt == 1:
-                                                        print_line(
-                                                            "Invalid password! Try again. It is alot easier than you think"
-                                                        )
-                                                        attempt += 1
-                                                    elif attempt == 2:
-                                                        print_line(
-                                                            "Invalid password! Try again"
-                                                        )
-                                                        print_line(
-                                                            "[yellow]hint[/]! imagine a world where your name disappears and you have to type one magic word to reveal it?"
-                                                        )
-                                                        attempt += 1
-                                                    else:
-                                                        print_line(
-                                                            "Invalid password! Try again"
-                                                        )
-                                                        print_line(
-                                                            "[yellow]hint:[/] before entering any account, whats the first gate you pass?"
-                                                        )
-                                                        print_line(
-                                                            "[yellow]hint:[/] What single wor is the DNA of ever account you ever created?"
-                                                        )
-                                                        attempt += 1
-                                            if password != "shutdown" and computer != "shutdown":
-                                                password = input("Password: ")
-                                        if password == "shutdown":
-                                            computer = "shutdown"
-
+                                        time.sleep(0.4)
+                                        console.print(syntax_disp)
+                                        time.sleep(0.4)
+                                        if "super_secret_file.txt" not in state.get("inventory", []):
+                                            state.setdefault("inventory", []).append("super_secret_file.txt")
+                                            print_line("[yellow]New item added to inventory[/]")
+                                    case "clear":
+                                        clearScreen()
                                     case _:
-                                        if attempt == 0:
-                                            print_line("Invalid username! Try again")
-                                            attempt += 1
-                                        elif attempt == 1:
-                                            print_line(
-                                                "Invalid username! Try again. It is alot easier than you think"
-                                            )
-                                            attempt += 1
-                                        elif attempt == 2:
-                                            print_line("Invalid username! Try again")
-                                            print_line(
-                                                "[yellow]hint[/]! imagine a world where your name disappears and you have to type one magic word to reveal it?"
-                                            )
-                                            attempt += 1
-                                        else:
-                                            print_line("Invalid username! Try again")
-                                            print_line(
-                                                "[yellow]hint:[/] before entering any account, whats the first gate you pass?"
-                                            )
-                                            print_line(
-                                                "[yellow]hint:[/] What single wor is the DNA of ever account you ever created?"
-                                            )
-                                            attempt += 1
+                                        print_line("[red]You do not have the permission to execute this command.[/]")
+
                                 if computer != "shutdown":
-                                    computer = input("Username: ")
+                                    print_line("[bold green]NIXOS // teacher-pc[/]")
+                                    print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
+                                    computer = input(_get_prompt())
+                            _show_goodbye()
                     if seated != "stand up":
                         seated = input("_")
             case "look around":
