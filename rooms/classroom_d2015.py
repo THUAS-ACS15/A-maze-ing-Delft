@@ -29,7 +29,7 @@ CORRECT_VOLTAGE = 10
 CORRECT_FREQUENCY = 30
 
 # Reward for getting the rover across the test track.
-ROVER_REWARD = 50
+ROVER_REWARD = 20
 
 
 def enterClassroomD2015(state: dict) -> str:
@@ -158,7 +158,8 @@ def enterClassroomD2015(state: dict) -> str:
         """
 
         print("Available commands:")
-        print("- look around         : Examine the bench, the notebook and the rover.")
+        print("- ?                   : Show this help message.")
+        print("- look around         : Examine the room for clues.")
         if not state["completed"]["classroomd2015"]:
             print("- set power           : Dial a voltage into the bench supply.")
             print("- calibrate rover     : Send an IR carrier frequency to the rover.")
@@ -167,7 +168,6 @@ def enterClassroomD2015(state: dict) -> str:
             )
         print("- take <item>         : Pick up a component from the workbench.")
         print("- go lobby / back     : Leave the lab and return to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
     def handleTake(item: str) -> None:
@@ -319,23 +319,27 @@ def enterClassroomD2015(state: dict) -> str:
             print("It hasn't got a carrier frequency to follow.")
             return
 
-        showActivityAnimation("qte")
-        sleep(1)
-        clearScreen()
+        if state["completed"]["classroomd2015"]:
+            clearScreen()
+            print("The rover has already completed its run. There's nothing more to do here.")
+            return
+        else:
+            sleep(1)
+            clearScreen()
 
-        print("The rover's twin motors buzz to life.")
-        print("It tears down the test track, swerves around two cones, and slams")
-        print("onto the target pad at the far end. A hatch pops open in its side.")
-        print("")
+            print("The rover's twin motors buzz to life.")
+            print("It tears down the test track, swerves around two cones, and slams")
+            print("onto the target pad at the far end. A hatch pops open in its side.")
+            print("")
 
-        # Mark the room complete and hand out the rewards
-        state["completed"]["classroomd2015"] = True
-        state["inventory"].append("security dongle")
-        state["coin_balance"] += ROVER_REWARD
+            # Mark the room complete and hand out the rewards
+            state["completed"]["classroomd2015"] = True
+            state["inventory"].append("security dongle")
+            state["coin_balance"] += ROVER_REWARD
 
-        print("Inside the hatch: a small USB 'security dongle' with an Equinox logo")
-        print("etched on the casing, and the lab's prize money.")
-        print(f"You pocket both. (+{ROVER_REWARD} coins)")
+            print("Inside the hatch: a small USB 'security dongle' with an Equinox logo")
+            print("etched on the casing, and the lab's prize money.")
+            print(f"You pocket both. (+{ROVER_REWARD} coins)")
 
     # +--------------+
     # | Command loop |

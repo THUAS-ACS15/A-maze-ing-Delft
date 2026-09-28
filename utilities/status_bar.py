@@ -67,13 +67,13 @@ def getExplorationPercent(state: dict) -> float:
     """
     Calculates the percentage of the map that has been explored.
 
-    This function takes the state dict and calculates the percentage of the map that has been explored by counting the number of completed rooms and dividing by the total number of rooms.
+    This function takes the state dict and calculates the percentage of the map that has been completed by counting the number of completed rooms and dividing by the total number of rooms.
 
     Inputs:
         state (dict): The current game state.
 
     Outputs:
-        float: The percentage of the map that has been explored, rounded to 2 decimal places.
+        float: The percentage of the map that has been completed, rounded to 2 decimal places.
     """
     completed_dict = state["completed"]
 

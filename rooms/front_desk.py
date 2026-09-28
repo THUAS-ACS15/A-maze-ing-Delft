@@ -192,13 +192,13 @@ def enterFrontDesk(state: dict) -> str:
         """
 
         print("Available commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine the reception office.")
         print("- read map            : Study the 2nd floor campus floor plan.")
         if not state["completed"]["frontdesk"]:
             print("- register            : Ask the staff member for a new student ID.")
         print("- take <item>         : Pick up something from the counter.")
         print("- go lobby / back     : Leave the office and return to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
     def handleTake(item: str) -> None:

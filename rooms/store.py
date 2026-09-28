@@ -42,7 +42,7 @@ def checkStoreCompletion(state: dict) -> None:
 
     Outputs: NONE
     """
-    if len(state["store_available_items"]) == 0:
+    if len(state["store_available_items"]) == 0 and not state["completed"]["store"]:
         state["completed"]["store"] = True
         clearScreen()
         print("Looks like you've bought everything in the store. Congratulations!")
