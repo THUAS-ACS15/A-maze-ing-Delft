@@ -9,11 +9,11 @@
 import os
 from utilities.status_bar import updateStatusBar
 
-def clearScreen():
+def clearScreen(header_message: str = "stuck? use \"?\" for help") -> None:
     from main import state
 
     if os.getenv("PYCHARM_HOSTED"):
         print("\n" * 50)  # fallback for PyCharm
     else:
         os.system('cls' if os.name == 'nt' else 'clear')
-    updateStatusBar(state)
+    updateStatusBar(state, header_message)

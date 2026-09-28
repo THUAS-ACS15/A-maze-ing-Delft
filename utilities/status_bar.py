@@ -64,13 +64,13 @@ def getExplorationPercent(state: dict) -> float:
     """
     Calculates the percentage of the map that has been explored.
 
-    This function takes the state dict and calculates the percentage of the map that has been explored by counting the number of completed rooms and dividing by the total number of rooms.
+    This function takes the state dict and calculates the percentage of the map that has been completed by counting the number of completed rooms and dividing by the total number of rooms.
 
     Inputs:
         state (dict): The current game state.
 
     Outputs:
-        float: The percentage of the map that has been explored, rounded to 2 decimal places.
+        float: The percentage of the map that has been completed, rounded to 2 decimal places.
     """
     completed_dict = state["completed"]
 
@@ -82,7 +82,7 @@ def getExplorationPercent(state: dict) -> float:
 
     return exploration_percent
 
-def updateStatusBar(state: dict) -> None:
+def updateStatusBar(state: dict, header_message: str = "stuck? use \"?\" for help") -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and time played.
 
@@ -121,7 +121,7 @@ def updateStatusBar(state: dict) -> None:
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
-    left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion}"
+    left_status_data = f"{room_name} | {exploration_percent}% complete | {room_completion} | {header_message}"
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
     # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each

@@ -32,7 +32,7 @@ def checkStoreCompletion(state: dict) -> None:
     """
     Checks if the store has been completed, i.e. if every item was bought.
 
-    This function checks if the store has been completed by verifying if there are any available items left in the store. 
+    This function checks if the store has been completed by verifying if there are any available items left in the store and it is not already marked as complete. 
     If there are no available items, it updates the game state to mark it as completed.
 
     Inputs:
@@ -40,7 +40,7 @@ def checkStoreCompletion(state: dict) -> None:
 
     Outputs: NONE
     """
-    if len(state["store_available_items"]) == 0:
+    if len(state["store_available_items"]) == 0 and not state["completed"]["store"]:
         state["completed"]["store"] = True
         clearScreen()
         print("Looks like you've bought everything in the store. Congratulations!")
@@ -147,7 +147,13 @@ def enterStore(state: dict) -> str:
         for id, item in enumerate(available_items):
             if item[0].lower() == item_to_buy:
                 found = True
-                print(f"found {item[0]} id {id}")
+                # Check if player has enough coins to buy the item
+                if state["coin_balance"] < item[1]:
+                    clearScreen()
+                    print(f"❌ You don't have enough coins to buy {item[0].capitalize()}. You need €{item[1]}, but you only have €{state['coin_balance']}.")
+                    break
+
+                # If player has enough coins, ask for confirmation
                 confirmation = input(f"Confirm purchase of €{item[1]} for {item[0].capitalize()}? (y/n) > ")
 
                 if confirmation in ["y", "ye", "yes"]:

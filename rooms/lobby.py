@@ -62,7 +62,7 @@ def enterLobby(state):
         clearScreen()
         print("Available commands:")
         print("- look around         : See what's in the corridor and where you can go.")
-        print("- go <room name>      : Move to another room. Examples: 'go front desk', 'go project room 1'")
+        print("- go <room name>      : Move to another room. Example: 'go labd2001' or 'go frontdesk'.")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game.")
 

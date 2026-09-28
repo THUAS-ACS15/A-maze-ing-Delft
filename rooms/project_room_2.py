@@ -28,8 +28,6 @@ def enterProjectRoom2(state: dict) -> str:
     state["visited"]["projectroom2"] = True
     print("🎨 You enter the Project Room.")
     print("In the middle of the room stands an old projector, humming quietly.")
-    print("It projects 7 colored slides onto the wall, but they look completely out of order.")
-    print("Maybe you should take a closer look at the projector.")
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -181,9 +179,9 @@ def enterProjectRoom2(state: dict) -> str:
             state["completed"]["projectroom2"] = True
             clearScreen()
             print("🌈 The slides light up in perfect rainbow order, congratulations!")
-            state["inventory"].append("labd2003keycard")
-            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it.")
-            print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
+            state["inventory"].append("Lab D2.001 Keycard")
+            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.001'. You take it.")
+            print("It looks like it could open the door to LAB D2.001 somewhere else in the building.")
 
     # +--------------+
     # | Command loop |
@@ -207,7 +205,12 @@ def enterProjectRoom2(state: dict) -> str:
                 return result
 
         elif command == "start puzzle":
-            handlePuzzleStart()
+            if not state["completed"]["projectroom2"]:
+                clearScreen()
+                handlePuzzleStart()
+            else:
+                clearScreen()
+                print("You've already completed the puzzle. There's nothing more to do here.")
 
         elif command in ["status", "check status"]:
             clearScreen()

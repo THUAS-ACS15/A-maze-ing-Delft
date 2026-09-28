@@ -14,7 +14,7 @@ from utilities.check_status import checkStatus
 
 def enterTeachersRoom1(state: dict) -> str:
     clearScreen()
-    state["visited"]["teachesroom1"] = True
+    state["visited"]["teachersroom1"] = True
     print("\nYou step into Teachers Room 1.")
     print("A teacher is sitting at a laptop, muttering under their breath at the screen.")
     print("Sticky notes covered in function names are scattered across the desk.")
@@ -23,7 +23,7 @@ def enterTeachersRoom1(state: dict) -> str:
         print("\nYou take a look around.")
         print("It's a standard teachers room, shelves full of documents lining the left side wall. On the right there are some posters and notice boards.")
         print("The teacher's screen shows a Python code, almost finished.")
-        if not state["visited"]["teachersroom1"]:
+        if not state["completed"]["teachersroom1"]:
             print("The teacher looks up: \"Oh, perfect timing. I'm missing one last piece of this code.\"")
             print("\"If you can figure out why my code doesn't work, I'll make it worth your while.\"")
             print("""
@@ -46,13 +46,13 @@ def enterTeachersRoom1(state: dict) -> str:
 
     def handle_help():
         print("\nAvailable commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine the room and the code on screen.")
-        if not state["visited"]["teachersroom1"]:
+        if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        if state["visited"]["teachersroom1"] and "debug_notes" not in state["inventory"]:
+        if state["completed"]["teachersroom1"] and "debug_notes" not in state["inventory"]:
             print("- take notebook       : Pick up the notebook once it's offered.")
         print("- go Lobby / back  : Leave the room and return to the Lobby.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game entirely.")
 
     def handle_take(item):
@@ -80,7 +80,7 @@ def enterTeachersRoom1(state: dict) -> str:
             return None
 
     def handle_answer(answer):
-        if state["visited"]["teachersroom1"]:
+        if state["completed"]["teachersroom1"]:
             print("You've already solved this challenge.")
             return
         # accept a few equivalent ways of writing "n % 2"
@@ -88,9 +88,9 @@ def enterTeachersRoom1(state: dict) -> str:
         accepted = ["n%2", "n % 2"]
         if normalized in accepted:
             print("Correct! The teacher's eyes light up: \"n % 2 — of course! Thank you!\"")
-            state["visited"]["teachersroom1"] = True
+            state["completed"]["teachersroom1"] = True
             print("Here, take this! I have no use for this now.")
-            print("The teacher hands you a small notebook labeled 'Debug Notes'.")
+            print("The teacher points to a small notebook labeled 'Debug Notes'.")
         else:
             print("The teacher shakes their head: \"Not quite. Think about how you check if a number is even.\"")
 
@@ -128,8 +128,9 @@ def enterTeachersRoom1(state: dict) -> str:
 
         elif command == "quit":
             clearScreen()
-            print("You leave the teacher to their code and exit the room.")
-
+            print("👋 You leave the teacher to their code and exit the room.")
+            sys.exit()
+        
         else:
             clearScreen()
             print("Unknown command. Type '?' to see available commands.")

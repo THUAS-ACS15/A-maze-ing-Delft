@@ -158,14 +158,14 @@ def enterClassroomD2035(state: dict) -> str:
         """
 
         print("Available commands:")
-        print("- look around         : Examine the lecture hall.")
+        print("- ?                   : Show this help message.")
+        print("- look around         : Examine the classroom for clues.")
         print("- read board          : Read the poem chalked on the board.")
         print("- talk to lecturer    : Ask the lecturer about the poem.")
         if not state["completed"]["classroomd2035"]:
             print("- solve               : Submit the word hidden in the poem.")
         print("- take <item>         : Pick up something from the desks.")
         print("- go lobby / back     : Leave the hall and return to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
     def handleTake(item: str) -> None:

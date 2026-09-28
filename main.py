@@ -60,7 +60,7 @@ state = {
         "classroomd2015": False,
         "classroomd2035": False
     },
-    "inventory": []
+    "inventory": ["Lab D2.001 Keycard", "Teacher Access Keycard"]
 }
 
 clearScreen()
@@ -75,13 +75,28 @@ while True:
         state["current_room"] = enterStore(state)
 
     elif current == "labd2001":
-        state["current_room"] = enterLabD2001(state)
+        if "Lab D2.001 Keycard" in state["inventory"]:
+            state["current_room"] = enterLabD2001(state)
+        else:
+            print("❌ The door is locked. You need a keycard to enter.")
+            time.sleep(2.0)
+            state["current_room"] = "lobby"
 
     elif current == "teachersroom1":
-        state["current_room"] = enterTeachersRoom1(state)
+        if "Teacher Access Keycard" in state["inventory"]:
+            state["current_room"] = enterTeachersRoom1(state)
+        else:
+            print("❌ The door is locked. You need a keycard to enter.")
+            time.sleep(2.0)
+            state["current_room"] = "lobby"
 
     elif current == "teachersroom2":
-        state["current_room"] = enterTeachersRoom2(state)
+        if "Teacher Access Keycard" in state["inventory"]:
+            state["current_room"] = enterTeachersRoom2(state)
+        else:
+            print("❌ The door is locked. You need a keycard to enter.")
+            time.sleep(2.0)
+            state["current_room"] = "lobby"
 
     elif current == "projectroom2":
         state["current_room"] = enterProjectRoom2(state)
@@ -105,10 +120,6 @@ while True:
 
     elif current == "classroomd2035":
         state["current_room"] = enterClassroomD2035(state)
-
-    elif current in ["quit", "exit"]:
-        print("Exiting... goodbye and thanks for playing!")
-        break
 
     else:
         print(f"Unknown room '{current}'. Returning to Lobby...")
