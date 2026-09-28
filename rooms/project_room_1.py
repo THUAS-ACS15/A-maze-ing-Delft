@@ -150,6 +150,7 @@ def enterProjectRoom1(state: dict) -> str:
         """
 
         print("Available commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine wherever you're standing.")
         print("- go to board         : Walk up to the whiteboard.")
         print("- go to desks         : Walk between the student desks.")
@@ -160,7 +161,6 @@ def enterProjectRoom1(state: dict) -> str:
         if not state["completed"]["projectroom1"]:
             print("- swipe keycard       : Use the master keycard on the exit scanner.")
         print("- go lobby / back     : Walk out the normal way, back to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
     def handleTake(item: str) -> None:

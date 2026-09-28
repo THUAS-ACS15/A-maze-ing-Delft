@@ -21,7 +21,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
     """Starter function for the Equinox Student Society room."""
 
     clearScreen()
-    state["visited"]["equinox_student_society"] = True
+    state["visited"]["equinoxstudentsociety"] = True
     print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
     print("You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board game box on it.")
     print("Looks like they were in the middle of a Dungeons and Dragons campaign, but had to leave in a hurry.")
@@ -32,7 +32,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printPuzzleInstructions() -> None:
+    def printQuizInstructions() -> None:
         """
         Helper function to print puzzle instructions.
         
@@ -64,7 +64,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
         Outputs: NONE
         """
 
-        if not state["completed"]["equinox_society"]:
+        if not state["completed"]["equinoxstudentsociety"]:
             print("You take a close look at the board game box, and notice that it contains a small statue of a dragon.")
             print("Next to it, you find some coins. Looks like it was hoarding some treasure. Thankfully it's just a statue, so you pick them up. (+10 coins)")
             state["coin_balance"] += 10
@@ -88,7 +88,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
 
         print("Available commands:")
         print("- look around         : Examine the room for clues.")
-        if not state["completed"]["labd2001"]:
+        if not state["completed"]["equinoxstudentsociety"]:
             print("- start quiz  : Try answering the quiz on the computer.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- ?                   : Show this help message.")
@@ -110,7 +110,6 @@ def enterEquinoxStudentSociety(state: dict) -> str:
         valid_destinations = ["lobby", "back"]
         
         if destination in valid_destinations:
-            print("You decide to get out of the lab and return to the lobby.")
             return "lobby"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
@@ -132,7 +131,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
 
         showActivityAnimation("quiz")
         sleep(1)
-        printPuzzleInstructions()
+        printQuizInstructions()
 
 
 
@@ -158,7 +157,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
                 return result
 
         elif command == "start quiz":
-            handlePuzzleStart()
+            handleQuizStart()
 
         elif command in ["status", "check status"]:
             clearScreen()
@@ -166,7 +165,7 @@ def enterEquinoxStudentSociety(state: dict) -> str:
 
         elif command == "quit":
             clearScreen()
-            print("👋 You lean too hard on the chair and fall asleep. Game over.")
+            print("👋 You decide to dedicate your time to the Dungeons and Dragons game instead. Game over.")
             sys.exit()
 
         else:

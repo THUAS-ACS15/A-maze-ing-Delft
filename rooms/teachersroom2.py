@@ -13,6 +13,7 @@ from utilities.check_status import checkStatus
 
 def enterTeachersRoom2(state):
     clearScreen()
+    state["visited"]["teachersroom2"] = True
     print("You walk towards Teachers Room 2 ...")
     print("You step into Teachers Room 2.")
     print("A teacher sits at the desk, surrounded by printed tables, tapping a pen anxiously against a mug of cold coffee.")
@@ -65,9 +66,9 @@ Enrollments table:
         clearScreen()
         print("Available commands:")
         print("- look around         : See what the teacher needs help with.")
-        if not state["visited"]["teachersroom2"]:
+        if not state["completed"]["teachersroom2"]:
             print("- answer <name>       : Tell the teacher the student's name.")
-        if state["visited"]["teachersroom2"] and "db_credentials" not in state["inventory"]:
+        if state["completed"]["teachersroom2"] and "db_credentials" not in state["inventory"]:
             print("- take credentials    : Pick up the login credentials once offered.")
         print("- go lobby / back     : Leave the room and return to the lobby.")
         print("- ?                   : Show this help message.")
@@ -75,13 +76,14 @@ Enrollments table:
 
     def handle_take(item):
         if item in ["credentials", "login credentials", "db_credentials", "note", "sticky note"]:
-            if not state["visited"]["teachersroom2"]:
+            if not state["completed"]["teachersroom2"]:
                 print("There's nothing to take yet. Maybe help the teacher first.")
             elif "db_credentials" in state["inventory"]:
                 print("You already have the credentials in your backpack.")
             else:
-                print("You pick up the sticky note. \"Here, take this - I don't need it anymore,\" the teacher says.")
-                state["inventory"].append("db_credentials")
+                if state["completed"]["teachersroom2"]:
+                    print("You pick up the sticky note. \"Here, take this - I don't need it anymore,\" the teacher says.")
+                    state["inventory"].append("db_credentials")
         else:
             print(f"There is no '{item}' here to take.")
 
@@ -94,7 +96,7 @@ Enrollments table:
             return None
 
     def handle_answer(answer):
-        if state["visited"]["teachersroom2"]:
+        if state["completed"]["teachersroom2"]:
             print("You've already solved this challenge.")
             return
         normalized = answer.strip()
