@@ -9,9 +9,8 @@
 
 import sys
 from time import sleep
-from utilities.animations import (
-    showActivityAnimation,
-)
+
+from utilities.animations import show_activity_animation
 from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
 
@@ -288,7 +287,7 @@ def enter_classroom_d2035(state: dict) -> str:
         guess = input("The word hidden in the poem > ").strip().lower()
 
         if cipher_check(guess):
-            showActivityAnimation("quiz")
+            show_activity_animation("quiz")
             sleep(1)
             clear_screen()
 

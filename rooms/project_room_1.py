@@ -9,7 +9,6 @@
 
 import sys
 from time import sleep
-from utilities.animations import show_activity_animation, showActivityAnimation
 
 from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
@@ -348,8 +347,6 @@ def enter_project_room1(state: dict) -> str:
             print("It's locked away somewhere on that back wall.")
             return None
 
-        show_activity_animation("qte")
-        sleep(1)
         clear_screen()
 
         state["completed"]["projectroom1"] = True

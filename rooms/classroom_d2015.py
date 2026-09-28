@@ -9,9 +9,7 @@
 
 import sys
 from time import sleep
-from utilities.animations import (
-    showActivityAnimation,
-)
+
 from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
 
