@@ -8,10 +8,17 @@
 # -----------------------------------------------------------------------------
 
 from time import sleep
-from utilities.clear_screen import clearScreen
-from utilities.animation_frames import (puzzle_frames, quiz_frames, qte_frames)
+from utilities.clear_screen import clear_screen
+from utilities.print_line import print_line
 
-def show_activity_animation(type: str) -> None:
+from rich.console import Console
+from art import *
+
+PUZZLE_FINAL_TEXT = "PUZZLE!"
+QUIZ_FINAL_TEXT = "QUIZ!"
+QTE_FINAL_TEXT = "QUICK TIME!"
+
+def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: float = 2.0) -> None:
     """
     Clears the screen and displays the specified animation, frame-by-frame.
 
@@ -19,37 +26,23 @@ def show_activity_animation(type: str) -> None:
     that animation in the CLI.
 
     Inputs:
-        - type (str): only "puzzle" and "quiz" are currently supported, more TBD
-        - state (dict): the game state dict, to pass to clearScreen
+        - type (str): "puzzle", "quiz" or "qte"
+        - text_delay (float): delay between printing each line of the animation
+        - final_delay (float): delay after the animation is fully printed
 
     Outputs: NONE
     """
-    frames_to_print = []
-    # Switch to set frames_to_print based on type passed
+    console = Console(legacy_windows = False)
+
     match type:
         case "puzzle":
-            frames_to_print = puzzle_frames
-        case "quiz":
-            frames_to_print = quiz_frames
+            text_to_print = PUZZLE_FINAL_TEXT
+        case "quiz":    
+            text_to_print = QUIZ_FINAL_TEXT
         case "qte":
-            frames_to_print = qte_frames
+            text_to_print = QTE_FINAL_TEXT
         case _:
-            raise ValueError(f"Invalid animation type {type} in {__name__}. Must be one of: puzzle, quiz, qte.")
-
-    # Render frames except last two, with 0.3s delay
-    for frame in frames_to_print[:-2]:
-        clearScreen()
-        print(frame)
-        sleep(0.30)
-
-    repeat_counter = 0
-    clearScreen()
-    # Repeat last two frames 3 times, then print second to last to have last end with NE orientation
-    while repeat_counter < 3:
-        for frame in frames_to_print[-2:]:
-            clearScreen()
-            print(frame)
-            sleep(0.30)
-        repeat_counter += 1
-    clearScreen()
-    print(frames_to_print[-2])
+            raise ValueError(f"Invalid type: {type}. Must be 'puzzle', 'quiz', or 'qte'.")
+    
+    print_line(text2art(text_to_print, font="univers", chr_ignore=True), text_delay, console)
+    sleep(final_delay)

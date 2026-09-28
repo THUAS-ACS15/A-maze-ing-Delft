@@ -10,10 +10,7 @@
 import sys
 import random
 from time import sleep
-from utilities.animations import (
-    show_activity_animation,
-    showActivityAnimation,
-)
+from utilities.animations import show_activity_animation
 from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
 
@@ -169,8 +166,7 @@ def enter_project_room2(state: dict) -> str:
         Outputs: NONE
         """
 
-        show_activity_animation("puzzle")
-        sleep(1)
+        show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
         print_puzzle_instructions()
 
         # Loops until function returns true, i.e. if puzzle is completed
