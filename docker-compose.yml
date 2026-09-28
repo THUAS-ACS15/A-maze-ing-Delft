@@ -1,0 +1,8 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    image: a-maze-ing-deft-app
+    stdin_open: true # Keeps STDIN open for user input (equivalent to -i)
+    tty: true        # Allocates a pseudo-terminal (equivalent to -t)
