@@ -45,7 +45,7 @@ def enterEquinoxStudentSociety(
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printPuzzleInstructions() -> None:
+    def printQuizInstructions() -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -116,7 +116,7 @@ def enterEquinoxStudentSociety(
 
         print("Available commands:")
         print("- look around         : Examine the room for clues.")
-        if not state["completed"]["labd2001"]:
+        if not state["completed"]["equinoxstudentsociety"]:
             print("- start quiz  : Try answering the quiz on the computer.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- ?                   : Show this help message.")
@@ -138,7 +138,6 @@ def enterEquinoxStudentSociety(
         valid_destinations = ["lobby", "back"]
 
         if destination in valid_destinations:
-            print("You decide to get out of the lab and return to the lobby.")
             return "lobby"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
@@ -160,7 +159,7 @@ def enterEquinoxStudentSociety(
 
         showActivityAnimation("quiz")
         sleep(1)
-        printPuzzleInstructions()
+        printQuizInstructions()
 
     # +--------------+
     # | Command loop |
@@ -184,7 +183,7 @@ def enterEquinoxStudentSociety(
                 return result
 
         elif command == "start quiz":
-            handlePuzzleStart()
+            handleQuizStart()
 
         elif command in [
             "status",
@@ -195,7 +194,7 @@ def enterEquinoxStudentSociety(
 
         elif command == "quit":
             clearScreen()
-            print("👋 You lean too hard on the chair and fall asleep. Game over.")
+            print("👋 You decide to dedicate your time to the Dungeons and Dragons game instead. Game over.")
             sys.exit()
 
         else:

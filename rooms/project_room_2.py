@@ -242,7 +242,12 @@ def enterProjectRoom2(state: dict) -> str:
                 return result
 
         elif command == "start puzzle":
-            handlePuzzleStart()
+            if not state["completed"]["projectroom2"]:
+                clearScreen()
+                handlePuzzleStart()
+            else:
+                clearScreen()
+                print("You've already completed the puzzle. There's nothing more to do here.")
 
         elif command in [
             "status",

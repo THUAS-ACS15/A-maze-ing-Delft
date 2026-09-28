@@ -14,6 +14,7 @@ from utilities.check_status import checkStatus
 
 def enterTeachersRoom2(state):
     clearScreen()
+    state["visited"]["teachersroom2"] = True
     print("You walk towards Teachers Room 2 ...")
     print("You step into Teachers Room 2.")
     print(
@@ -83,7 +84,7 @@ Enrollments table:
         clearScreen()
         print("Available commands:")
         print("- look around         : See what the teacher needs help with.")
-        if not state["visited"]["teachersroom2"]:
+        if not state["completed"]["teachersroom2"]:
             print("- answer <name>       : Tell the teacher the student's name.")
         if (
             state["visited"]["teachersroom2"]
@@ -123,7 +124,7 @@ Enrollments table:
             return None
 
     def handle_answer(answer):
-        if state["visited"]["teachersroom2"]:
+        if state["completed"]["teachersroom2"]:
             print("You've already solved this challenge.")
             return
         normalized = answer.strip()

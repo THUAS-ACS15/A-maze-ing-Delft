@@ -17,7 +17,7 @@ from utilities.check_status import checkStatus
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
-forklifts = [[], [], []]
+platforms = [[], [], []]
 
 
 def enterLabD2001(state: dict) -> str:
@@ -38,7 +38,7 @@ def enterLabD2001(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printPuzzleInstructions() -> None:
+    def printPuzzleInstructions(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -74,10 +74,10 @@ def enterLabD2001(state: dict) -> str:
         """
 
         correct_count = 0
-        for forklift in forklifts:
-            if len(forklift) < 2:
+        for platform in platforms:
+            if len(platform) < 2:
                 return False
-            elif sum(forklift) != 100:
+            elif sum(platform) != 100:
                 return False
             else:
                 correct_count += 1
@@ -85,6 +85,21 @@ def enterLabD2001(state: dict) -> str:
             return True
         else:
             return False
+
+    def boxPuzzleReset() -> None:
+        """
+        Resets the box puzzle to its initial state.
+
+        This function resets the box puzzle by clearing the platforms and restoring the available boxes to their original state.
+
+        Inputs: NONE
+
+        Outputs: NONE
+        """
+        global available_boxes, platforms
+        available_boxes = [5, 95, 47, 53, 10, 90]
+        platforms = [[], [], []]
+        printPuzzleInstructions("puzzle reset!")
 
     # +------------------+
     # | Command handlers |
@@ -135,12 +150,14 @@ def enterLabD2001(state: dict) -> str:
         """
 
         print("Available commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine the room for clues.")
+        print("- status              : Check your current status.")
         if not state["completed"]["labd2001"]:
             print("- start stacking      : Try stacking the boxes.")
+            print("- reset               : Reset the puzzle to its initial state.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game completely.")
+        print("- quit                : Quit the game completely or exit a puzzle if in progress.")
 
     def handleGo(destination: str) -> str:
         """
@@ -158,7 +175,6 @@ def enterLabD2001(state: dict) -> str:
         valid_destinations = ["lobby", "back"]
 
         if destination in valid_destinations:
-            print("You decide to get out of the lab and return to the lobby.")
             return "lobby"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
@@ -169,7 +185,7 @@ def enterLabD2001(state: dict) -> str:
         Handles starting the box stacking puzzle.
 
         This function starts the box stacking puzzle by showing an animation, printing the puzzle instructions,
-        and allowing the player to input their choices for stacking boxes on forklifts until the puzzle is solved correctly.
+        and allowing the player to input their choices for stacking boxes on platforms until the puzzle is solved correctly.
 
         Once the puzzle is solved, it updates the state dict to mark the puzzle as completed.
 
@@ -188,34 +204,52 @@ def enterLabD2001(state: dict) -> str:
                 box = input("\nChoose a box > ").strip().lower()
                 if box == "quit":
                     clearScreen()
+                    print("You decide to step away from the platforms and boxes for now. Maybe you'll come back later.")
                     break
+                if box == "reset":
+                    boxPuzzleReset()
+                    continue
                 box_int = int(box)
             except ValueError:
-                printPuzzleInstructions()
+                printPuzzleInstructions("please type a valid number, or use \"quit\" to quit")
                 continue
 
-            # Check if box exists in available_boxes, same with forklift, if both pass
-            # then add box to forklift and remove from available_boxes
+            # Check if box exists in available_boxes, same with platform, if both pass
+            # then add box to platform and remove from available_boxes
             if box.isnumeric() and box_int in available_boxes:
                 printPuzzleInstructions()
                 try:
-                    forklift = input("\nChoose a forklift > ").strip().lower()
+                    platform = input("\nChoose a platform > ").strip().lower()
+                    if platform == "quit":
+                        clearScreen()
+                        print("You decide to step away from the platforms and boxes for now. Maybe you'll come back later.")
+                        break
+                    if platform == "reset":
+                        boxPuzzleReset()
+                        continue
                 except ValueError:
-                    printPuzzleInstructions()
+                    printPuzzleInstructions("please type a valid number, or use \"quit\" to quit")
                     continue
-
-                if forklift.isnumeric() and int(forklift) in range(1, 4):
+                
+                if platform.isnumeric() and int(platform) in range(1, 4):
+                    if len(platforms[int(platform) - 1]) >= 2:
+                        printPuzzleInstructions("platform is full! try again, use \"quit\" to quit")
+                        continue
+                    
                     box_index = available_boxes.index(box_int)
                     box_to_add = available_boxes.pop(box_index)
-                    forklifts[int(forklift) - 1].append(box_to_add)
+                    platforms[int(platform) - 1].append(box_to_add)
                     printPuzzleInstructions()
+                else:
+                    printPuzzleInstructions("platform number doesn't exist, or use \"quit\" to quit")
             else:
-                printPuzzleInstructions()
+                printPuzzleInstructions("box number doesn't exist, or use \"quit\" to quit")
 
         # When loop exits, re-check if solve is valid and then set room as
         if boxPuzzleCheck():
             state["completed"]["labd2001"] = True
             state["coin_balance"] += 10
+            state["inventory"].append("Teacher Access Keycard")
             clearScreen()
             print("Looks like you stacked the boxes correctly, congratulations!")
             print('You hear a loud "click" sound, and one of the boxes falls open.')
@@ -243,14 +277,19 @@ def enterLabD2001(state: dict) -> str:
                 return result
 
         elif command == "start stacking":
-            handlePuzzleStart()
+            if not state["completed"]["labd2001"]:
+                clearScreen()
+                handlePuzzleStart()
+            else:
+                clearScreen()
+                print("You've already forced the boxes open. There's nothing more to do here.")
 
         elif command in [
             "status",
             "check status",
         ]:
             clearScreen()
-            checkStatus(state, pause=True)
+            checkStatus(state, pause = True)
 
         elif command == "quit":
             clearScreen()
