@@ -3,5 +3,20 @@ name = "a-maze-ing-delft"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "art>=6.5",
+    "pillow>=12.3.0",
     "rich>=15.0.0",
 ]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["a-maze-ing-delft"]

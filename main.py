@@ -8,19 +8,7 @@
 
 import time
 from utilities.clear_screen import clearScreen
-from rooms import (
-    enterLobby,
-    enterStore,
-    enterLabD2001,
-    enterTeachersRoom1,
-    enterTeachersRoom2,
-    enterProjectRoom1,
-    enterProjectRoom2,
-    enterFrontDesk,
-    enterEquinoxStudentSociety,
-    enterClassroomD2015,
-    enterClassroomD2035
-)
+from rooms.dispatcher import enter_room
 
 start_time = time.time()
 
@@ -43,10 +31,11 @@ state = {
         "projectroom2": False,
         "teachersroom1": False,
         "teachersroom2": False,
+        "teachersroom4": False,
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
-        "classroomd2035": False
+        "classroomd2035": False,
     },
     "completed": {
         "labd2001": False,
@@ -55,73 +44,34 @@ state = {
         "projectroom2": False,
         "teachersroom1": False,
         "teachersroom2": False,
+        "teachersroom4": False,
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
-        "classroomd2035": False
+        "classroomd2035": False,
     },
-    "inventory": ["Lab D2.001 Keycard", "Teacher Access Keycard"]
+    "inventory": [],
 }
 
-clearScreen()
 
-while True:
-    current = state["current_room"]
+def main():
+    clearScreen()
 
-    if current == "lobby":
-        state["current_room"] = enterLobby(state)
+    # Main room-navigation loop.
+    # Repeatedly reads the player's current room from state, falls back to "lobby"
+    # if the value is missing or invalid, and calls enter_room() to determine the
+    # next room. The loop continues until enter_room() returns "quit" or "exit",
+    # at which point the game ends. Otherwise, the returned room is saved back into
+    # state["current_room"] for the next iteration.
+    while True:
+        current = state.get("current_room", "lobby")
+        if not isinstance(current, str):
+            current = "lobby"
+        next_room = enter_room(current, state)
+        if next_room in ("quit", "exit"):
+            break
+        state["current_room"] = next_room
 
-    elif current == "store":
-        state["current_room"] = enterStore(state)
 
-    elif current == "labd2001":
-        if "Lab D2.001 Keycard" in state["inventory"]:
-            state["current_room"] = enterLabD2001(state)
-        else:
-            print("❌ The door is locked. You need a keycard to enter.")
-            time.sleep(2.0)
-            state["current_room"] = "lobby"
-
-    elif current == "teachersroom1":
-        if "Teacher Access Keycard" in state["inventory"]:
-            state["current_room"] = enterTeachersRoom1(state)
-        else:
-            print("❌ The door is locked. You need a keycard to enter.")
-            time.sleep(2.0)
-            state["current_room"] = "lobby"
-
-    elif current == "teachersroom2":
-        if "Teacher Access Keycard" in state["inventory"]:
-            state["current_room"] = enterTeachersRoom2(state)
-        else:
-            print("❌ The door is locked. You need a keycard to enter.")
-            time.sleep(2.0)
-            state["current_room"] = "lobby"
-
-    elif current == "projectroom2":
-        state["current_room"] = enterProjectRoom2(state)
-
-    elif current == "projectroom1":
-        state["current_room"] = enterProjectRoom1(state)
-
-    elif current == "frontdesk":
-        state["current_room"] = enterFrontDesk(state)
-
-    elif current == "equinoxstudentsociety":
-        if state["student_id_obtained"]:
-            state["current_room"] = enterEquinoxStudentSociety(state)
-        else:
-            print("❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room.")
-            time.sleep(2.0)
-            state["current_room"] = "lobby"
-
-    elif current == "classroomd2015":
-        state["current_room"] = enterClassroomD2015(state)
-
-    elif current == "classroomd2035":
-        state["current_room"] = enterClassroomD2035(state)
-
-    else:
-        print(f"Unknown room '{current}'. Returning to Lobby...")
-        time.sleep(1.0)
-        state["current_room"] = "lobby"
+if __name__ == "__main__":
+    main()
