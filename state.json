@@ -1,0 +1,39 @@
+ {
+    "current_room": "lobby",
+    "previous_room": "",
+    "start_time": "",
+    "coin_balance": 0,
+    "student_id_obtained": false,
+    "store_available_items": [
+        ["Eeyore plushie", 25],
+        ["Delft mug", 10]
+    ],
+    "visited": {
+        "lobby": true,
+        "lab_d_2001": true,
+        "store": true,
+        "project_room_1": true,
+        "project_room_2": true,
+        "teachers_room_1": true,
+        "teachers_room_2": true,
+        "teachers_room_4": true,
+        "front_desk": true,
+        "equinox_student_society": true,
+        "class_room_d_2015": true,
+        "class_room_d_2035": true
+    },
+    "completed": {
+        "lab_d_2001": true,
+        "store": true,
+        "project_room_1": true,
+        "project_room_2": true,
+        "teachers_room_1": true,
+        "teachers_room_2": true,
+        "teachers_room_4": true,
+        "front_desk": false,
+        "equinox_student_society": false,
+        "classroom_d_2015": false,
+        "classroom_d_2035": false
+    },
+    "inventory": []
+}

@@ -9,12 +9,18 @@
 
 import sys
 from time import sleep
-from utilities.animations import showActivityAnimation
+from utilities.animations import (
+    showActivityAnimation,
+)
 from utilities.clear_screen import clearScreen
 from utilities.check_status import checkStatus
 
 # Loose components lying on the antistatic mat, which the player can take.
-bench_items = ["usb cable", "resistor", "multimeter"]
+bench_items = [
+    "usb cable",
+    "resistor",
+    "multimeter",
+]
 
 # The two answers the player has to work out from the BODMAS clues:
 #   lab notebook : 12 - 2 * 4 + 6  -> 12 - 8 + 6 -> 10
@@ -32,8 +38,12 @@ def enterClassroomD2015(state: dict) -> str:
     clearScreen()
     state["visited"]["classroomd2015"] = True
     print("🤖 You enter Classroom D2.015, the embedded systems lab.")
-    print("A marked test track takes up the middle of the floor, with a small robot rover parked on it.")
-    print("It sits dead in the middle of it. Its status LED is off.")
+    print(
+        "A marked test track takes up the middle of the floor, and a small robot rover"
+    )
+    print("sits dead in the middle of it. Its status LED is off.")
+    print("Along the east wall, a workbench hums with test equipment.")
+    print("Maybe you should check it out.")
 
     # The rover puzzle has two stages, and both have to be solved in order.
     # These are kept inside the state dict so the progress survives if the
@@ -41,7 +51,7 @@ def enterClassroomD2015(state: dict) -> str:
     if "d2015_progress" not in state:
         state["d2015_progress"] = {
             "power_set": False,
-            "rover_calibrated": False
+            "rover_calibrated": False,
         }
 
     progress = state["d2015_progress"]
@@ -111,16 +121,19 @@ def enterClassroomD2015(state: dict) -> str:
         if not state["completed"]["classroomd2015"]:
             print("You take a closer look at the workbench.")
             print("A lab notebook is open at a page headed 'BENCH SUPPLY CALCULATION':")
-            print("    \"Set line voltage to:  12 - 2 * 4 + 6\"")
+            print('    "Set line voltage to:  12 - 2 * 4 + 6"')
             print("")
             print("You crouch by the rover. A sticker on its chassis reads:")
-            print("    \"IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz\"")
+            print('    "IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz"')
             print("")
             print("Its little screen blinks: 'OFFLINE - needs power and calibration.'")
             printBenchStatus()
 
             if bench_items:
-                print("Loose on the antistatic mat:", ", ".join(bench_items))
+                print(
+                    "Loose on the antistatic mat:",
+                    ", ".join(bench_items),
+                )
             else:
                 print("The antistatic mat is bare.")
         else:
@@ -128,7 +141,10 @@ def enterClassroomD2015(state: dict) -> str:
             print("It has already finished its run. There's nothing more to do here.")
 
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
     def handleHelp() -> None:
         """
@@ -147,7 +163,9 @@ def enterClassroomD2015(state: dict) -> str:
         if not state["completed"]["classroomd2015"]:
             print("- set power           : Dial a voltage into the bench supply.")
             print("- calibrate rover     : Send an IR carrier frequency to the rover.")
-            print("- start rover         : Run the rover, once power and IR are both set.")
+            print(
+                "- start rover         : Run the rover, once power and IR are both set."
+            )
         print("- take <item>         : Pick up a component from the workbench.")
         print("- go lobby / back     : Leave the lab and return to the corridor.")
         print("- quit                : Quit the game completely.")
@@ -223,11 +241,15 @@ def enterClassroomD2015(state: dict) -> str:
 
         if int(voltage) == CORRECT_VOLTAGE:
             progress["power_set"] = True
-            print(f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails hum.")
+            print(
+                f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails hum."
+            )
             print("A row of green LEDs runs down the edge of the test track.")
         else:
             print(f"\nBZZT! {voltage}V trips the bench breaker instantly.")
-            print("Remember the order of operations: multiplication before subtraction.")
+            print(
+                "Remember the order of operations: multiplication before subtraction."
+            )
 
     def handleCalibrateRover() -> None:
         """
@@ -247,7 +269,9 @@ def enterClassroomD2015(state: dict) -> str:
         # The rover is bus powered from the rails, so step one has to come first
         if not progress["power_set"]:
             print("You aim the IR programmer at the rover. Nothing happens.")
-            print("Of course, the rails are dead. The rover has no power to listen with.")
+            print(
+                "Of course, the rails are dead. The rover has no power to listen with."
+            )
             return
 
         print("You hold the IR programmer over the rover's sensor window.")
@@ -261,7 +285,9 @@ def enterClassroomD2015(state: dict) -> str:
 
         if int(frequency) == CORRECT_FREQUENCY:
             progress["rover_calibrated"] = True
-            print(f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED turns amber.")
+            print(
+                f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED turns amber."
+            )
             print("It's waiting for a start command.")
         else:
             print(f"\nBEEP! {frequency} kHz rejected, the sensor stays dark.")
@@ -351,7 +377,10 @@ def enterClassroomD2015(state: dict) -> str:
         elif command == "start rover":
             handleStartRover()
 
-        elif command in ["status", "check status"]:
+        elif command in [
+            "status",
+            "check status",
+        ]:
             clearScreen()
             checkStatus(state, pause=True)
 

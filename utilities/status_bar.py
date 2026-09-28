@@ -19,23 +19,25 @@ room_fancy_names = {
     "projectroom2": "🖥️ Project Room 2",
     "teachersroom1": "👩 Teacher's Room 1",
     "teachersroom2": "👩 Teacher's Room 2",
+    "teachersroom4": "👩 Teacher's Room 4",
     "projectroom1": "🔐 Project Room 1",
     "frontdesk": "🛎️ Front Desk",
     "equinox_student_society": "📚 Equinox Student Society",
     "classroomd2015": "🤖 Classroom D2.015",
-    "classroomd2035": "📚 Classroom D2.035"
+    "classroomd2035": "📚 Classroom D2.035",
 }
+
 
 def calculateTimePlayed(start_time: float) -> str:
     """
     Calculates the time played in seconds since the start_time.
-    
+
     This function takes the start_time stored in the state dict and calculates the time played in seconds since that time.
     If needed, it also separates by hours and minutes, and returns it in string form.
-    
+
     Inputs:
         start_time (float): The start time in seconds.
-    
+
     Outputs:
         str: The time played, separated if necessary.
     """
@@ -44,7 +46,7 @@ def calculateTimePlayed(start_time: float) -> str:
 
     time_played = math.ceil(current_time - start_time)
 
-    final_time = ''
+    final_time = ""
     # Separate in hours, minutes, seconds
     if time_played > 3600:
         hours = time_played // 3600
@@ -59,6 +61,7 @@ def calculateTimePlayed(start_time: float) -> str:
         final_time = f"{time_played}s"
 
     return final_time
+
 
 def getExplorationPercent(state: dict) -> float:
     """
@@ -75,14 +78,17 @@ def getExplorationPercent(state: dict) -> float:
     completed_dict = state["completed"]
 
     total_rooms = len(completed_dict)
-    completed_rooms = sum(completed_dict.values()) # This counts the number of True values (i.e. completed rooms)
+    completed_rooms = sum(
+        completed_dict.values()
+    )  # This counts the number of True values (i.e. completed rooms)
 
     exploration_percent = (completed_rooms / total_rooms) * 100
-    exploration_percent = round(exploration_percent, 2) # Round to 2 decimals
+    exploration_percent = round(exploration_percent, 2)  # Round to 2 decimals
 
     return exploration_percent
 
-def updateStatusBar(state: dict, header_message: str = "stuck? use \"?\" for help") -> None:
+
+def updateStatusBar(state: dict) -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and time played.
 
@@ -103,7 +109,7 @@ def updateStatusBar(state: dict, header_message: str = "stuck? use \"?\" for hel
 
     time_played = calculateTimePlayed(state["start_time"])
     exploration_percent = getExplorationPercent(state)
-    
+
     # Starting / ending rooms don't have challenges, so display a special message for them
     if current_room in ["lobby"]:
         room_completion = "⭐ Special Room"
@@ -121,7 +127,9 @@ def updateStatusBar(state: dict, header_message: str = "stuck? use \"?\" for hel
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
-    left_status_data = f"{room_name} | {exploration_percent}% complete | {room_completion} | {header_message}"
+    left_status_data = (
+        f"{room_name} | {exploration_percent}% explored | {room_completion}"
+    )
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
     # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each

@@ -11,9 +11,12 @@ from .store import enterStore
 from .lab_d2001 import enterLabD2001
 from .teachersroom1 import enterTeachersRoom1
 from .teachersroom2 import enterTeachersRoom2
+from .teachersroom4 import enterTeachersRoom4
 from .project_room_1 import enterProjectRoom1
 from .project_room_2 import enterProjectRoom2
 from .front_desk import enterFrontDesk
-from .equinox_student_society import enterEquinoxStudentSociety
+from .equinox_student_society import (
+    enterEquinoxStudentSociety,
+)
 from .classroom_d2015 import enterClassroomD2015
 from .classroom_d2035 import enterClassroomD2035
