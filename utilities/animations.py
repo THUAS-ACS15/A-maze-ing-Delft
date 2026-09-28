@@ -9,14 +9,9 @@
 
 from time import sleep
 from utilities.clear_screen import clearScreen
-from utilities.animation_frames import (
-    puzzle_frames,
-    quiz_frames,
-    qte_frames,
-)
+from utilities.animation_frames import (puzzle_frames, quiz_frames, qte_frames)
 
-
-def showActivityAnimation(type: str) -> None:
+def show_activity_animation(type: str) -> None:
     """
     Clears the screen and displays the specified animation, frame-by-frame.
 
@@ -39,9 +34,7 @@ def showActivityAnimation(type: str) -> None:
         case "qte":
             frames_to_print = qte_frames
         case _:
-            raise ValueError(
-                f"Invalid animation type {type} in {__name__}. Must be one of: puzzle, quiz, qte."
-            )
+            raise ValueError(f"Invalid animation type {type} in {__name__}. Must be one of: puzzle, quiz, qte.")
 
     # Render frames except last two, with 0.3s delay
     for frame in frames_to_print[:-2]:

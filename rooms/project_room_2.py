@@ -11,10 +11,11 @@ import sys
 import random
 from time import sleep
 from utilities.animations import (
+    show_activity_animation,
     showActivityAnimation,
 )
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
 rainbow_colors_correct = [
     "Red",
@@ -31,23 +32,20 @@ while colors_on_projector == rainbow_colors_correct:
     random.shuffle(colors_on_projector)
 
 
-def enterProjectRoom2(state: dict) -> str:
+def enter_project_room2(state: dict) -> str:
     """Starter function for the Project Room."""
 
-    clearScreen()
-    state["visited"]["projectroom2"] = True
+    clear_screen()
     print("🎨 You enter the Project Room.")
     print("In the middle of the room stands an old projector, humming quietly.")
-    print(
-        "It projects 7 colored slides onto the wall, but they look completely out of order."
-    )
+    print("It projects 7 colored slides onto the wall, but they look completely out of order.")
     print("Maybe you should take a closer look at the projector.")
 
     # +-------------------------+
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printPuzzleInstructions() -> None:
+    def print_puzzle_instructions() -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -59,7 +57,7 @@ def enterProjectRoom2(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print(
             "Type two positions (1-7) to swap the colors shown there. Arrange them in rainbow order."
         )
@@ -67,7 +65,7 @@ def enterProjectRoom2(state: dict) -> str:
         for position, color in enumerate(colors_on_projector, start=1):
             print(f"    {position}. {color}")
 
-    def colorPuzzleCheck() -> bool:
+    def color_puzzle_check() -> bool:
         """
         Checks if the color puzzle is solved correctly. Returns True if solved, False otherwise.
 
@@ -86,7 +84,7 @@ def enterProjectRoom2(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -116,7 +114,7 @@ def enterProjectRoom2(state: dict) -> str:
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -135,7 +133,7 @@ def enterProjectRoom2(state: dict) -> str:
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -157,7 +155,7 @@ def enterProjectRoom2(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handlePuzzleStart() -> None:
+    def handle_puzzle_start() -> None:
         """
         Handles starting the color ordering puzzle.
 
@@ -171,54 +169,40 @@ def enterProjectRoom2(state: dict) -> str:
         Outputs: NONE
         """
 
-        showActivityAnimation("puzzle")
+        show_activity_animation("puzzle")
         sleep(1)
-        printPuzzleInstructions()
+        print_puzzle_instructions()
 
         # Loops until function returns true, i.e. if puzzle is completed
-        while colorPuzzleCheck() != True:
+        while color_puzzle_check() != True:
             try:
                 first = input("\nChoose the first position to swap (1-7) > ").strip()
                 second = input("Choose the second position to swap (1-7) > ").strip()
                 first_int = int(first)
                 second_int = int(second)
             except ValueError:
-                printPuzzleInstructions()
+                print_puzzle_instructions()
                 print("❌ Please enter numbers between 1 and 7.")
                 continue
 
             # Check if both positions are valid and different, then swap them
-            if (
-                first_int in range(1, 8)
-                and second_int in range(1, 8)
-                and first_int != second_int
-            ):
+            if (first_int in range(1, 8) and second_int in range(1, 8) and first_int != second_int):
                 index_one = first_int - 1
                 index_two = second_int - 1
-                (
-                    colors_on_projector[index_one],
-                    colors_on_projector[index_two],
-                ) = (
-                    colors_on_projector[index_two],
-                    colors_on_projector[index_one],
-                )
-                printPuzzleInstructions()
+                (colors_on_projector[index_one], colors_on_projector[index_two]) = (colors_on_projector[index_two], colors_on_projector[index_one])
+                print_puzzle_instructions()
             else:
-                printPuzzleInstructions()
+                print_puzzle_instructions()
                 print("❌ Please choose two different positions between 1 and 7.")
 
         # When loop exits, re-check if solve is valid and then set room as completed
-        if colorPuzzleCheck():
+        if color_puzzle_check():
             state["completed"]["projectroom2"] = True
-            clearScreen()
+            clear_screen()
             print("🌈 The slides light up in perfect rainbow order, congratulations!")
-            state["inventory"].append("labd2003keycard")
-            print(
-                "💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it."
-            )
-            print(
-                "It looks like it could open the door to LAB D2.003 somewhere else in the building."
-            )
+            state["inventory"].append("Lab D2.003 Keycard")
+            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it.")
+            print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
 
     # +--------------+
     # | Command loop |
@@ -228,39 +212,39 @@ def enterProjectRoom2(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("go "):
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command == "start puzzle":
             if not state["completed"]["projectroom2"]:
-                clearScreen()
-                handlePuzzleStart()
+                clear_screen()
+                handle_puzzle_start()
             else:
-                clearScreen()
+                clear_screen()
                 print("You've already completed the puzzle. There's nothing more to do here.")
 
         elif command in [
             "status",
             "check status",
         ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You switch off the projector and close your eyes. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

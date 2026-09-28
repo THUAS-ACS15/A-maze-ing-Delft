@@ -8,8 +8,8 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
 # Items lying on the reception desk that the player can pick up.
 # list survives between visits to the room.
@@ -23,7 +23,7 @@ desk_items = [
 ID_CARD_REFUND = 5
 
 
-def printFloorMap() -> None:
+def print_floor_map() -> None:
     """
     Prints the 2nd floor campus map that hangs on the office wall.
 
@@ -49,12 +49,10 @@ def printFloorMap() -> None:
 +-- EAST (Rotterdamseweg) ------- SOUTH (Main Stairs) ---- WEST (Leeghwater) -+
 """)
 
-
-def enterFrontDesk(state: dict) -> str:
+def enter_front_desk(state: dict) -> str:
     """Starter function for the Front Desk Office."""
 
-    clearScreen()
-    state["visited"]["frontdesk"] = True
+    clear_screen()
     print("🛎️  You push open the glass door of the Front Desk Office.")
     print("A staff member is hunched over a laptop behind a wide reception counter.")
     print("Behind him, a large campus floor plan is pinned to the wall.")
@@ -79,7 +77,7 @@ def enterFrontDesk(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print("The staff member looks up over his glasses.")
         print('"Why are you walking around campus without your student ID card?"')
         print(
@@ -89,7 +87,7 @@ def enterFrontDesk(state: dict) -> str:
         name = input('\n"What\'s your name?" > ').strip()
 
         if name.lower() == "cancel":
-            clearScreen()
+            clear_screen()
             print('"Fine, fine. Come back when you\'ve got a minute."')
             return
 
@@ -103,18 +101,18 @@ def enterFrontDesk(state: dict) -> str:
             student_no = input('"And your 8-digit student number?" > ').strip()
 
             if student_no.lower() == "cancel":
-                clearScreen()
+                clear_screen()
                 print('"Suit yourself. The card will be waiting here."')
                 return
 
             # Check length first, then that every character is a digit
             if len(student_no) != 8:
-                clearScreen()
+                clear_screen()
                 print(
                     f'"That\'s {len(student_no)} characters. A student number is exactly 8 digits long."'
                 )
             elif not student_no.isnumeric():
-                clearScreen()
+                clear_screen()
                 print('"Digits only, please. No letters in a student number."')
             else:
                 break
@@ -125,7 +123,7 @@ def enterFrontDesk(state: dict) -> str:
         state["completed"]["frontdesk"] = True
         state["coin_balance"] += ID_CARD_REFUND
 
-        clearScreen()
+        clear_screen()
         print(f'The printer whirs. "There you go, {name}. Don\'t lose this one."')
         print("He slides a fresh student ID card across the counter.")
         print(
@@ -143,7 +141,7 @@ def enterFrontDesk(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -180,7 +178,7 @@ def enterFrontDesk(state: dict) -> str:
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -201,7 +199,7 @@ def enterFrontDesk(state: dict) -> str:
         print("- go lobby / back     : Leave the office and return to the corridor.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_look() -> None:
         """
         Handles picking up an item from the reception counter.
 
@@ -221,7 +219,7 @@ def enterFrontDesk(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the counter.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -254,16 +252,16 @@ def enterFrontDesk(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command == "register":
             if state["completed"]["frontdesk"]:
-                clearScreen()
+                clear_screen()
                 print('"You\'ve already got your card. Stop wasting my toner."')
             else:
                 handleRegister()
@@ -273,19 +271,19 @@ def enterFrontDesk(state: dict) -> str:
             "look at map",
             "map",
         ]:
-            clearScreen()
+            clear_screen()
             print("--- 2ND FLOOR CAMPUS MAP ---")
-            printFloorMap()
+            print_floor_map()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_look()
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
@@ -293,14 +291,14 @@ def enterFrontDesk(state: dict) -> str:
             "status",
             "check status",
         ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You sign yourself out at reception and walk home. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

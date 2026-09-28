@@ -12,40 +12,30 @@ from time import sleep
 from utilities.animations import (
     showActivityAnimation,
 )
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
 forklifts = [[], [], []]
-
-
-def enterEquinoxStudentSociety(
+    
+def enter_equinox_student_society(
     state: dict,
 ) -> str:
     """Starter function for the Equinox Student Society room."""
 
-    clearScreen()
-    state["visited"]["equinox_student_society"] = True
-    print(
-        "📚 You scan your student ID on the doorknob and enter the Equinox Student Society room."
-    )
-    print(
-        "You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board game box on it."
-    )
-    print(
-        "Looks like they were in the middle of a Dungeons and Dragons campaign, but had to leave in a hurry."
-    )
+    clear_screen()
+    print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
+    print("You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board game box on it.")
+    print("Looks like they were in the middle of a Dungeons and Dragons campaign, but had to leave in a hurry.")
     print("You also notice an office desk and chair, with some stuff on it.")
-    print(
-        "Maybe you should look around and see if you can find any interesting things around."
-    )
+    print("Maybe you should look around and see if you can find any interesting things around.")
 
     # +-------------------------+
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printQuizInstructions() -> None:
+    def print_quiz_instructions() -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -57,7 +47,7 @@ def enterEquinoxStudentSociety(
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print(
             " Select an option to answer! Use the number keys to select option 1, 2, 3 or 4."
         )
@@ -66,7 +56,7 @@ def enterEquinoxStudentSociety(
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -103,7 +93,7 @@ def enterEquinoxStudentSociety(
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -122,7 +112,7 @@ def enterEquinoxStudentSociety(
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -143,7 +133,7 @@ def enterEquinoxStudentSociety(
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handleQuizStart() -> None:
+    def handle_quiz_start() -> None:
         """
         Handles starting the quiz.
 
@@ -159,7 +149,7 @@ def enterEquinoxStudentSociety(
 
         showActivityAnimation("quiz")
         sleep(1)
-        printQuizInstructions()
+        print_quiz_instructions()
 
     # +--------------+
     # | Command loop |
@@ -169,34 +159,31 @@ def enterEquinoxStudentSociety(
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("go "):
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command == "start quiz":
-            handleQuizStart()
+            handle_quiz_start()
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You decide to dedicate your time to the Dungeons and Dragons game instead. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

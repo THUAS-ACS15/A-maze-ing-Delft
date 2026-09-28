@@ -8,21 +8,16 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
-
-def enterLobby(state):
+def enter_lobby(state):
     """Starter function for the Lobby room."""
-    clearScreen()
+    clear_screen()
     print("🚶 You are standing in the school's main lobby.")
-    print(
-        "You see a long corridor with many doors and glass walls on both sides. There are lots of doors waiting to be explored."
-    )
+    print("You see a long corridor with many doors and glass walls on both sides. There are lots of doors waiting to be explored.")
     if not state["student_id_obtained"]:
-        print(
-            "You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one."
-        )
+        print("You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one.")
 
     available_rooms = [
         "labd2001",
@@ -49,11 +44,9 @@ def enterLobby(state):
 
         Outputs: NONE
         """
-        clearScreen()
+        clear_screen()
         print("You take a look around.")
-        print(
-            "Students and teachers are walking in both directions along the corridor. You see several labeled doors:"
-        )
+        print("Students and teachers are walking in both directions along the corridor. You see several labeled doors:")
         print(f"- Possible doors: {', '.join(available_rooms)}")
         print(f"- Your inventory: {state['inventory']}")
 
@@ -67,14 +60,10 @@ def enterLobby(state):
 
         Outputs: NONE
         """
-        clearScreen()
+        clear_screen()
         print("Available commands:")
-        print(
-            "- look around         : See what's in the corridor and where you can go."
-        )
-        print(
-            "- go <room name>      : Move to another room. Examples: 'go front desk', 'go project room 1'"
-        )
+        print("- look around         : See what's in the corridor and where you can go.")
+        print("- go <room name>      : Move to another room. Examples: 'go frontdesk', 'go projectroom1'")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game.")
 
@@ -85,7 +74,7 @@ def enterLobby(state):
         Checks if destination is valid directly or through aliases,
         then returns the standardized room string for main.py.
         """
-        clearScreen()
+        clear_screen()
 
         if room_name in available_rooms:
             state["previous_room"] = "lobby"
@@ -111,20 +100,15 @@ def enterLobby(state):
             if result:
                 return result
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
-            clearScreen()
-            checkStatus(state)
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state)
 
         elif command == "quit":
-            clearScreen()
-            print(
-                "👋 You leave the school and the adventure comes to an end. Game over."
-            )
+            clear_screen()
+            print("👋 You leave the school and the adventure comes to an end. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")
