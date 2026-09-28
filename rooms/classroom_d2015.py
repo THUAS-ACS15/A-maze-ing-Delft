@@ -12,8 +12,8 @@ from time import sleep
 from utilities.animations import (
     showActivityAnimation,
 )
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
 # Loose components lying on the antistatic mat, which the player can take.
 bench_items = [
@@ -32,11 +32,10 @@ CORRECT_FREQUENCY = 30
 ROVER_REWARD = 20
 
 
-def enterClassroomD2015(state: dict) -> str:
+def enter_classroom_d2015(state: dict) -> str:
     """Starter function for Classroom D2.015."""
 
-    clearScreen()
-    state["visited"]["classroomd2015"] = True
+    clear_screen()
     print("🤖 You enter Classroom D2.015, the embedded systems lab.")
     print(
         "A marked test track takes up the middle of the floor, and a small robot rover"
@@ -60,7 +59,7 @@ def enterClassroomD2015(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printBenchStatus() -> None:
+    def print_bench_status() -> None:
         """
         Helper function to print the current state of the rover puzzle.
 
@@ -83,7 +82,7 @@ def enterClassroomD2015(state: dict) -> str:
         else:
             print("    - Rover IR link: 📴 no carrier frequency set.")
 
-    def roverPuzzleCheck() -> bool:
+    def rover_puzzle_check() -> bool:
         """
         Checks if both halves of the rover puzzle are solved.
 
@@ -105,7 +104,7 @@ def enterClassroomD2015(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -127,7 +126,7 @@ def enterClassroomD2015(state: dict) -> str:
             print('    "IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz"')
             print("")
             print("Its little screen blinks: 'OFFLINE - needs power and calibration.'")
-            printBenchStatus()
+            print_bench_status()
 
             if bench_items:
                 print(
@@ -146,7 +145,7 @@ def enterClassroomD2015(state: dict) -> str:
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -170,7 +169,7 @@ def enterClassroomD2015(state: dict) -> str:
         print("- go lobby / back     : Leave the lab and return to the corridor.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_take(item: str) -> None:
         """
         Handles picking up a component from the workbench.
 
@@ -190,7 +189,7 @@ def enterClassroomD2015(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the workbench.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -215,7 +214,7 @@ def enterClassroomD2015(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handleSetPower() -> None:
+    def handle_set_power() -> None:
         """
         Handles the first half of the puzzle: the bench power supply.
 
@@ -228,7 +227,7 @@ def enterClassroomD2015(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print("You grab the dial on the bench supply.")
         print("Notebook clue: 12 - 2 * 4 + 6")
 
@@ -251,7 +250,7 @@ def enterClassroomD2015(state: dict) -> str:
                 "Remember the order of operations: multiplication before subtraction."
             )
 
-    def handleCalibrateRover() -> None:
+    def handle_calibrate_rover() -> None:
         """
         Handles the second half of the puzzle: the infrared carrier frequency.
 
@@ -264,7 +263,7 @@ def enterClassroomD2015(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
 
         # The rover is bus powered from the rails, so step one has to come first
         if not progress["power_set"]:
@@ -293,7 +292,7 @@ def enterClassroomD2015(state: dict) -> str:
             print(f"\nBEEP! {frequency} kHz rejected, the sensor stays dark.")
             print("Brackets first: work out the sum inside them before you divide.")
 
-    def handleStartRover() -> None:
+    def handle_start_rover() -> None:
         """
         Handles starting the rover once both halves of the puzzle are solved.
 
@@ -309,23 +308,23 @@ def enterClassroomD2015(state: dict) -> str:
 
         # Refuse to start and say exactly which step is still missing
         if not progress["power_set"]:
-            clearScreen()
+            clear_screen()
             print("You press start. Silence. The rails still have no power.")
             return
 
         if not progress["rover_calibrated"]:
-            clearScreen()
+            clear_screen()
             print("You press start. The rover twitches once and stops.")
             print("It hasn't got a carrier frequency to follow.")
             return
 
         if state["completed"]["classroomd2015"]:
-            clearScreen()
+            clear_screen()
             print("The rover has already completed its run. There's nothing more to do here.")
             return
         else:
             sleep(1)
-            clearScreen()
+            clear_screen()
 
             print("The rover's twin motors buzz to life.")
             print("It tears down the test track, swerves around two cones, and slams")
@@ -349,46 +348,46 @@ def enterClassroomD2015(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_take(item)
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command == "set power":
-            handleSetPower()
+            handle_set_power()
 
         elif command == "calibrate rover":
-            handleCalibrateRover()
+            handle_calibrate_rover()
 
         elif command == "start rover":
-            handleStartRover()
+            handle_start_rover()
 
         elif command in [
             "status",
             "check status",
         ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You switch off the bench supply and call it a day. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

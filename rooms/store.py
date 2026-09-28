@@ -9,11 +9,10 @@
 
 import sys
 from random import choice
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
-
-def getAvailableItems(state: dict) -> list:
+def get_available_items(state: dict) -> list:
     """
     Returns a list of available items in the store.
 
@@ -29,8 +28,7 @@ def getAvailableItems(state: dict) -> list:
 
     return available_items
 
-
-def checkStoreCompletion(state: dict) -> None:
+def check_store_completion(state: dict) -> None:
     """
     Checks if the store has been completed, i.e. if every item was bought.
 
@@ -44,15 +42,14 @@ def checkStoreCompletion(state: dict) -> None:
     """
     if len(state["store_available_items"]) == 0 and not state["completed"]["store"]:
         state["completed"]["store"] = True
-        clearScreen()
+        clear_screen()
         print("Looks like you've bought everything in the store. Congratulations!")
 
 
-def enterStore(state: dict) -> str:
+def enter_store(state: dict) -> str:
     """Starter function for the store."""
 
-    clearScreen()
-    state["visited"]["store"] = True
+    clear_screen()
     print("🏪 You enter the store.")
     print("You find some interesting items placed randomly around it.")
     print("Maybe you should check it out.")
@@ -61,7 +58,7 @@ def enterStore(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -77,7 +74,7 @@ def enterStore(state: dict) -> str:
             print("You take a closer look at the items in the store.")
             print("It seems like there's some interesting items here.")
             print("You see the following items:")
-            for item in getAvailableItems(state):
+            for item in get_available_items(state):
                 print(f"  - {item[0]} for €{item[1]}")
         else:
             print(
@@ -89,7 +86,7 @@ def enterStore(state: dict) -> str:
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -108,7 +105,7 @@ def enterStore(state: dict) -> str:
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -130,7 +127,7 @@ def enterStore(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handleBuy(item_to_buy: str) -> None:
+    def handle_buy(item_to_buy: str) -> None:
         """
         Handles the purchase of an item from the store.
 
@@ -150,7 +147,7 @@ def enterStore(state: dict) -> str:
             "Nice!",
             "Happy day!",
         ]
-        available_items = getAvailableItems(state)
+        available_items = get_available_items(state)
 
         # Lower input so we are sure they match
         item_to_buy = item_to_buy.lower()
@@ -174,7 +171,7 @@ def enterStore(state: dict) -> str:
                     state["coin_balance"] -= item[1]
                     state["store_available_items"].pop(id)
 
-                    clearScreen()
+                    clear_screen()
 
                     chosen_congratulation = choice(congratulations)
                     print(
@@ -182,7 +179,7 @@ def enterStore(state: dict) -> str:
                     )
                     break
                 else:
-                    clearScreen()
+                    clear_screen()
                     print("You decide to save your finances this time.")
                     break
         if not found:
@@ -194,41 +191,38 @@ def enterStore(state: dict) -> str:
 
     while True:
         # Check if all items were bought
-        checkStoreCompletion(state)
+        check_store_completion(state)
 
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("go "):
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command.startswith("buy "):
             item_to_buy = command[4:].strip()
-            item_to_buy.replace("_", " ")
-            handleBuy(item_to_buy)
+            item_to_buy = item_to_buy.replace("_", " ")
+            handle_buy(item_to_buy)
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You leave the store and close your eyes. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

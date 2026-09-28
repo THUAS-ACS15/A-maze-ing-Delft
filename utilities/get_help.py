@@ -6,7 +6,8 @@
 # Date: September 2026
 # Contributor: Gift Odigwe
 # -----------------------------------------------------------------------------
-"""Shared help display for rooms.
+"""
+Shared help display for rooms.
 
 Each room passes its room-specific commands; the defaults are added
 automatically. Rooms build their extras list with the same conditionals
@@ -29,7 +30,8 @@ DEFAULT_COMMANDS = [
 
 
 def get_help(extra_commands=None, include_go_back=True):
-    """Display the room's command list: extras first, then the defaults.
+    """
+    Display the room's command list: extras first, then the defaults.
 
     Inputs:
         - extra_commands: list of (command, description) tuples with the
@@ -49,7 +51,3 @@ def get_help(extra_commands=None, include_go_back=True):
     print("Available commands:")
     for command, description in commands:
         print(f"- {command:<18}: {description}")
-
-
-# Alias preserving a camelCase style used elsewhere in the codebase.
-getHelp = get_help
