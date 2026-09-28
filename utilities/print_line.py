@@ -7,7 +7,7 @@ import time
 def print_line(
     text: str,
     delay: float | int = 0,
-    console: Console | None = Console(),
+    console : Console | None = Console(),
 ) -> None:
     """
     Print a single line of text to the console, optionally with Rich styling.
