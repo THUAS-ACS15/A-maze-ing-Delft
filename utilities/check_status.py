@@ -196,7 +196,3 @@ def check_status(
         start_time = state.get("start_time", None)
         if isinstance(start_time, (int, float)) and not isinstance(start_time, bool):
             state["start_time"] = start_time + (time.time() - enter_time)
-
-
-# Alias preserving the original camelCase name used across rooms.
-checkStatus = check_status

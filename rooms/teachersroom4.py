@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from art import *
 
-from utilities.clear_screen import clearScreen
+from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_menu
 from utilities.loader import loader
 from utilities.print_line import print_line
@@ -123,15 +123,15 @@ def _show_desk(console: Console, state: dict) -> None:
 
 def _show_goodbye() -> None:
     """Splash shown when leaving the computer (shutdown or logout)."""
-    clearScreen()
+    clear_screen()
     print_line(text2art("Good bye!", font="univers", chr_ignore=True), delay=0.002)
     time.sleep(1)
-    clearScreen()
+    clear_screen()
 
 
-def enter_teachers_room_4(state: dict) -> str:
+def enter_teachers_room4(state: dict) -> str:
     """Greet the player in Teachers Room 4 and send them back to the Lobby."""
-    clearScreen()
+    clear_screen()
     console = Console(legacy_windows=False)
 
     # Display loading state
@@ -186,7 +186,7 @@ def enter_teachers_room_4(state: dict) -> str:
                                     f"You pocket the {taken}. The teacher will never know."
                                 )
                         case "boot computer":
-                            clearScreen()
+                            clear_screen()
                             sequence = [
                                 "systemd-boot → NixOS Generation 42",
                                 "<<< NixOS Stage 1 >>> loading kernel modules",
@@ -203,7 +203,7 @@ def enter_teachers_room_4(state: dict) -> str:
                                 mode="PROGRESS",
                                 sequence=sequence,
                             )
-                            clearScreen()
+                            clear_screen()
                             time.sleep(1)
                             print_line(
                                 text2art(
@@ -214,7 +214,7 @@ def enter_teachers_room_4(state: dict) -> str:
                                 delay=0.002,
                             )
                             time.sleep(2)
-                            clearScreen()
+                            clear_screen()
                             print_line(
                                 "Viola! you are half way in! Now explore the file system to see if you find anything interesting.",
                                 delay=0.015,
@@ -257,7 +257,7 @@ def enter_teachers_room_4(state: dict) -> str:
                                             state.setdefault("inventory", []).append("super_secret_file.txt")
                                             print_line("[yellow]New item added to inventory[/]")
                                     case "clear":
-                                        clearScreen()
+                                        clear_screen()
                                     case _:
                                         print_line("[red]You do not have the permission to execute this command.[/]")
 
@@ -272,6 +272,3 @@ def enter_teachers_room_4(state: dict) -> str:
                 _show_desk(console, state)
         choice = input("_")
     return "lobby"
-
-
-enterTeachersRoom4 = enter_teachers_room_4

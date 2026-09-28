@@ -12,8 +12,8 @@ from time import sleep
 from utilities.animations import (
     showActivityAnimation,
 )
-from utilities.clear_screen import clearScreen
-from utilities.check_status import checkStatus
+from utilities.clear_screen import clear_screen
+from utilities.check_status import check_status
 
 # Loose items left behind on the front row of desks.
 desk_items = ["leather bookmark", "quill pen"]
@@ -40,11 +40,10 @@ CIPHER_REWARD = 30
 HINT_AFTER_GUESSES = 2
 
 
-def enterClassroomD2035(state: dict) -> str:
+def enter_classroom_d2035(state: dict) -> str:
     """Starter function for Classroom D2.035."""
 
-    clearScreen()
-    state["visited"]["classroomd2035"] = True
+    clear_screen()
     print(
         "📚 You slip into Classroom D2.035, halfway through an English Literature lecture."
     )
@@ -66,7 +65,7 @@ def enterClassroomD2035(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printChalkboard() -> None:
+    def print_chalkboard() -> None:
         """
         Helper function to print the acrostic poem on the chalkboard.
 
@@ -97,7 +96,7 @@ def enterClassroomD2035(state: dict) -> str:
         else:
             print("Type 'solve' when you think you have the word.")
 
-    def cipherCheck(guess: str) -> bool:
+    def cipher_check(guess: str) -> bool:
         """
         Checks whether the player's guess matches the acrostic answer.
 
@@ -120,7 +119,7 @@ def enterClassroomD2035(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -160,7 +159,7 @@ def enterClassroomD2035(state: dict) -> str:
             state["inventory"],
         )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -182,7 +181,7 @@ def enterClassroomD2035(state: dict) -> str:
         print("- go lobby / back     : Leave the hall and return to the corridor.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_take(item: str) -> None:
         """
         Handles picking up an item from the lecture desks.
 
@@ -202,7 +201,7 @@ def enterClassroomD2035(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the desks.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str:
         """
         Handles movement out of the room.
 
@@ -227,7 +226,7 @@ def enterClassroomD2035(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handleTalk() -> None:
+    def handle_talk() -> None:
         """
         Handles talking to the lecturer at the podium.
 
@@ -266,7 +265,7 @@ def enterClassroomD2035(state: dict) -> str:
         else:
             print('"Work it out yourself. That\'s rather the point of literature."')
 
-    def handleSolve() -> None:
+    def handle_solve() -> None:
         """
         Handles submitting an answer to the acrostic.
 
@@ -280,7 +279,7 @@ def enterClassroomD2035(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
 
         if state["completed"]["classroomd2035"]:
             print("You've already cracked this one.")
@@ -288,10 +287,10 @@ def enterClassroomD2035(state: dict) -> str:
 
         guess = input("The word hidden in the poem > ").strip().lower()
 
-        if cipherCheck(guess):
+        if cipher_check(guess):
             showActivityAnimation("quiz")
             sleep(1)
-            clearScreen()
+            clear_screen()
 
             state["completed"]["classroomd2035"] = True
             state["inventory"].append("equinox cipher note")
@@ -325,41 +324,41 @@ def enterClassroomD2035(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command in [
             "read board",
             "look at board",
             "board",
         ]:
-            clearScreen()
-            printChalkboard()
+            clear_screen()
+            print_chalkboard()
 
         elif command in [
             "talk to lecturer",
             "talk to professor",
             "lecturer",
         ]:
-            clearScreen()
-            handleTalk()
+            clear_screen()
+            handle_talk()
 
         elif command in ["solve", "answer"]:
-            handleSolve()
+            handle_solve()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_take(item)
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
@@ -367,14 +366,14 @@ def enterClassroomD2035(state: dict) -> str:
             "status",
             "check status",
         ]:
-            clearScreen()
-            checkStatus(state, pause=True)
+            clear_screen()
+            check_status(state, pause=True)
 
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You leave the lecture hall and the poem behind. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

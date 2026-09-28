@@ -27,8 +27,7 @@ room_fancy_names = {
     "classroomd2035": "📚 Classroom D2.035",
 }
 
-
-def calculateTimePlayed(start_time: float) -> str:
+def calculate_time_played(start_time: float) -> str:
     """
     Calculates the time played in seconds since the start_time.
 
@@ -63,7 +62,7 @@ def calculateTimePlayed(start_time: float) -> str:
     return final_time
 
 
-def getExplorationPercent(state: dict) -> float:
+def get_exploration_percent(state: dict) -> float:
     """
     Calculates the percentage of the map that has been explored.
 
@@ -88,7 +87,8 @@ def getExplorationPercent(state: dict) -> float:
     return exploration_percent
 
 
-def updateStatusBar(state: dict) -> None:
+
+def update_status_bar(state: dict) -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and time played.
 
@@ -107,8 +107,8 @@ def updateStatusBar(state: dict) -> None:
     except KeyError:
         room_name = "⚠️ ROOM FANCY NAME NOT FOUND"
 
-    time_played = calculateTimePlayed(state["start_time"])
-    exploration_percent = getExplorationPercent(state)
+    time_played = calculate_time_played(state["start_time"])
+    exploration_percent = get_exploration_percent(state)
 
     # Starting / ending rooms don't have challenges, so display a special message for them
     if current_room in ["lobby"]:
