@@ -22,7 +22,7 @@ room_fancy_names = {
     "teachersroom4": "👩 Teacher's Room 4",
     "projectroom1": "🔐 Project Room 1",
     "frontdesk": "🛎️ Front Desk",
-    "equinox_student_society": "📚 Equinox Student Society",
+    "equinoxstudentsociety": "📚 Equinox Student Society",
     "classroomd2015": "🤖 Classroom D2.015",
     "classroomd2035": "📚 Classroom D2.035",
 }
@@ -85,8 +85,6 @@ def get_exploration_percent(state: dict) -> float:
     exploration_percent = round(exploration_percent, 2)  # Round to 2 decimals
 
     return exploration_percent
-
-
 
 def update_status_bar(state: dict) -> None:
     """

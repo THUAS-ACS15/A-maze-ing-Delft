@@ -9,9 +9,7 @@
 
 import sys
 from time import sleep
-from utilities.animations import (
-    showActivityAnimation,
-)
+from utilities.animations import show_activity_animation
 from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
 
@@ -147,7 +145,7 @@ def enter_equinox_student_society(
         Outputs: NONE
         """
 
-        showActivityAnimation("quiz")
+        show_activity_animation("quiz")
         sleep(1)
         print_quiz_instructions()
 

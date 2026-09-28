@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 
 import time
-from utilities.clear_screen import clearScreen
+from utilities.clear_screen import clear_screen
 from rooms.dispatcher import enter_room
 
 start_time = time.time()
@@ -39,9 +39,8 @@ state = {
     "inventory": [],
 }
 
-
 def main():
-    clearScreen()
+    clear_screen()
 
     # Main room-navigation loop.
     # Repeatedly reads the player's current room from state, falls back to "lobby"
@@ -57,7 +56,6 @@ def main():
         if next_room in ("quit", "exit"):
             break
         state["current_room"] = next_room
-
 
 if __name__ == "__main__":
     main()
