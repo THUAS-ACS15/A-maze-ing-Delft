@@ -52,10 +52,10 @@ def enter_lab_d2001(state: dict) -> str:
         print(
             " First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on."
         )
-        print(f"    - Available boxes: {available_boxes}")
-        print(f"    - Forklift 1: {platforms[0]}")
-        print(f"    - Forklift 2: {platforms[1]}")
-        print(f"    - Forklift 3: {platforms[2]}")
+        print(f"    - Available boxes: {', '.join([f'{box}kg' for box in available_boxes])}")
+        print(f"    - Forklift 1: {', '.join([f'{box}kg' for box in platforms[0]])}")
+        print(f"    - Forklift 2: {', '.join([f'{box}kg' for box in platforms[1]])}")
+        print(f"    - Forklift 3: {', '.join([f'{box}kg' for box in platforms[2]])}")
 
     def box_puzzle_check() -> bool:
         """
@@ -192,8 +192,7 @@ def enter_lab_d2001(state: dict) -> str:
         Outputs: NONE
         """
 
-        show_activity_animation("puzzle")
-        sleep(1)
+        show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
         print_puzzle_instructions()
 
         # Loops until function returns true, i.e. if puzzle is completed
