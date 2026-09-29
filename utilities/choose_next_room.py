@@ -7,10 +7,10 @@
 # Contributor: Gift Odigwe
 # -----------------------------------------------------------------------------
 
-from utilities.clear_screen import clearScreen
+from utilities.clear_screen import clear_screen
 
 
-def chooseNextRoom(choices):
+def choose_next_room(choices):
     print("\n🔀 Choose a door:")
     for i, room in enumerate(choices, start=1):
         print(f"{i}. {room}")
@@ -19,7 +19,7 @@ def chooseNextRoom(choices):
     try:
         index = int(choice) - 1
         if 0 <= index < len(choices):
-            clearScreen()
+            clear_screen()
             return choices[index]
         else:
             print("Invalid choice.")

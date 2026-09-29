@@ -8,21 +8,22 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clear_screen
+
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+
 
 def enter_teachers_room1(state: dict) -> str:
     clear_screen()
     print("\nYou step into Teachers Room 1.")
-    print(
-        "A teacher is sitting at a laptop, muttering under their breath at the screen."
-    )
+    print("A teacher is sitting at a laptop, muttering under their breath at the screen.")
     print("Sticky notes covered in function names are scattered across the desk.")
 
     def handle_look():
         print("\nYou take a look around.")
         print(
-            "It's a standard teachers room, shelves full of documents lining the left side wall. On the right there are some posters and notice boards."
+            "It's a standard teachers room, shelves full of documents lining the left side wall."
+            " On the right there are some posters and notice boards."
         )
         print("The teacher's screen shows a Python code, almost finished.")
         if not state["completed"]["teachersroom1"]:
@@ -40,9 +41,7 @@ def enter_teachers_room1(state: dict) -> str:
         else:
             print('The teacher grins: "That fix worked perfectly, thanks again!"')
             if "debug_notes" not in state["inventory"]:
-                print(
-                    "A small notebook labeled 'Debug Notes' is still sitting on the desk."
-                )
+                print("A small notebook labeled 'Debug Notes' is still sitting on the desk.")
             else:
                 print("The desk is tidy now, you've already taken the notebook.")
         print("- Possible exits: Lobby")
@@ -54,7 +53,7 @@ def enter_teachers_room1(state: dict) -> str:
         print("- look around         : Examine the room and the code on screen.")
         if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        if (state["completed"]["teachersroom1"] and "debug_notes" not in state["inventory"]):
+        if state["completed"]["teachersroom1"] and "debug_notes" not in state["inventory"]:
             print("- take notebook       : Pick up the notebook once it's offered.")
         print("- go Lobby / back  : Leave the room and return to the Lobby.")
         print("- quit                : Quit the game entirely.")
@@ -72,14 +71,14 @@ def enter_teachers_room1(state: dict) -> str:
             else:
                 state["coin_balance"] += 10
                 clear_screen()
+                print('You pick up the notebook. "Take this, you\'ve earned it," the teacher says.')
                 print(
-                    'You pick up the notebook. "Take this, you\'ve earned it," the teacher says.'
+                    "After taking the notebook the teacher is handing you, you notice something shiny in the corner "
+                    "of your eye."
                 )
                 print(
-                    "After taking the notebook the teacher is handing you, you notice something shiny in the corner of your eye."
-                )
-                print(
-                    "You look closer and realize you found some shiny coins, teacher allows you to take them (+ 10 coins)"
+                    "You look closer and realize you found some shiny coins, teacher allows you to take them "
+                    "(+ 10 coins)"
                 )
                 state["inventory"].append("debug_notes")
         else:
@@ -101,9 +100,7 @@ def enter_teachers_room1(state: dict) -> str:
         normalized = answer.strip().lower().replace(" ", "")
         accepted = ["n%2", "n % 2"]
         if normalized in accepted:
-            print(
-                'Correct! The teacher\'s eyes light up: "n % 2 — of course! Thank you!"'
-            )
+            print('Correct! The teacher\'s eyes light up: "n % 2 — of course! Thank you!"')
             state["completed"]["teachersroom1"] = True
             print("Here, take this! I have no use for this now.")
             print("The teacher points to a small notebook labeled 'Debug Notes'.")
@@ -149,7 +146,7 @@ def enter_teachers_room1(state: dict) -> str:
             clear_screen()
             print("👋 You leave the teacher to their code and exit the room.")
             sys.exit()
-        
+
         else:
             clear_screen()
             print("Unknown command. Type '?' to see available commands.")

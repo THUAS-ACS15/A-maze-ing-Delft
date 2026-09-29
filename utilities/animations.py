@@ -8,15 +8,15 @@
 # -----------------------------------------------------------------------------
 
 from time import sleep
-from utilities.clear_screen import clear_screen
-from utilities.print_line import print_line
 
+from art import text2art # type: ignore[import-untyped]
 from rich.console import Console
-from art import *
+from utilities.print_line import print_line
 
 PUZZLE_FINAL_TEXT = "PUZZLE!"
 QUIZ_FINAL_TEXT = "QUIZ!"
 QTE_FINAL_TEXT = "QUICK TIME!"
+
 
 def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: float = 2.0) -> None:
     """
@@ -32,17 +32,17 @@ def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: f
 
     Outputs: NONE
     """
-    console = Console(legacy_windows = False)
+    console = Console(legacy_windows=False)
 
     match type:
         case "puzzle":
             text_to_print = PUZZLE_FINAL_TEXT
-        case "quiz":    
+        case "quiz":
             text_to_print = QUIZ_FINAL_TEXT
         case "qte":
             text_to_print = QTE_FINAL_TEXT
         case _:
             raise ValueError(f"Invalid type: {type}. Must be 'puzzle', 'quiz', or 'qte'.")
-    
+
     print_line(text2art(text_to_print, font="univers", chr_ignore=True), text_delay, console)
     sleep(final_delay)

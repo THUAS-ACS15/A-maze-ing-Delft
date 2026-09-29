@@ -9,14 +9,16 @@
 
 import sys
 from time import sleep
+
 from utilities.animations import show_activity_animation
-from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
-forklifts = [[], [], []]
-    
+forklifts: list[list[int]] = [[], [], []]
+
+
 def enter_equinox_student_society(
     state: dict,
 ) -> str:
@@ -24,7 +26,10 @@ def enter_equinox_student_society(
 
     clear_screen()
     print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
-    print("You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board game box on it.")
+    print(
+        "You find a disorganized room. The center of the room has a table with 3 chairs, and an opened board "
+        "game box on it."
+    )
     print("Looks like they were in the middle of a Dungeons and Dragons campaign, but had to leave in a hurry.")
     print("You also notice an office desk and chair, with some stuff on it.")
     print("Maybe you should look around and see if you can find any interesting things around.")
@@ -46,9 +51,7 @@ def enter_equinox_student_society(
         """
 
         clear_screen()
-        print(
-            " Select an option to answer! Use the number keys to select option 1, 2, 3 or 4."
-        )
+        print(" Select an option to answer! Use the number keys to select option 1, 2, 3 or 4.")
 
     # +------------------+
     # | Command handlers |
@@ -72,19 +75,17 @@ def enter_equinox_student_society(
                 "You take a close look at the board game box, and notice that it contains a small statue of a dragon."
             )
             print(
-                "Next to it, you find some coins. Looks like it was hoarding some treasure. Thankfully it's just a statue, so you pick them up. (+10 coins)"
+                "Next to it, you find some coins. Looks like it was hoarding some treasure. Thankfully it's just a "
+                "statue, so you pick them up. (+10 coins)"
             )
             state["coin_balance"] += 10
             print(
-                "\nYou also notice that the computer on the desk is turned on! You quickly sit down and find a quiz on the screen."
+                "\nYou also notice that the computer on the desk is turned on! You quickly"
+                " sit down and find a quiz on the screen."
             )
-            print(
-                "Looks like you need to answer some questions to find out what's on the computer."
-            )
+            print("Looks like you need to answer some questions to find out what's on the computer.")
         else:
-            print(
-                "You've already finished the quiz and claimed your reward, so there's nothing else to do here."
-            )
+            print("You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
         print("- Possible exits: lobby")
         print(
             "- Your current inventory:",
@@ -110,12 +111,13 @@ def enter_equinox_student_society(
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
         This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+        If the destination is valid, it returns the destination string. Otherwise, it
+        prints an error message and returns None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.

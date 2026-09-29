@@ -6,6 +6,7 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
+
 def display_menu(console, commands) -> None:
     """Display the room's command list."""
     console.print("List of all available commands for this room")
