@@ -9,8 +9,10 @@
 
 import sys
 from random import choice
-from utilities.clear_screen import clear_screen
+
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+
 
 def get_available_items(state: dict) -> list:
     """
@@ -22,17 +24,21 @@ def get_available_items(state: dict) -> list:
         - state (dict): The current game state dict.
 
     Outputs:
-        - available_items (list): A list of available items in the store, where each item is represented as a list containing its name, description, and price.
+        - available_items (list): A list of available items in the store, where each item is represented as a list
+        containing its name, description, and price.
     """
     available_items = state["store_available_items"]
 
     return available_items
 
+
 def check_store_completion(state: dict) -> None:
     """
     Checks if the store has been completed, i.e. if every item was bought.
 
-    This function checks if the store has been completed by verifying if there are any available items left in the store.
+    This function checks if the store has been completed by verifying if there are any
+     available items left in the
+    store.
     If there are no available items, it updates the game state to mark it as completed.
 
     Inputs:
@@ -77,9 +83,7 @@ def enter_store(state: dict) -> str:
             for item in get_available_items(state):
                 print(f"  - {item[0]} for €{item[1]}")
         else:
-            print(
-                "You've already bought everything useful in the store. You should probably explore elsewhere."
-            )
+            print("You've already bought everything useful in the store. You should probably explore elsewhere.")
         print("- Possible exits: lobby")
         print(
             "- Your current inventory:",
@@ -105,12 +109,15 @@ def enter_store(state: dict) -> str:
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
-        This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+        This function checks if the player can move to the given destination from this
+         room. If the destination is valid, it returns the destination string. Otherwise,
+         it prints an error message
+         and returns
+        None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.
@@ -157,9 +164,7 @@ def enter_store(state: dict) -> str:
             if item[0].lower() == item_to_buy:
                 found = True
                 print(f"found {item[0]} id {id}")
-                confirmation = input(
-                    f"Confirm purchase of €{item[1]} for {item[0].capitalize()}? (y/n) > "
-                )
+                confirmation = input(f"Confirm purchase of €{item[1]} for {item[0].capitalize()}? (y/n) > ")
 
                 if confirmation in [
                     "y",
@@ -174,9 +179,7 @@ def enter_store(state: dict) -> str:
                     clear_screen()
 
                     chosen_congratulation = choice(congratulations)
-                    print(
-                        f"You bought {item[0]} for €{item[1]}. {chosen_congratulation}"
-                    )
+                    print(f"You bought {item[0]} for €{item[1]}. {chosen_congratulation}")
                     break
                 else:
                     clear_screen()

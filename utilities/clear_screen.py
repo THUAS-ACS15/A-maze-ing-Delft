@@ -8,7 +8,9 @@
 
 import os
 import sys
+
 from utilities.status_bar import update_status_bar
+
 
 def clear_screen():
     main_module = sys.modules.get("__main__")

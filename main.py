@@ -7,8 +7,9 @@
 # -----------------------------------------------------------------------------
 
 import time
-from utilities.clear_screen import clear_screen
+
 from rooms.dispatcher import enter_room
+from utilities.clear_screen import clear_screen
 
 start_time = time.time()
 
@@ -39,6 +40,7 @@ state = {
     "inventory": [],
 }
 
+
 def main():
     clear_screen()
 
@@ -56,6 +58,7 @@ def main():
         if next_room in ("quit", "exit"):
             break
         state["current_room"] = next_room
+
 
 if __name__ == "__main__":
     main()

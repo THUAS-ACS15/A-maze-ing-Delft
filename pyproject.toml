@@ -8,15 +8,13 @@ dependencies = [
     "rich>=15.0.0",
 ]
 
-[tool.black]
-line-length = 88
-
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N"]
+ignore = [
+    "I001",  # Unsorted or unformatted import block
+]
 
-[tool.ruff.lint.isort]
-known-first-party = ["a-maze-ing-delft"]

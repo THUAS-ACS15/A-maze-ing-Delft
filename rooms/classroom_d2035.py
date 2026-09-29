@@ -11,8 +11,8 @@ import sys
 from time import sleep
 
 from utilities.animations import show_activity_animation
-from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 # Loose items left behind on the front row of desks.
 desk_items = ["leather bookmark", "quill pen"]
@@ -43,9 +43,7 @@ def enter_classroom_d2035(state: dict) -> str:
     """Starter function for Classroom D2.035."""
 
     clear_screen()
-    print(
-        "📚 You slip into Classroom D2.035, halfway through an English Literature lecture."
-    )
+    print("📚 You slip into Classroom D2.035, halfway through an English Literature lecture.")
     print("Tiered wooden seating climbs towards the back. Nobody looks up.")
     print("At the front, a lecturer is glaring at a poem chalked across the board")
     print("in handwriting that is clearly not hers.")
@@ -134,15 +132,11 @@ def enter_classroom_d2035(state: dict) -> str:
         if not state["completed"]["classroomd2035"]:
             print("You take a look around the lecture hall.")
             print("Front: a chalkboard with a seven line poem on it ('read board').")
-            print(
-                "Podium: the lecturer, arms folded, clearly unimpressed ('talk to lecturer')."
-            )
+            print("Podium: the lecturer, arms folded, clearly unimpressed ('talk to lecturer').")
             print("Middle: rows of desks with open Shakespeare and cryptography notes.")
         else:
             print("The chalkboard has been wiped. The lecturer gives you a small nod.")
-            print(
-                "Whatever the Equinox Society is, she wants nothing more to do with it."
-            )
+            print("Whatever the Equinox Society is, she wants nothing more to do with it.")
 
         if desk_items:
             print(
@@ -200,7 +194,7 @@ def enter_classroom_d2035(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the desks.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
@@ -240,27 +234,19 @@ def enter_classroom_d2035(state: dict) -> str:
 
         if state["completed"]["classroomd2035"]:
             print('Lecturer: "Splendid deduction earlier. Now do me a favour."')
-            print(
-                '"Whoever is running that society, don\'t let them know you can read."'
-            )
+            print('"Whoever is running that society, don\'t let them know you can read."')
             return
 
         progress["talked_to_lecturer"] = True
         print('Lecturer: "It was on my board when I unlocked this morning."')
-        print(
-            '"Some student from the East Wing, I assume. It\'s an acrostic, obviously."'
-        )
+        print('"Some student from the East Wing, I assume. It\'s an acrostic, obviously."')
 
         # Only give the real hint once the player has struggled a bit
         if progress["wrong_guesses"] >= HINT_AFTER_GUESSES:
             print("")
             print("She sighs and taps the board with her chalk.")
-            print(
-                '"The first letter of every line. Read them downwards, top to bottom."'
-            )
-            print(
-                '"Seven lines, seven letters. The night where day and dark are equal."'
-            )
+            print('"The first letter of every line. Read them downwards, top to bottom."')
+            print('"Seven lines, seven letters. The night where day and dark are equal."')
         else:
             print('"Work it out yourself. That\'s rather the point of literature."')
 
@@ -302,9 +288,7 @@ def enter_classroom_d2035(state: dict) -> str:
             print('"This was pinned under the poem. I didn\'t want it on my board."')
             print("It's an invitation, in the same handwriting. A date. A room number.")
             print("")
-            print(
-                f"She also presses the department's puzzle prize into your hand. (+{CIPHER_REWARD} coins)"
-            )
+            print(f"She also presses the department's puzzle prize into your hand. (+{CIPHER_REWARD} coins)")
         else:
             # Count the miss so handleTalk() knows when to offer the real hint
             progress["wrong_guesses"] += 1
