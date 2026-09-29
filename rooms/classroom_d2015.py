@@ -10,8 +10,8 @@
 import sys
 from time import sleep
 
-from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 # Loose components lying on the antistatic mat, which the player can take.
 bench_items = [
@@ -35,9 +35,7 @@ def enter_classroom_d2015(state: dict) -> str:
 
     clear_screen()
     print("🤖 You enter Classroom D2.015, the embedded systems lab.")
-    print(
-        "A marked test track takes up the middle of the floor, and a small robot rover"
-    )
+    print("A marked test track takes up the middle of the floor, and a small robot rover")
     print("sits dead in the middle of it. Its status LED is off.")
     print("Along the east wall, a workbench hums with test equipment.")
     print("Maybe you should check it out.")
@@ -160,9 +158,7 @@ def enter_classroom_d2015(state: dict) -> str:
         if not state["completed"]["classroomd2015"]:
             print("- set power           : Dial a voltage into the bench supply.")
             print("- calibrate rover     : Send an IR carrier frequency to the rover.")
-            print(
-                "- start rover         : Run the rover, once power and IR are both set."
-            )
+            print("- start rover         : Run the rover, once power and IR are both set.")
         print("- take <item>         : Pick up a component from the workbench.")
         print("- go lobby / back     : Leave the lab and return to the corridor.")
         print("- quit                : Quit the game completely.")
@@ -187,7 +183,7 @@ def enter_classroom_d2015(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the workbench.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
@@ -238,15 +234,11 @@ def enter_classroom_d2015(state: dict) -> str:
 
         if int(voltage) == CORRECT_VOLTAGE:
             progress["power_set"] = True
-            print(
-                f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails hum."
-            )
+            print(f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails " f"hum.")
             print("A row of green LEDs runs down the edge of the test track.")
         else:
             print(f"\nBZZT! {voltage}V trips the bench breaker instantly.")
-            print(
-                "Remember the order of operations: multiplication before subtraction."
-            )
+            print("Remember the order of operations: multiplication before subtraction.")
 
     def handle_calibrate_rover() -> None:
         """
@@ -266,9 +258,7 @@ def enter_classroom_d2015(state: dict) -> str:
         # The rover is bus powered from the rails, so step one has to come first
         if not progress["power_set"]:
             print("You aim the IR programmer at the rover. Nothing happens.")
-            print(
-                "Of course, the rails are dead. The rover has no power to listen with."
-            )
+            print("Of course, the rails are dead. The rover has no power to listen with.")
             return
 
         print("You hold the IR programmer over the rover's sensor window.")
@@ -282,9 +272,7 @@ def enter_classroom_d2015(state: dict) -> str:
 
         if int(frequency) == CORRECT_FREQUENCY:
             progress["rover_calibrated"] = True
-            print(
-                f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED turns amber."
-            )
+            print(f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED " f"turns amber.")
             print("It's waiting for a start command.")
         else:
             print(f"\nBEEP! {frequency} kHz rejected, the sensor stays dark.")
@@ -318,7 +306,7 @@ def enter_classroom_d2015(state: dict) -> str:
 
         if state["completed"]["classroomd2015"]:
             clear_screen()
-            print("The rover has already completed its run. There's nothing more to do here.")
+            print("The rover has already completed its run. There's nothing more to do " "here.")
             return
         else:
             sleep(1)

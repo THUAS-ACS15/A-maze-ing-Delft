@@ -11,16 +11,14 @@
 import os
 import random
 import time
+from typing import Literal
+
 from rich.console import (
     Console,
-    ConsoleRenderable,
-    RichCast,
 )
-from typing import Literal
 from rich.progress import (
     BarColumn,
     Progress,
-    ProgressColumn,
     TaskProgressColumn,
 )
 
@@ -28,9 +26,9 @@ from rich.progress import (
 def loader(
     loading_time: float | int = 0.5,
     label: str = "Loading...",
-    console: Console = Console(),
+    console: Console | None = None,
     mode: Literal["LOADER", "PROGRESS"] = "LOADER",
-    sequence=[],
+    sequence: list | None = None,
     color: str = "green",
 ) -> None:
     """
@@ -48,10 +46,15 @@ def loader(
             is created.
         mode: Either LOADER or PROGRESS.
         sequence: Sequence of tasks to show.
+        color: Color of the loading indicator.
 
     Returns:
         None
     """
+
+    if console is None:
+        console = Console()
+
     if loading_time > 0:
         if os.getenv("PYCHARM_HOSTED"):
             if mode == "LOADER":
@@ -83,7 +86,8 @@ def loader(
                     f"[bold {color}]{label}[/]",
                     spinner="dots",
                 ) as status:
-                    for _ in sequence:
-                        status.update(_)
+                    if sequence:
+                        for _ in sequence:
+                            status.update(_)
+                            time.sleep(loading_time)
                         time.sleep(loading_time)
-                    time.sleep(loading_time)

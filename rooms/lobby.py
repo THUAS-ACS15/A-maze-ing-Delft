@@ -8,16 +8,24 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clear_screen
+
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+
 
 def enter_lobby(state):
     """Starter function for the Lobby room."""
     clear_screen()
     print("🚶 You are standing in the school's main lobby.")
-    print("You see a long corridor with many doors and glass walls on both sides. There are lots of doors waiting to be explored.")
+    print(
+        "You see a long corridor with many doors and glass walls on both sides. There are lots of doors waiting to be "
+        "explored."
+    )
     if not state["student_id_obtained"]:
-        print("You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain a new one.")
+        print(
+            "You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain "
+            "a new one."
+        )
 
     available_rooms = [
         "labd2001",
@@ -80,9 +88,7 @@ def enter_lobby(state):
             state["previous_room"] = "lobby"
             return room_name
         else:
-            print(
-                f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options."
-            )
+            print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")
             return None
 
     while True:

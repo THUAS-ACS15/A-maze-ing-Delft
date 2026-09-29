@@ -8,15 +8,14 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from time import sleep
-from utilities.animations import show_activity_animation
 
-from utilities.clear_screen import clear_screen
+from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 available_boxes = [5, 95, 47, 53, 10, 90]
 
-platforms = [[], [], []]
+platforms:  list[list[int]]  = [[], [], []]
 
 
 def enter_lab_d2001(state: dict) -> str:
@@ -24,19 +23,17 @@ def enter_lab_d2001(state: dict) -> str:
 
     clear_screen()
     print("🧪 You enter Lab D2.001.")
-    print(
-        "You find a work-in-progress construction project. Various materials and tools are laid out on the floor."
-    )
-    print(
-        "You spot three forklifts on one side of the room, and six boxes on the other."
-    )
+    print("You find a work-in-progress construction project. Various materials and tools " "are laid out on the floor.")
+    print("You spot three forklifts on one side of the room, and six boxes on the other.")
     print("Maybe you should check it out.")
 
     # +-------------------------+
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def print_puzzle_instructions(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
+    def print_puzzle_instructions(
+        header_message: str = 'stuck? use "quit" to quit or "reset" to redo',
+    ) -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -50,7 +47,8 @@ def enter_lab_d2001(state: dict) -> str:
 
         clear_screen()
         print(
-            " First, type the kilogram value of one of the available boxes, and then which of the forklifts to place it on."
+            " First, type the kilogram value of one of the available boxes, and then "
+            "which of the forklifts to place it on."
         )
         print(f"    - Available boxes: {', '.join([f'{box}kg' for box in available_boxes])}")
         print(f"    - Forklift 1: {', '.join([f'{box}kg' for box in platforms[0]])}")
@@ -59,7 +57,8 @@ def enter_lab_d2001(state: dict) -> str:
 
     def box_puzzle_check() -> bool:
         """
-        Checks if the box puzzle is solved correctly. Returns True if solved, False otherwise.
+        Checks if the box puzzle is solved correctly. Returns True if solved, False
+        otherwise.
 
         The function checks if the puzzle is solved correctly,
         i.e. if each forklift has exactly two boxes and the total
@@ -88,7 +87,8 @@ def enter_lab_d2001(state: dict) -> str:
         """
         Resets the box puzzle to its initial state.
 
-        This function resets the box puzzle by clearing the platforms and restoring the available boxes to their original state.
+        This function resets the box puzzle by clearing the platforms and restoring the
+        available boxes to their original state.
 
         Inputs: NONE
 
@@ -121,15 +121,12 @@ def enter_lab_d2001(state: dict) -> str:
             print('You make out a label on the forklifts that says "MAX. 100kg".')
             print("It seems that they can only have space for two boxes at a time.")
             print(
-                "You turn to the boxes, and notice each of them have their weight listed on them: 5kg, 53kg, 95kg, 10kg, 47kg and 90kg."
+                "You turn to the boxes, and notice each of them have their weight listed"
+                "on them: 5kg, 53kg, 95kg, 10kg, 47kg and 90kg."
             )
-            print(
-                "This looks like a puzzle. Maybe you should try stacking the boxes on the forklifts."
-            )
+            print("This looks like a puzzle. Maybe you should try stacking the boxes on the " "forklifts.")
         else:
-            print(
-                "You've already stacked the boxes correctly. There's nothing more for you to do."
-            )
+            print("You've already stacked the boxes correctly. There's nothing more for " "you to do.")
         print("- Possible exits: lobby")
         print(
             "- Your current inventory:",
@@ -157,12 +154,13 @@ def enter_lab_d2001(state: dict) -> str:
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- quit                : Quit the game completely or exit a puzzle if in progress.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
         This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
+        returns None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.
@@ -182,33 +180,37 @@ def enter_lab_d2001(state: dict) -> str:
         """
         Handles starting the box stacking puzzle.
 
-        This function starts the box stacking puzzle by showing an animation, printing the puzzle instructions,
-        and allowing the player to input their choices for stacking boxes on platforms until the puzzle is solved correctly.
+        This function starts the box stacking puzzle by showing an animation, printing
+        the puzzle instructions, and allowing the player to input their choices for
+        stacking boxes on platforms until the puzzle is solved correctly.
 
-        Once the puzzle is solved, it updates the state dict to mark the puzzle as completed.
+        Once the puzzle is solved, it updates the state dict to mark the puzzle as
+        completed.
 
         Inputs: NONE
 
         Outputs: NONE
         """
 
-        show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
+        show_activity_animation("puzzle", text_delay=0.002, final_delay=1.0)
         print_puzzle_instructions()
 
         # Loops until function returns true, i.e. if puzzle is completed
-        while box_puzzle_check() != True:
+        while not box_puzzle_check():
             try:
                 box = input("\nChoose a box > ").strip().lower()
                 if box == "quit":
                     clear_screen()
-                    print("You decide to step away from the platforms and boxes for now. Maybe you'll come back later.")
+                    print(
+                        "You decide to step away from the platforms and boxes for now. " "Maybe you'll come back later."
+                    )
                     break
                 if box == "reset":
                     box_puzzle_reset()
                     continue
                 box_int = int(box)
             except ValueError:
-                print_puzzle_instructions("please type a valid number, or use \"quit\" to quit")
+                print_puzzle_instructions('please type a valid number, or use "quit" to quit')
                 continue
 
             # Check if box exists in available_boxes, same with platform, if both pass
@@ -219,28 +221,31 @@ def enter_lab_d2001(state: dict) -> str:
                     platform = input("\nChoose a platform > ").strip().lower()
                     if platform == "quit":
                         clear_screen()
-                        print("You decide to step away from the platforms and boxes for now. Maybe you'll come back later.")
+                        print(
+                            "You decide to step away from the platforms and boxes for "
+                            "now. Maybe you'll come back later."
+                        )
                         break
                     if platform == "reset":
                         box_puzzle_reset()
                         continue
                 except ValueError:
-                    print_puzzle_instructions("please type a valid number, or use \"quit\" to quit")
+                    print_puzzle_instructions('please type a valid number, or use "quit" to quit')
                     continue
-                
+
                 if platform.isnumeric() and int(platform) in range(1, 4):
                     if len(platforms[int(platform) - 1]) >= 2:
-                        print_puzzle_instructions("platform is full! try again, use \"quit\" to quit")
+                        print_puzzle_instructions('platform is full! try again, use "quit" to quit')
                         continue
-                    
+
                     box_index = available_boxes.index(box_int)
                     box_to_add = available_boxes.pop(box_index)
                     platforms[int(platform) - 1].append(box_to_add)
                     print_puzzle_instructions()
                 else:
-                    print_puzzle_instructions("platform number doesn't exist, or use \"quit\" to quit")
+                    print_puzzle_instructions('platform number doesn\'t exist, or use "quit" to quit')
             else:
-                print_puzzle_instructions("box number doesn't exist, or use \"quit\" to quit")
+                print_puzzle_instructions('box number doesn\'t exist, or use "quit" to quit')
 
         # When loop exits, re-check if solve is valid and then set room as
         if box_puzzle_check():
@@ -279,15 +284,15 @@ def enter_lab_d2001(state: dict) -> str:
                 handle_puzzle_start()
             else:
                 clear_screen()
-                print("You've already forced the boxes open. There's nothing more to do here.")
+                print("You've already forced the boxes open. There's nothing more to do " "here.")
 
         elif command in ["status", "check status"]:
             clear_screen()
-            check_status(state, pause = True)
+            check_status(state, pause=True)
 
         elif command == "quit":
             clear_screen()
-            print("👋 You sit on one of the chairs in the Lab and close your eyes. Game over.")
+            print("👋 You sit on one of the chairs in the Lab and close your eyes. Game " "over.")
             sys.exit()
 
         else:

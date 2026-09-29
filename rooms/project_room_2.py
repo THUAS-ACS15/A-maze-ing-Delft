@@ -7,12 +7,12 @@
 # Contributors: João, Gift Odigwe
 # -----------------------------------------------------------------------------
 
-import sys
 import random
-from time import sleep
+import sys
+
 from utilities.animations import show_activity_animation
-from utilities.clear_screen import clear_screen
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 rainbow_colors_correct = [
     "Red",
@@ -55,9 +55,7 @@ def enter_project_room2(state: dict) -> str:
         """
 
         clear_screen()
-        print(
-            "Type two positions (1-7) to swap the colors shown there. Arrange them in rainbow order."
-        )
+        print("Type two positions (1-7) to swap the colors shown there. Arrange them in rainbow order.")
         print("Current order on the projector:")
         for position, color in enumerate(colors_on_projector, start=1):
             print(f"    {position}. {color}")
@@ -97,14 +95,10 @@ def enter_project_room2(state: dict) -> str:
         if not state["completed"]["projectroom2"]:
             print("You take a closer look at the projector.")
             print("The 7 slides show colors, but shuffled in a random order.")
-            print(
-                "It looks like they are meant to be arranged in the order of the rainbow."
-            )
+            print("It looks like they are meant to be arranged in the order of the rainbow.")
             print("Maybe you should try swapping the slides around.")
         else:
-            print(
-                "You've already arranged the colors correctly. There's nothing more for you to do."
-            )
+            print("You've already arranged the colors correctly. There's nothing more for you to do.")
         print("- Possible exits: lobby")
         print(
             "- Your current inventory:",
@@ -135,7 +129,8 @@ def enter_project_room2(state: dict) -> str:
         Handles movement out of the room.
 
         This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and returns None.
+        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
+        returns None.
 
         Inputs:
             - destination (str): The destination the player wants to go to.
@@ -150,7 +145,7 @@ def enter_project_room2(state: dict) -> str:
             return "lobby"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
-            return None
+            return ""
 
     def handle_puzzle_start() -> None:
         """
@@ -166,11 +161,11 @@ def enter_project_room2(state: dict) -> str:
         Outputs: NONE
         """
 
-        show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
+        show_activity_animation("puzzle", text_delay=0.002, final_delay=1.0)
         print_puzzle_instructions()
 
         # Loops until function returns true, i.e. if puzzle is completed
-        while color_puzzle_check() != True:
+        while not color_puzzle_check():
             try:
                 first = input("\nChoose the first position to swap (1-7) > ").strip()
                 second = input("Choose the second position to swap (1-7) > ").strip()
@@ -182,10 +177,13 @@ def enter_project_room2(state: dict) -> str:
                 continue
 
             # Check if both positions are valid and different, then swap them
-            if (first_int in range(1, 8) and second_int in range(1, 8) and first_int != second_int):
+            if first_int in range(1, 8) and second_int in range(1, 8) and first_int != second_int:
                 index_one = first_int - 1
                 index_two = second_int - 1
-                (colors_on_projector[index_one], colors_on_projector[index_two]) = (colors_on_projector[index_two], colors_on_projector[index_one])
+                colors_on_projector[index_one], colors_on_projector[index_two] = (
+                    colors_on_projector[index_two],
+                    colors_on_projector[index_one],
+                )
                 print_puzzle_instructions()
             else:
                 print_puzzle_instructions()
@@ -197,7 +195,9 @@ def enter_project_room2(state: dict) -> str:
             clear_screen()
             print("🌈 The slides light up in perfect rainbow order, congratulations!")
             state["inventory"].append("Lab D2.003 Keycard")
-            print("💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it.")
+            print(
+                "💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it."
+            )
             print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
 
     # +--------------+

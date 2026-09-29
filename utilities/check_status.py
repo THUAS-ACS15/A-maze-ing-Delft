@@ -17,6 +17,8 @@ from utilities.print_line import print_line
 # Consistent text style
 HEADER_STYLE = "bold green"
 
+# Consistent delay
+DELAY=0.0025
 
 def _format_time_played(start_time) -> str:
     """Format elapsed seconds since start_time as 'Xs' / 'Ym Zs' / 'Xh Ym Zs'."""
@@ -50,7 +52,8 @@ def check_status(
     Display the player's overall status with loading + streaming effect.
 
     Inputs:
-        - state (dict): game state with visited/completed/coin_balance/student_id_obtained/inventory/current_room/previous_room/start_time
+        - state (dict): game state with visited/completed/coin_balance/student_id_obtained/
+        inventory/current_room/previous_room/start_time
         - loading_time (float): seconds for the loading spinner (0 skips it, for tests)
         - stream_delay (float): pause between lines (0 = instant, for tests)
         - pause (bool): if True, wait for Enter at the end so clearScreen() doesn't wipe output
@@ -78,9 +81,7 @@ def check_status(
         current_room = state.get("current_room", "Unknown")
         previous_room = state.get("previous_room", "Unknown")
         start_time = state.get("start_time", None)
-        time_played_str = (
-            _format_time_played(start_time) if start_time is not None else "Unknown"
-        )
+        time_played_str = _format_time_played(start_time) if start_time is not None else "Unknown"
 
         explored = [k for k, v in visited.items() if v]
         unexplored = [k for k, v in visited.items() if not v]
@@ -96,82 +97,70 @@ def check_status(
         )
 
         explored_str = "[" + ", ".join(explored) + "]" if explored else "(none yet)"
-        unexplored_str = (
-            "[" + ", ".join(unexplored) + "]" if unexplored else "(all rooms visited!)"
-        )
-        completed_str = (
-            "[" + ", ".join(completed_rooms) + "]" if completed_rooms else "(none yet)"
-        )
+        unexplored_str = "[" + ", ".join(unexplored) + "]" if unexplored else "(all rooms visited!)"
+        completed_str = "[" + ", ".join(completed_rooms) + "]" if completed_rooms else "(none yet)"
         inventory_str = "[" + ", ".join(inventory) + "]" if inventory else "Empty"
         id_str = "Yes" if has_id else "No - visit the Front Desk"
         console.print()
 
         print_line(
-            f"Current room: {current_room}",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Current room: {current_room}",
+            delay=DELAY
+
         )
         print_line(
-            f"Previous room: {previous_room}",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Previous room: {previous_room}",
+            delay=DELAY
         )
         print_line(
-            f"Time played: {time_played_str}",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Time played: {time_played_str}",
+            delay=DELAY
         )
         console.print()
 
         print_line(
-            f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):",
+            delay=DELAY
         )
-        print_line(explored_str, "", stream_delay)
+        print_line(text=explored_str, delay=DELAY)
         console.print()
 
         print_line(
-            f"Not yet explored ({len(unexplored)}):",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Not yet explored ({len(unexplored)}):",
+            delay=DELAY
         )
-        print_line(unexplored_str, "", stream_delay)
+        print_line(unexplored_str, delay=DELAY)
         console.print()
 
         print_line(
             f"Challenges completed ({len(completed_rooms)}):",
-            HEADER_STYLE,
-            stream_delay,
+            delay=DELAY
         )
-        print_line(completed_str, "", stream_delay)
+        print_line(text=completed_str, delay=DELAY)
         console.print()
 
         print_line(
-            f"Coin balance: {coin_balance}",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Coin balance: {coin_balance}",
+            delay=DELAY
         )
         print_line(
-            f"Student ID: {id_str}",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Student ID: {id_str}",
+            delay=DELAY
         )
         console.print()
 
         print_line(
-            f"Inventory ({len(inventory)}):",
-            HEADER_STYLE,
-            stream_delay,
+            text=f"Inventory ({len(inventory)}):",
+            delay=DELAY
         )
-        print_line(inventory_str, "", stream_delay)
+        print_line(text=inventory_str, delay=DELAY)
 
         if pause:
             from utilities.inventory_viewer import (
                 item_descriptions,
             )
 
-            console.print("\n \n Available commands:")
+            print_line("\n \n Available commands:")
             choices = ["exit"]
             if inventory:
                 console.print("- inventory : View item details")
@@ -188,9 +177,7 @@ def check_status(
                 == "inventory"
             ):
                 for item in inventory:
-                    console.print(
-                        f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}"
-                    )
+                    print_line(f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}")
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)
