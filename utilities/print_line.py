@@ -1,13 +1,12 @@
-from rich.console import Console
-from rich.syntax import Syntax
-from rich.text import Text
 import time
+
+from rich.console import Console
 
 
 def print_line(
     text: str,
     delay: float | int = 0,
-    console : Console | None = Console(),
+    console: Console | None = None,
 ) -> None:
     """
     Print a single line of text to the console, optionally with Rich styling.
@@ -26,6 +25,9 @@ def print_line(
     Returns:
         None
     """
+    if console is None:
+        console = Console()
+
     if console is None:
         console = Console()
     if delay > 0:

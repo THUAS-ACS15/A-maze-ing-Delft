@@ -7,17 +7,16 @@
 # -----------------------------------------------------------------------------
 import time
 
-from rich import syntax
+from textwrap import dedent
+from art import text2art # type: ignore[import-untyped]
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
-from art import *
 
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_menu
 from utilities.loader import loader
 from utilities.print_line import print_line
-from textwrap import dedent
 
 header_style = "bold green"
 
@@ -36,7 +35,7 @@ file_system_with_secret = dedent("""\
 room_commands = [
     (
         "look around",
-        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray area.",
+        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray " "area.",
     ),
     (
         "get comfortable",
@@ -89,7 +88,7 @@ BOLD = "\033[1m"
 
 def _get_prompt(username: str = "username", hostname: str = "teacher4", path: str = "~") -> str:
     # Top line: ┌──(username㉿hostname)-[path]
-    top_line = f"{CYAN}┌──({BLUE}{username}㉿{hostname}{CYAN})-[{BOLD}{path}{RESET}{CYAN}]{RESET}"
+    top_line = f"{CYAN}┌──({BLUE}{username}㉿{hostname}{CYAN})-[{BOLD}{path}{RESET}" f"{CYAN}]{RESET}"
 
     # Bottom line: └─$
     bottom_line = f"{CYAN}└─{BLUE}${RESET} "
@@ -124,7 +123,8 @@ def _show_desk(console: Console, state: dict) -> None:
 def _show_goodbye() -> None:
     """Splash shown when leaving the computer (shutdown or logout)."""
     clear_screen()
-    print_line(text2art("Good bye!", font="univers", chr_ignore=True), delay=0.002)
+    message = text2art("Good bye!", font="univers", chr_ignore=True)
+    print_line(message, delay=0.002)
     time.sleep(1)
     clear_screen()
 
@@ -138,15 +138,9 @@ def enter_teachers_room4(state: dict) -> str:
     loader(label="Loading teachers room...")
 
     print_line("[cyan]You step into Teachers Room 4. 🎉[/]")
-    print_line(
-        "Plot twist: the teacher saw you coming and vanished faster than free pizza at a student event."
-    )
-    print_line(
-        'A note on the desk reads: "Gone. Probably. Don\'t touch my mug. — The Teacher"'
-    )
-    print_line(
-        "No lessons, no questions — put your feet up and get comfortable. You earned this break. ☕"
-    )
+    print_line("Plot twist: the teacher saw you coming and vanished faster than free pizza at " "a student event.")
+    print_line('A note on the desk reads: "Gone. Probably. Don\'t touch my mug. — The Teacher"')
+    print_line("No lessons, no questions — put your feet up and get comfortable. You earned " "this break. ☕")
     state["previous_room"] = "teachersroom4"
 
     choice = input("_")
@@ -157,13 +151,6 @@ def enter_teachers_room4(state: dict) -> str:
             case "get comfortable":
                 loader(label="taking a sit...")
                 print_line("You made a good choice. The chair spins. Life is good. ☕")
-                seated_choices = [
-                    "stand up",
-                    "pick up",
-                    "boot computer",
-                    "help",
-                    "?",
-                ]
                 seated = input(":")
                 while seated != "stand up":
                     match seated:
@@ -182,9 +169,7 @@ def enter_teachers_room4(state: dict) -> str:
                                     "inventory",
                                     [],
                                 ).append(taken)
-                                print_line(
-                                    f"You pocket the {taken}. The teacher will never know."
-                                )
+                                print_line(f"You pocket the {taken}. The teacher will never " f"know.")
                         case "boot computer":
                             clear_screen()
                             sequence = [
@@ -216,7 +201,8 @@ def enter_teachers_room4(state: dict) -> str:
                             time.sleep(2)
                             clear_screen()
                             print_line(
-                                "Viola! you are half way in! Now explore the file system to see if you find anything interesting.",
+                                "Viola! you are half way in! Now explore the file system to see if you find "
+                                "anything interesting.",
                                 delay=0.015,
                             )
                             time.sleep(1)
@@ -248,7 +234,12 @@ def enter_teachers_room4(state: dict) -> str:
                                         code = """
                                         # Congrats you completed this challenge!
                                         """
-                                        syntax_disp = Syntax(code,"python",theme="monokai",line_numbers=True,highlight_lines={1}  # Highlights line 1
+                                        syntax_disp = Syntax(
+                                            code,
+                                            "python",
+                                            theme="monokai",
+                                            line_numbers=True,
+                                            highlight_lines={1},  # Highlights line 1
                                         )
                                         time.sleep(0.4)
                                         console.print(syntax_disp)

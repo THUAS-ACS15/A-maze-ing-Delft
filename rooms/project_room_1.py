@@ -8,10 +8,10 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from time import sleep
 
-from utilities.clear_screen import clear_screen
+from typing import TypedDict
 from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
 
 # Loose items in the pile of broken furniture in the corner.
 # The brass key in here is what opens locker 2.
@@ -27,7 +27,14 @@ corner_items = [
 #   coins : money inside, which is added straight to the coin balance
 #   item  : an object that goes into the inventory, or None
 # Every clue in this room maps to exactly one locker, so nothing is a dead end.
-lockers = {
+class Locker(TypedDict):
+    open: bool
+    code: int | None
+    coins: int
+    item: str | None
+
+
+lockers: dict[str, Locker] = {
     "1": {
         "open": False,
         "code": 182,
@@ -146,9 +153,7 @@ def enter_project_room1(state: dict) -> str:
             print("Centre: rows of wooden student desks ('go to desks').")
             print("Corner: a pile of broken desks and chairs ('go to corner').")
             print_locker_wall()
-            print(
-                "Next to the lockers is the exit door, with a card scanner beside it."
-            )
+            print("Next to the lockers is the exit door, with a card scanner beside it.")
 
     # +------------------+
     # | Command handlers |
@@ -221,7 +226,7 @@ def enter_project_room1(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' in the pile.")
 
-    def handle_go(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement, both inside the room and out of it.
 
@@ -327,7 +332,7 @@ def enter_project_room1(state: dict) -> str:
         if locker["coins"] == 0 and locker["item"] is None:
             print("Inside: one very old sandwich. You close the door again, quickly.")
 
-    def handle_swipe_keycard() -> str:
+    def handle_swipe_keycard() -> str | None:
         """
         Handles the real escape: swiping the master keycard on the exit scanner.
 

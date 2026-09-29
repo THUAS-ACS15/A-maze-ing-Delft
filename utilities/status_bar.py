@@ -7,11 +7,12 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-import time
 import math
 import shutil
+import time
 
-# This dict just matches the room identifiers to a fancier display name, for use in updateStatusBar()
+# This dict just matches the room identifiers to a fancier display name, for use in
+# updateStatusBar()
 room_fancy_names = {
     "lobby": "🏠 Lobby",
     "labd2001": "🧪 Lab D2.001",
@@ -27,12 +28,14 @@ room_fancy_names = {
     "classroomd2035": "📚 Classroom D2.035",
 }
 
+
 def calculate_time_played(start_time: float) -> str:
     """
     Calculates the time played in seconds since the start_time.
 
-    This function takes the start_time stored in the state dict and calculates the time played in seconds since that time.
-    If needed, it also separates by hours and minutes, and returns it in string form.
+    This function takes the start_time stored in the state dict and calculates the time
+    played in seconds since that time. If needed, it also separates by hours and
+    minutes, and returns it in string form.
 
     Inputs:
         start_time (float): The start time in seconds.
@@ -66,32 +69,36 @@ def get_exploration_percent(state: dict) -> float:
     """
     Calculates the percentage of the map that has been explored.
 
-    This function takes the state dict and calculates the percentage of the map that has been completed by counting the number of completed rooms and dividing by the total number of rooms.
+    This function takes the state dict and calculates the percentage of the map that has
+    been completed by counting the number of completed rooms and dividing by the total
+    number of rooms.
 
     Inputs:
         state (dict): The current game state.
 
     Outputs:
-        float: The percentage of the map that has been completed, rounded to 2 decimal places.
+        float: The percentage of the map that has been completed, rounded to 2 decimal
+        places.
     """
     completed_dict = state["completed"]
 
     total_rooms = len(completed_dict)
-    completed_rooms = sum(
-        completed_dict.values()
-    )  # This counts the number of True values (i.e. completed rooms)
+    completed_rooms = sum(completed_dict.values())  # This counts the number of True values (i.e. completed rooms)
 
     exploration_percent = (completed_rooms / total_rooms) * 100
     exploration_percent = round(exploration_percent, 2)  # Round to 2 decimals
 
     return exploration_percent
 
+
 def update_status_bar(state: dict) -> None:
     """
-    Updates the status bar with the current room, completion status, coin balance, and time played.
+    Updates the status bar with the current room, completion status, coin balance, and
+    time played.
 
-    This function takes the state dict and uses it to display the current room, the total exploration percentage,
-    whether the room is completed, the coin balance, and the time played since the start of the game.
+    This function takes the state dict and uses it to display the current room, the
+    total exploration percentage, whether the room is completed, the coin balance, and
+    the time played since the start of the game.
 
     Inputs:
         - state (dict): The current game state.
@@ -108,10 +115,12 @@ def update_status_bar(state: dict) -> None:
     time_played = calculate_time_played(state["start_time"])
     exploration_percent = get_exploration_percent(state)
 
-    # Starting / ending rooms don't have challenges, so display a special message for them
+    # Starting / ending rooms don't have challenges, so display a special message for
+    # them
     if current_room in ["lobby"]:
         room_completion = "⭐ Special Room"
-    # If the room is a challenge room, display whether the room is marked as completed in the state dict
+    # If the room is a challenge room, display whether the room is marked as completed
+    # in the state dict
     else:
         try:
             if state["completed"][current_room]:
@@ -121,16 +130,16 @@ def update_status_bar(state: dict) -> None:
         except KeyError:
             room_completion = "⚠️ ROOM NOT IN STATE DICT"
 
-    # Get terminal size, while falling back to the default of 126x20, we only need columns though
+    # Get terminal size, while falling back to the default of 126x20, we only need
+    # columns though
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
-    left_status_data = (
-        f"{room_name} | {exploration_percent}% explored | {room_completion}"
-    )
+    left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion}"
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
-    # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each
+    # Calculate the gap between the left and right status data, remove 5 because the 5
+    # emojis used take up 2 chars each
     gap = terminal_width - 5 - len(left_status_data) - len(right_status_data)
 
     print(f"{left_status_data}{' ' * gap}{right_status_data}")
