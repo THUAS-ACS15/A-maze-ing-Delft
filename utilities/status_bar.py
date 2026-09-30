@@ -94,7 +94,7 @@ def get_exploration_percent(state: dict) -> float:
 
 
 
-def update_status_bar(state: dict, custom_header: str = "stuck? use \"?\" for help") -> None:
+def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and
     time played.
@@ -137,7 +137,7 @@ def update_status_bar(state: dict, custom_header: str = "stuck? use \"?\" for he
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
-    left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion} | {custom_header}"
+    left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion} | {header_message}"
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
     # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each
