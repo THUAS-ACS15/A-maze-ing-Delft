@@ -11,7 +11,7 @@ import sys
 
 from rich.console import Console
 from rich.prompt import Prompt
-from art import text2art
+from art import text2art  # type: ignore[import-untyped]
 from time import sleep
 
 from utilities.animations import show_activity_animation
@@ -23,42 +23,42 @@ from utilities.print_line import print_line
 room_commands = [
     (
         "sit down",
-        "Sink into the teacher's spinny chair. Spin tax: zero.",
+        "Sit down at the office chair and check out the computer.",
     )
 ]
 
 # Format: [question, answer options, correct answer].
-quiz_questions = [
-    [
+quiz_questions: list[tuple[str, dict[str, str], str]] = [
+    (
         "How many locations does De Haagse Hogeschool have in total?",
         {"a": "1", "b": "2", "c": "3", "d": "4"},
         "d",
-    ],
-    [
+    ),
+    (
         "Who teaches the course \"Intercultural Collaboration\"?",
         {"a": "Vineet", "b": "Renee", "c": "Aram", "d": "Sam"},
         "c",
-    ],
-    [
+    ),
+    (
         "What platform do we use for online course info & assignments?",
         {"a": "Brightspace", "b": "OSIRIS", "c": "Microsoft Teams", "d": "Google"},
         "a",
-    ],
-    [
+    ),
+    (
         "Which language is primarily used in this Q1 Project?",
         {"a": "HTML", "b": "Python", "c": "CSS", "d": "SQL"},
         "b",
-    ],
-    [
+    ),
+    (
         "What is the capital city of the Netherlands?",
         {"a": "Delft", "b": "Rotterdam", "c": "The Hague", "d": "Amsterdam"},
         "d",
-    ],
-    [
+    ),
+    (
         "Who's the current monarch of the Netherlands?",
         {"a": "Beatrix", "b": "Willem-Alexander", "c": "William Frederick", "d": "Wilhelmina"},
         "b",
-    ],
+    ),
 ]
 
 def enter_equinox_student_society(state: dict) -> str:

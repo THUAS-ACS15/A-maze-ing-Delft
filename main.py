@@ -14,12 +14,12 @@ from utilities.clear_screen import clear_screen
 start_time = time.time()
 
 state = {
-    "current_room": "lobby",
+    "current_room": "equinoxstudentsociety",
     "previous_room": None,
     "start_time": start_time,
     "is_gametime_paused": False,
     "coin_balance": 0,
-    "student_id_obtained": False,
+    "student_id_obtained": True,
     # Format: item_name, item_price
     "store_available_items": [
         ["Eeyore plushie", 25],
