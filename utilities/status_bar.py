@@ -28,21 +28,23 @@ room_fancy_names = {
     "classroomd2035": "📚 Classroom D2.035",
 }
 
-
-def calculate_time_played(start_time: float) -> str:
+def calculate_time_played(start_time: float, is_pause: bool) -> str:
     """
     Calculates the time played in seconds since the start_time.
 
-    This function takes the start_time stored in the state dict and calculates the time
-    played in seconds since that time. If needed, it also separates by hours and
+    If is_pause is true, the function instantly returns "Paused", otherwise
+    it calculates the time played in seconds since the start_time. If needed, it also separates by hours and
     minutes, and returns it in string form.
 
     Inputs:
         start_time (float): The start time in seconds.
+        is_pause (bool): Whether the game is currently paused
 
     Outputs:
         str: The time played, separated if necessary.
     """
+    if is_pause:
+        return "Paused"
 
     current_time = time.time()
 
@@ -103,6 +105,8 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
 
     Inputs:
         - state (dict): The current game state.
+        - custom_header (str): A custom header to display above the status bar. If not specified, 
+        the default "stuck? use \"?\" for help" header will be used.
 
     Outputs: NONE
     """
@@ -113,15 +117,13 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
     except KeyError:
         room_name = "⚠️ ROOM FANCY NAME NOT FOUND"
 
-    time_played = calculate_time_played(state["start_time"])
+    time_played = calculate_time_played(state["start_time"], state["is_gametime_paused"])
     exploration_percent = get_exploration_percent(state)
 
-    # Starting / ending rooms don't have challenges, so display a special message for
-    # them
+    # Starting / ending rooms don't have challenges, so display a special message for them
     if current_room in ["lobby"]:
         room_completion = "⭐ Special Room"
-    # If the room is a challenge room, display whether the room is marked as completed
-    # in the state dict
+    # If the room is a challenge room, display whether the room is marked as completed in the state dict
     else:
         try:
             if state["completed"][current_room]:
@@ -131,16 +133,14 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
         except KeyError:
             room_completion = "⚠️ ROOM NOT IN STATE DICT"
 
-    # Get terminal size, while falling back to the default of 126x20, we only need
-    # columns though
+    # Get terminal size, while falling back to the default of 126x20, we only need columns though
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
 
     # Stats to be displayed
     left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion} | {header_message}"
     right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
 
-    # Calculate the gap between the left and right status data, remove 5 because the 5
-    # emojis used take up 2 chars each
+    # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each
     gap = terminal_width - 5 - len(left_status_data) - len(right_status_data)
 
     print(f"{left_status_data}{' ' * gap}{right_status_data}")
