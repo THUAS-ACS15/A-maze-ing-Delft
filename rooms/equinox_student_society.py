@@ -196,7 +196,8 @@ def enter_equinox_student_society(state: dict) -> str:
         clear_screen()
         if score <= 3:
             console.print(f"[bold red]Quiz complete. {score}/{len(quiz_questions)} correct.[/]")
-            console.print("[bold red]You did not answer enough questions correctly to pass the quiz. Please try again.[/]")
+            console.print("[bold red]You did not answer enough questions correctly to pass the quiz.[/]")
+            console.print("[bold red]Please try again.[/]")
         else:
             console.print(f"[bold green]Quiz complete. {score}/{len(quiz_questions)} correct.[/]")
             if score == len(quiz_questions):
