@@ -6,7 +6,8 @@
 # Contributors: Gift Odigwe
 # Date: September 2026
 # -----------------------------------------------------------------------------
-"""Single entry point for entering rooms.
+"""
+Single entry point for entering rooms.
 
 Replaces the if/elif dispatch chain with a registry lookup plus the
 special cases (gated Equinox room, quit/exit, unknown room names).

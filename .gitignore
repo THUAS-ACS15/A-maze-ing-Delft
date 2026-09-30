@@ -3,3 +3,4 @@
 *.pyc
 ./rooms/__pycache__/
 ./utilities/__pycache__
+.mypy_cache/
