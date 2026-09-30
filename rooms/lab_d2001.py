@@ -31,7 +31,7 @@ def enter_lab_d2001(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def print_puzzle_instructions(header_message: str = 'stuck? use "quit" to quit or "reset" to redo',) -> None:
+    def print_puzzle_instructions(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo",) -> None:
         """
         Helper function to print puzzle instructions.
 
@@ -44,7 +44,9 @@ def enter_lab_d2001(state: dict) -> str:
         """
 
         clear_screen(header_message)
-        print(" First, type the kilogram value of one of the available boxes, and then which of the platforms to place it on.\n")
+        print(" First, type the kilogram value of one of the available boxes, and")
+        print(" then type the number of the platform you want to place it on (1, 2 or 3).\n")
+
         print(f"    - Available boxes: {', '.join([f'{box}kg' for box in available_boxes])}")
         print(f"    - Platform 1: {', '.join([f'{box}kg' for box in platforms[0]])}")
         print(f"    - Platform 2: {', '.join([f'{box}kg' for box in platforms[1]])}")
@@ -116,7 +118,7 @@ def enter_lab_d2001(state: dict) -> str:
         print("the rest of the room is filled with construction tools, unopened boxes and materials.")
         print("Judging by the amount of sandwiches, these contractors were quite clearly Dutch.")
         print("You are most curious about all the unopened boxes, and wonder what could be inside them.")
-        print("Maybe you could overload the boxes onto the platforms, and see if they open up to reveal their contents.")
+        print("Maybe you could overload the boxes onto the platforms, and see if they open up & reveal their contents.")
         print("- Possible exits: lobby")
         print(f"- Your current inventory: {state['inventory']}")
 
