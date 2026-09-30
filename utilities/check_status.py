@@ -11,6 +11,7 @@ import time
 from rich.console import Console
 from rich.prompt import Prompt
 
+from utilities.clear_screen import clear_screen
 from utilities.loader import loader
 from utilities.print_line import print_line
 
@@ -62,9 +63,11 @@ def check_status(
         status screen was open, pausing game time while viewing status)
     """
     enter_time = time.time()
+    state["is_gametime_paused"] = True
     try:
         console = Console(legacy_windows=False)
-
+        clear_screen()
+        
         # 1. Loading state
         if loading_time > 0:
             loader(
@@ -183,3 +186,5 @@ def check_status(
         start_time = state.get("start_time", None)
         if isinstance(start_time, (int, float)) and not isinstance(start_time, bool):
             state["start_time"] = start_time + (time.time() - enter_time)
+        state["is_gametime_paused"] = False
+        clear_screen()
