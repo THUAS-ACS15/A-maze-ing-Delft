@@ -93,12 +93,13 @@ def enter_equinox_student_society(state: dict) -> str:
         print(" table with 3 chairs, and an opened board game box on it.")
         print("  The left corner has a usual office desk with a computer on it. The office chair")
         print(" looks very comfortable, like newly bought.")
-        print(" The right corner has a small shelf with some books and a few board game boxes stacked on top of each other.")
+        print(" The right corner has a small shelf with some books and a few board game boxes in it.")
         if not state["completed"]["equinoxstudentsociety"]:
-            print("\n You take a close look at the board game box, and notice that it contains a small statue of a dragon.")
+            print("\n You take a close look at the table, and notice")
+            print("that there is a small statue of a dragon on it. It seems to be guarding some treasure!")
             if not state["equinox_coins_claimed"]:
-                print("  Next to it, you find some coins. Looks like it was hoarding some treasure. Thankfully it's just a statue,")
-                print(" so you pick them up. (+10 coins)")
+                print("  Next to it, you find some coins. Looks like it was hoarding some treasure.")
+                print(" Thankfully it's just a statue, so you pick them up. (+10 coins)")
                 state["coin_balance"] += 10
                 state["equinox_coins_claimed"] = True
             else:
@@ -195,11 +196,11 @@ def enter_equinox_student_society(state: dict) -> str:
         clear_screen()
         if score <= 3:
             console.print(f"[bold red]Quiz complete. {score}/{len(quiz_questions)} correct.[/]")
-            console.print(f"[bold red]You did not answer enough questions correctly to pass the quiz. Please try again later.[/]")
+            console.print("[bold red]You did not answer enough questions correctly to pass the quiz. Please try again.[/]")
         else:
             console.print(f"[bold green]Quiz complete. {score}/{len(quiz_questions)} correct.[/]")
             if score == len(quiz_questions):
-                console.print(f"[bold green]Congratulations! You answered all questions correctly![/]")
+                console.print("[bold green]Congratulations! You answered all questions correctly![/]")
             print("For your efforts, you receive a certificate of completion!")
             state["completed"]["equinoxstudentsociety"] = True
             state["inventory"].append("Quiz certificate")
