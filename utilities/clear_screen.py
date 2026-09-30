@@ -11,8 +11,7 @@ import sys
 
 from utilities.status_bar import update_status_bar
 
-
-def clear_screen():
+def clear_screen(custom_header: str = "stuck? use \"?\" for help") -> None:
     main_module = sys.modules.get("__main__")
     state = main_module.state
 
@@ -20,4 +19,4 @@ def clear_screen():
         print("\n" * 50)  # fallback for PyCharm
     else:
         os.system("cls" if os.name == "nt" else "clear")
-    update_status_bar(state)
+    update_status_bar(state, custom_header)

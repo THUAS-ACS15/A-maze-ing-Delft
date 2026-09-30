@@ -17,6 +17,7 @@ state = {
     "current_room": "lobby",
     "previous_room": None,
     "start_time": start_time,
+    "is_gametime_paused": False,
     "coin_balance": 0,
     "student_id_obtained": False,
     # Format: item_name, item_price
@@ -37,6 +38,7 @@ state = {
         "classroomd2015": False,
         "classroomd2035": False,
     },
+    "equinox_coins_claimed": False,
     "inventory": [],
 }
 
