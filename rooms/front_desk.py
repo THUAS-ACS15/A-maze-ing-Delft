@@ -11,6 +11,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Items lying on the reception desk that the player can pick up.
 # list survives between visits to the room.
@@ -221,13 +222,13 @@ def enter_front_desk(state: dict) -> str:
             if result:
                 return result
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
+        elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+        
         elif command == "quit":
             clear_screen()
             print("👋 You sign yourself out at reception and walk home. Game over.")

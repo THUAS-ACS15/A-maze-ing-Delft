@@ -1,3 +1,12 @@
+# -----------------------------------------------------------------------------
+# File: print_line.py
+# ACS Q1 Project - A-maze-ing Delft
+# Organization: THUAS (The Hague University of Applied Sciences)
+# Location: Delft
+# Date: September 2026
+# Contributors: Gift Odigwe
+# -----------------------------------------------------------------------------
+
 import time
 
 from rich.console import Console

@@ -26,6 +26,7 @@ DEFAULT_COMMANDS = [
     ),
     ("?", "Show this help message."),
     ("quit", "Quit the game completely."),
+    ("save/pause", "Save your progress.")
 ]
 
 
