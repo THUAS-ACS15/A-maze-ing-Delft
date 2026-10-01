@@ -12,6 +12,7 @@ import sys
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Vars used in puzzle
 available_boxes = [5, 95, 47, 53, 10, 90]
@@ -285,6 +286,9 @@ def enter_lab_d2001(state: dict) -> str:
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
 
         elif command == "quit":
             clear_screen()

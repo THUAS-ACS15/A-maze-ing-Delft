@@ -13,6 +13,7 @@ from time import sleep
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Loose items left behind on the front row of desks.
 desk_items = ["leather bookmark", "quill pen"]
@@ -345,12 +346,12 @@ def enter_classroom_d2035(state: dict) -> str:
             if result:
                 return result
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
+        elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
 
         elif command == "quit":
             clear_screen()
