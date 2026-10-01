@@ -12,7 +12,13 @@ from random import choice
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
+# This dict matches item name to price, so as not to neeed saving in db
+item_prices = {
+    "Eeyore plushie": 25,
+    "Delft mug": 10,
+}
 
 def get_available_items(state: dict) -> list:
     """
@@ -221,6 +227,9 @@ def enter_store(state: dict) -> str:
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+        
         elif command == "quit":
             clear_screen()
             print("👋 You leave the store and close your eyes. Game over.")

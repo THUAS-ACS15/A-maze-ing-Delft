@@ -11,6 +11,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 
 def enter_teachers_room2(state):
@@ -163,13 +164,13 @@ Enrollments table:
             answer = command[7:].strip()
             handle_answer(answer)
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
+        elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+    
         elif command == "quit":
             clear_screen()
             print("You leave the teacher to their paperwork and exit the maze.")

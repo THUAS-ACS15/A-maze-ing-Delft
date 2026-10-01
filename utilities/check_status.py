@@ -21,12 +21,12 @@ HEADER_STYLE = "bold green"
 # Consistent delay
 DELAY=0.0025
 
-def _format_time_played(start_time) -> str:
+def _format_time_played(start_time: float, time_elapsed: float) -> str:
     """Format elapsed seconds since start_time as 'Xs' / 'Ym Zs' / 'Xh Ym Zs'."""
     import math
 
     try:
-        elapsed = math.ceil(time.time() - float(start_time))
+        elapsed = math.ceil(time.time() - float(start_time) + float(time_elapsed))
     except (TypeError, ValueError):
         return "Unknown"
     if elapsed < 0:
@@ -41,7 +41,6 @@ def _format_time_played(start_time) -> str:
         seconds = elapsed % 60
         return f"{minutes}m {seconds}s"
     return f"{elapsed}s"
-
 
 def check_status(
     state: dict,
@@ -76,7 +75,6 @@ def check_status(
             )
 
         # 2. Gather data (tolerant of missing keys)
-        visited = state.get("visited", {})
         completed = state.get("completed", {})
         coin_balance = state.get("coin_balance", 0)
         has_id = state.get("student_id_obtained", False)
@@ -84,12 +82,17 @@ def check_status(
         current_room = state.get("current_room", "Unknown")
         previous_room = state.get("previous_room", "Unknown")
         start_time = state.get("start_time", None)
-        time_played_str = _format_time_played(start_time) if start_time is not None else "Unknown"
+        time_elapsed = state.get("time_elapsed", 0.0)
+        time_played_str = (
+            _format_time_played(start_time, time_elapsed)
+            if start_time is not None
+            else "Unknown"
+        )
 
-        explored = [k for k, v in visited.items() if v]
-        unexplored = [k for k, v in visited.items() if not v]
+        explored = [k for k, v in completed.items() if v]
+        unexplored = [k for k, v in completed.items() if not v]
         completed_rooms = [k for k, v in completed.items() if v]
-        total_rooms = len(visited)
+        total_rooms = len(completed)
         explored_percent = (
             round(
                 (len(explored) / total_rooms) * 100,
