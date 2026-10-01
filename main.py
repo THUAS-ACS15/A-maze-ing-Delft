@@ -14,18 +14,28 @@ from utilities.clear_screen import clear_screen
 start_time = time.time()
 
 state = {
-    "current_room": "equinoxstudentsociety",
-    "previous_room": None,
+    "current_room": "lobby",
+    "time_elapsed": 0.0,
     "start_time": start_time,
     "is_gametime_paused": False,
     "coin_balance": 0,
-    "student_id_obtained": True,
-    # Format: item_name, item_price
-    "store_available_items": [
-        ["Eeyore plushie", 25],
-        ["Delft mug", 10],
-    ],
+    "student_id_obtained": False,
+    "equinox_coins_claimed": False,
+    "store_available_items": ["Eeyore plushie", "Delft mug"],
     "completed": {
+        "labd2001": True,
+        "store": False,
+        "projectroom1": False,
+        "projectroom2": False,
+        "teachersroom1": True,
+        "teachersroom2": False,
+        "teachersroom4": False,
+        "frontdesk": False,
+        "equinoxstudentsociety": False,
+        "classroomd2015": False,
+        "classroomd2035": False,
+    },
+    "accessible": {
         "labd2001": False,
         "store": False,
         "projectroom1": False,
@@ -38,7 +48,6 @@ state = {
         "classroomd2015": False,
         "classroomd2035": False,
     },
-    "equinox_coins_claimed": False,
     "inventory": [],
 }
 

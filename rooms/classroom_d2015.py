@@ -12,6 +12,7 @@ from time import sleep
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Loose components lying on the antistatic mat, which the player can take.
 bench_items = [
@@ -362,13 +363,13 @@ def enter_classroom_d2015(state: dict) -> str:
         elif command == "start rover":
             handle_start_rover()
 
-        elif command in [
-            "status",
-            "check status",
-        ]:
+        elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+        
         elif command == "quit":
             clear_screen()
             print("👋 You switch off the bench supply and call it a day. Game over.")
