@@ -4,21 +4,28 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clearScreen
+
+from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Items lying on the reception desk that the player can pick up.
 # list survives between visits to the room.
-desk_items = ["pen", "visitor badge", "campus flyer"]
+desk_items = [
+    "pen",
+    "visitor badge",
+    "campus flyer",
+]
 
 # The reward for registering at the desk: the deposit refund on the old ID card.
 ID_CARD_REFUND = 5
 
 
-def printFloorMap() -> None:
+def print_floor_map() -> None:
     """
     Prints the 2nd floor campus map that hangs on the office wall.
 
@@ -45,11 +52,14 @@ def printFloorMap() -> None:
 """)
 
 
-def enterFrontDesk(state: dict) -> str:
+def handle_go(destination):
+    pass
+
+
+def enter_front_desk(state: dict) -> str:
     """Starter function for the Front Desk Office."""
 
-    clearScreen()
-    state["visited"]["frontdesk"] = True
+    clear_screen()
     print("🛎️  You push open the glass door of the Front Desk Office.")
     print("A staff member is hunched over a laptop behind a wide reception counter.")
     print("Behind him, a large campus floor plan is pinned to the wall.")
@@ -58,7 +68,7 @@ def enterFrontDesk(state: dict) -> str:
     # | Registration helper method |
     # +----------------------------+
 
-    def handleRegister() -> None:
+    def handle_register() -> None:
         """
         Runs the student ID registration with the staff member.
 
@@ -74,16 +84,16 @@ def enterFrontDesk(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print("The staff member looks up over his glasses.")
-        print("\"Why are you walking around campus without your student ID card?\"")
+        print('"Why are you walking around campus without your student ID card?"')
         print("\"Sit down, I'll print you a new one. Type 'cancel' if you're in a hurry.\"")
 
-        name = input("\n\"What's your name?\" > ").strip()
+        name = input('\n"What\'s your name?" > ').strip()
 
         if name.lower() == "cancel":
-            clearScreen()
-            print("\"Fine, fine. Come back when you've got a minute.\"")
+            clear_screen()
+            print('"Fine, fine. Come back when you\'ve got a minute."')
             return
 
         # Empty input still needs a name for the card, so fall back to a default
@@ -93,38 +103,38 @@ def enterFrontDesk(state: dict) -> str:
 
         # Keep asking until the player gives an 8 digit number or cancels
         while True:
-            student_no = input("\"And your 8 digit student number?\" > ").strip()
+            student_no = input('"And your 8-digit student number?" > ').strip()
 
             if student_no.lower() == "cancel":
-                clearScreen()
-                print("\"Suit yourself. The card will be waiting here.\"")
+                clear_screen()
+                print('"Suit yourself. The card will be waiting here."')
                 return
 
             # Check length first, then that every character is a digit
             if len(student_no) != 8:
-                clearScreen()
-                print(f"\"That's {len(student_no)} characters. A student number is exactly 8.\"")
+                clear_screen()
+                print(f'"That\'s {len(student_no)} characters. A student number is exactly 8 digits long."')
             elif not student_no.isnumeric():
-                clearScreen()
-                print("\"Digits only, please. No letters in a student number.\"")
+                clear_screen()
+                print('"Digits only, please. No letters in a student number."')
             else:
                 break
 
         # Registration succeeded, hand out the card and the deposit refund
-        state["inventory"].append("student id card")
+        state["inventory"].append("Student ID card")
         state["student_id_obtained"] = True
         state["completed"]["frontdesk"] = True
         state["coin_balance"] += ID_CARD_REFUND
 
-        clearScreen()
-        print(f"The printer whirs. \"There you go, {name}. Don't lose this one.\"")
+        clear_screen()
+        print(f'The printer whirs. "There you go, {name}. Don\'t lose this one."')
         print("He slides a fresh student ID card across the counter.")
-        print(f"\"Oh, and here's the deposit back on your old card.\" (+{ID_CARD_REFUND} coins)")
+        print(f'"Oh, and here\'s the deposit back on your old card." (+{ID_CARD_REFUND} coins)')
         print("")
         print("His desk phone rings. He picks up, and his face changes.")
-        print(">> \"Security? Yes, we filed the report. Something strange is going on\"")
-        print(">> \"down the E-W corridor, inside the Equinox student society room.\"")
-        print(">> \"Send someone over. Now.\"")
+        print('>> "Security? Yes, we filed the report. Something strange is going on"')
+        print('>> "down the E-W corridor, inside the Equinox student society room."')
+        print('>> "Send someone over. Now."')
         print("")
         print("He hangs up and pretends you didn't hear any of that.")
 
@@ -132,38 +142,7 @@ def enterFrontDesk(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
-        """
-        Describes the room and gives clues.
-
-        This function describes the reception office, points the player at the
-        wall map and the registration desk, and lists the loose items that are
-        still lying on the counter. It also shows the exits and the inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        print("You take a look around the office.")
-        print("The staff member keeps typing. A queue ticket machine blinks '000'.")
-        print("A large 2nd Floor Campus Map is pinned to the wall ('read map').")
-
-        # Only nudge the player towards registration while they still need it
-        if not state["completed"]["frontdesk"]:
-            print("The counter has a sign: 'Lost your ID? Register here' ('register').")
-        else:
-            print("Your new student ID card is already clipped to your bag.")
-
-        if desk_items:
-            print("On the corner of the counter you spot:", ", ".join(desk_items))
-        else:
-            print("The counter is completely clear now.")
-
-        print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
-
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -175,16 +154,16 @@ def enterFrontDesk(state: dict) -> str:
         """
 
         print("Available commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine the reception office.")
         print("- read map            : Study the 2nd floor campus floor plan.")
         if not state["completed"]["frontdesk"]:
             print("- register            : Ask the staff member for a new student ID.")
         print("- take <item>         : Pick up something from the counter.")
         print("- go lobby / back     : Leave the office and return to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_look() -> None:
         """
         Handles picking up an item from the reception counter.
 
@@ -204,75 +183,57 @@ def enterFrontDesk(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the counter.")
 
-    def handleGo(destination: str) -> str:
-        """
-        Handles movement out of the room.
-
-        This function checks if the player can move to the given destination from
-        this room. If the destination is valid it returns the destination string,
-        otherwise it prints an error message and returns None.
-
-        Inputs:
-            - destination (str): The destination the player wants to go to.
-
-        Outputs:
-            - location (str): "lobby" if valid, None otherwise.
-        """
-
-        valid_destinations = ["lobby", "back"]
-
-        if destination in valid_destinations:
-            print("You thank the staff member and step back out into the Lobby.")
-            state["previous_room"] = "frontdesk"
-            return "lobby"
-        else:
-            print(f"❌ You can't go to '{destination}' from here.")
-            return None
-
-    # +--------------+
-    # | Command loop |
-    # +--------------+
-
     while True:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command == "register":
             if state["completed"]["frontdesk"]:
-                clearScreen()
-                print("\"You've already got your card. Stop wasting my toner.\"")
+                clear_screen()
+                print('"You\'ve already got your card. Stop wasting my toner."')
             else:
-                handleRegister()
+                handle_register()
 
-        elif command in ["read map", "look at map", "map"]:
-            clearScreen()
+        elif command in [
+            "read map",
+            "look at map",
+            "map",
+        ]:
+            clear_screen()
             print("--- 2ND FLOOR CAMPUS MAP ---")
-            printFloorMap()
+            print_floor_map()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_look()
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+        
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You sign yourself out at reception and walk home. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

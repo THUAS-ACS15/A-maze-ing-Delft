@@ -7,104 +7,69 @@
 # -----------------------------------------------------------------------------
 
 import time
-from utilities.clear_screen import clearScreen
-from rooms import (
-    enterLobby,
-    enterStore,
-    enterLabD2001,
-    enterTeachersRoom1,
-    enterTeachersRoom2,
-    enterProjectRoom1,
-    enterProjectRoom2,
-    enterFrontDesk,
-    enterClassroomD2015,
-    enterClassroomD2035
-)
+
+from rooms.dispatcher import enter_room
+from utilities.clear_screen import clear_screen
 
 start_time = time.time()
 
 state = {
     "current_room": "lobby",
-    "previous_room": "lobby",
+    "time_elapsed": 0.0,
     "start_time": start_time,
+    "is_gametime_paused": False,
     "coin_balance": 0,
     "student_id_obtained": False,
-    "store_available_items": [
-        ["Eeyore plushie", 25],
-        ["Delft mug", 10],
-    ],
-    "visited": {
-        "lobby": True,
-        "labd2001": False,
-        "store": False,
-        "projectroom1": False,
-        "projectroom2": False,
-        "teachersroom1": False,
-        "teachersroom2": False,
-        "frontdesk": False,
-        "classroomd2015": False,
-        "classroomd2035": False
-    },
+    "equinox_coins_claimed": False,
+    "store_available_items": ["Eeyore plushie", "Delft mug"],
     "completed": {
+        "labd2001": True,
+        "store": False,
+        "projectroom1": False,
+        "projectroom2": False,
+        "teachersroom1": True,
+        "teachersroom2": False,
+        "teachersroom4": False,
+        "frontdesk": False,
+        "equinoxstudentsociety": False,
+        "classroomd2015": False,
+        "classroomd2035": False,
+    },
+    "accessible": {
         "labd2001": False,
         "store": False,
         "projectroom1": False,
         "projectroom2": False,
         "teachersroom1": False,
         "teachersroom2": False,
+        "teachersroom4": False,
         "frontdesk": False,
+        "equinoxstudentsociety": False,
         "classroomd2015": False,
-        "classroomd2035": False
+        "classroomd2035": False,
     },
-    "inventory": []
+    "inventory": [],
 }
 
-clearScreen()
-print("****************************************************************************")
-print("*                      Welcome to the School Maze!                         *")
-print("*        Your goal is to explore all important rooms in the school.        *")
-print("*    You may need to solve challenges to collect items and unlock rooms.   *")
-print("*               Once you've visited all rooms, you win!                    *")
-print("****************************************************************************")
 
-while True:
-    current = state["current_room"]
+def main():
+    clear_screen()
 
-    if current == "lobby":
-        state["current_room"] = enterLobby(state)
+    # Main room-navigation loop.
+    # Repeatedly reads the player's current room from state, falls back to "lobby"
+    # if the value is missing or invalid, and calls enter_room() to determine the
+    # next room. The loop continues until enter_room() returns "quit" or "exit",
+    # at which point the game ends. Otherwise, the returned room is saved back into
+    # state["current_room"] for the next iteration.
+    while True:
+        current = state.get("current_room", "lobby")
+        if not isinstance(current, str):
+            current = "lobby"
+        next_room = enter_room(current, state)
+        if next_room in ("quit", "exit"):
+            break
+        state["current_room"] = next_room
 
-    elif current == "store":
-        state["current_room"] = enterStore(state)
 
-    elif current == "labd2001":
-        state["current_room"] = enterLabD2001(state)
-
-    elif current == "teachersroom1":
-        state["current_room"] = enterTeachersRoom1(state)
-
-    elif current == "teachersroom2":
-        state["current_room"] = enterTeachersRoom2(state)
-
-    elif current == "projectroom2":
-        state["current_room"] = enterProjectRoom2(state)
-
-    elif current == "projectroom1":
-        state["current_room"] = enterProjectRoom1(state)
-
-    elif current == "frontdesk":
-        state["current_room"] = enterFrontDesk(state)
-
-    elif current == "classroomd2015":
-        state["current_room"] = enterClassroomD2015(state)
-
-    elif current == "classroomd2035":
-        state["current_room"] = enterClassroomD2035(state)
-
-    elif current in ["quit", "exit"]:
-        print("Thank you for playing A-maze-ing Delft!")
-        break
-
-    else:
-        print(f"Unknown room '{current}'. Returning to Lobby...")
-        time.sleep(1.0)
-        state["current_room"] = "lobby"
+if __name__ == "__main__":
+    main()

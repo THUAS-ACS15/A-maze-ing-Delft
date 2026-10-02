@@ -8,8 +8,10 @@
 # -----------------------------------------------------------------------------
 
 item_descriptions = {
-    "Eeyore plushie": "It's an adorable plushie of Eeyore. Looking at it, you vividly remember watching the show when you were a kid.",
-    "Delft mug": "It's another one of those mugs, with a huge label spelling out \"I <3 Delft\". You've seen this too many times already."
+    "Eeyore plushie": "It's an adorable plushie of Eeyore. Looking at it, you vividly "
+    "remember watching the show when you were a kid.",
+    "Delft mug": "It's another one of those mugs, with a huge label spelling out \"I "
+    "<3 Delft\". You've seen this too many times already.",
 }
 
 # This file will contain an inventory viewer, to be added after consultation with the team.
