@@ -24,11 +24,11 @@ header_style = "bold green"
 items = ["computer", "paperclip", "note", "mug"]
 
 file_system_without_secret = dedent("""\
-.     just_another_folder            
+.     [blue]just_another_folder[/]           
 """)
 
 file_system_with_secret = dedent("""\
-.     .azure         .bashrc           .config    .local      .zprofile           [blue]super_secret_file.txt[/]
+.     .azure         .bashrc           .config    .local      .zprofile           super_secret_file.txt
 ..    .bash_history  .bashrc.original  .docker   .java        .profile           .sudo_as_admin_successful 
 .aws  .bash_logout   .cache            .emacs.d  .lesshst     
 """).strip()
@@ -148,7 +148,7 @@ def enter_teachers_room4(state: dict) -> str:
     print_line("No lessons, no questions — put your feet up and get comfortable. You earned " "this break. ☕")
     state["previous_room"] = "teachersroom4"
 
-    choice = input("_")
+    choice = input(">")
     while choice not in ("leave", "exit"):
         match choice:
             case "?" | "help":
@@ -158,8 +158,8 @@ def enter_teachers_room4(state: dict) -> str:
             case "get comfortable":
                 loader(label="taking a sit...")
                 print_line("You made a good choice. The chair spins. Life is good. ☕")
-                seated = input(":")
-                while seated != "stand up":
+                seated = input(">")
+                while seated:
                     match seated:
                         case "?" | "help":
                             display_menu(
@@ -171,7 +171,7 @@ def enter_teachers_room4(state: dict) -> str:
                             if not remaining:
                                 print_line("Nothing left but crumbs. Leave those too.")
                             else:
-                                taken = input("_")
+                                taken = input(">")
                                 state.setdefault(
                                     "inventory",
                                     [],
@@ -264,9 +264,10 @@ def enter_teachers_room4(state: dict) -> str:
                                     print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
                                     computer = input(_get_prompt())
                             _show_goodbye()
-                    if seated != "stand up":
-                        seated = input("_")
+                            break
+                        case "stand up":
+                            break
             case "look around":
                 _show_desk(console, state)
-        choice = input("_")
+        choice = input(">")
     return "lobby"
