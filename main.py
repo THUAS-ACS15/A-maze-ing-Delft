@@ -23,11 +23,11 @@ state = {
     "equinox_coins_claimed": False,
     "store_available_items": ["Eeyore plushie", "Delft mug"],
     "completed": {
-        "labd2001": True,
+        "labd2001": False,
         "store": False,
         "projectroom1": False,
         "projectroom2": False,
-        "teachersroom1": True,
+        "teachersroom1": False,
         "teachersroom2": False,
         "teachersroom4": False,
         "frontdesk": False,
