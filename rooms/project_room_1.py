@@ -4,17 +4,23 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
-from time import sleep
-from utilities.animations import showActivityAnimation
-from utilities.clear_screen import clearScreen
+
+from typing import TypedDict
+from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Loose items in the pile of broken furniture in the corner.
 # The brass key in here is what opens locker 2.
-corner_items = ["marker", "lecture notes", "brass key"]
+corner_items = [
+    "marker",
+    "lecture notes",
+    "brass key",
+]
 
 # The five lockers on the back wall.
 #   code  : what the player has to type in, worked out from a BODMAS clue
@@ -22,31 +28,62 @@ corner_items = ["marker", "lecture notes", "brass key"]
 #   coins : money inside, which is added straight to the coin balance
 #   item  : an object that goes into the inventory, or None
 # Every clue in this room maps to exactly one locker, so nothing is a dead end.
-lockers = {
-    "1": {"open": False, "code": 182, "coins": 50, "item": None},
-    "2": {"open": False, "code": None, "coins": 0,  "item": "master keycard"},
-    "3": {"open": False, "code": 24,  "coins": 20, "item": None},
-    "4": {"open": False, "code": 30,  "coins": 0,  "item": None},
-    "5": {"open": False, "code": 46,  "coins": 0,  "item": "equinox membership card"}
+class Locker(TypedDict):
+    open: bool
+    code: int | None
+    coins: int
+    item: str | None
+
+
+lockers: dict[str, Locker] = {
+    "1": {
+        "open": False,
+        "code": 182,
+        "coins": 50,
+        "item": None,
+    },
+    "2": {
+        "open": False,
+        "code": None,
+        "coins": 0,
+        "item": "master keycard",
+    },
+    "3": {
+        "open": False,
+        "code": 24,
+        "coins": 20,
+        "item": None,
+    },
+    "4": {
+        "open": False,
+        "code": 30,
+        "coins": 0,
+        "item": None,
+    },
+    "5": {
+        "open": False,
+        "code": 46,
+        "coins": 0,
+        "item": "equinox membership card",
+    },
 }
 
 
-def enterProjectRoom1(state: dict) -> str:
+def enter_project_room1(state: dict) -> str:
     """Starter function for Project Room 1."""
 
-    clearScreen()
-    state["visited"]["projectroom1"] = True
+    clear_screen()
     print("🔐 You walk into Project Room 1 and the door clicks shut behind you.")
     print("Professor Vance is at the front, capping a whiteboard marker.")
-    print("\"Ah. Five lockers, five combinations, and every number you need is")
-    print("somewhere in this room. Nobody takes the prize without earning it.\"")
-    print("He shrugs. \"You can walk out any time, of course. Most of them do.\"")
+    print('"Ah. Five lockers, five combinations, and every number you need is')
+    print('somewhere in this room. Nobody takes the prize without earning it."')
+    print('He shrugs. "You can walk out any time, of course. Most of them do."')
 
     # Progress is stored in the state dict so it survives leaving and returning.
     if "projectroom1_progress" not in state:
         state["projectroom1_progress"] = {
             "location": "room",
-            "money_found": 0
+            "money_found": 0,
         }
 
     progress = state["projectroom1_progress"]
@@ -55,7 +92,7 @@ def enterProjectRoom1(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printLockerWall() -> None:
+    def print_locker_wall() -> None:
         """
         Helper function to print the state of the five lockers.
 
@@ -74,7 +111,7 @@ def enterProjectRoom1(state: dict) -> str:
             else:
                 print(f"    - Locker {number}: 🔒 shut.")
 
-    def describeArea(location: str) -> None:
+    def describe_area(location: str) -> None:
         """
         Prints the description of whichever part of the room the player is in.
 
@@ -90,21 +127,24 @@ def enterProjectRoom1(state: dict) -> str:
 
         if location == "board":
             print("You step up to the whiteboard. Vance's handwriting is terrible.")
-            print("    \"LOCKER 1:  2 + 6 * 30\"")
-            print("    \"LOCKER 3:  (2 + 6) * 3\"")
+            print('    "LOCKER 1:  2 + 6 * 30"')
+            print('    "LOCKER 3:  (2 + 6) * 3"')
             print("(Two more codes are written somewhere else in the room.)")
 
         elif location == "desks":
             print("You walk between the rows of wooden student desks.")
             print("Someone has carved into the side of desk #3, deep enough to feel:")
-            print("    \"LOCKER 4:  50 - 5 * 4\"")
+            print('    "LOCKER 4:  50 - 5 * 4"')
 
         elif location == "corner":
             print("You dig through the pile of broken desks and chairs.")
             print("There's a sticker peeling off the back of a snapped chair:")
-            print("    \"LOCKER 5:  2 ** 4 + 3 * 10\"")
+            print('    "LOCKER 5:  2 ** 4 + 3 * 10"')
             if corner_items:
-                print("Half buried in the pile:", ", ".join(corner_items))
+                print(
+                    "Half buried in the pile:",
+                    ", ".join(corner_items),
+                )
             else:
                 print("Nothing else worth pulling out of the pile.")
 
@@ -113,14 +153,14 @@ def enterProjectRoom1(state: dict) -> str:
             print("Front: Professor Vance, waiting by the whiteboard ('go to board').")
             print("Centre: rows of wooden student desks ('go to desks').")
             print("Corner: a pile of broken desks and chairs ('go to corner').")
-            printLockerWall()
+            print_locker_wall()
             print("Next to the lockers is the exit door, with a card scanner beside it.")
 
     # +------------------+
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the current area and gives clues.
 
@@ -133,11 +173,14 @@ def enterProjectRoom1(state: dict) -> str:
         Outputs: NONE
         """
 
-        describeArea(progress["location"])
+        describe_area(progress["location"])
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -149,6 +192,7 @@ def enterProjectRoom1(state: dict) -> str:
         """
 
         print("Available commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine wherever you're standing.")
         print("- go to board         : Walk up to the whiteboard.")
         print("- go to desks         : Walk between the student desks.")
@@ -159,10 +203,9 @@ def enterProjectRoom1(state: dict) -> str:
         if not state["completed"]["projectroom1"]:
             print("- swipe keycard       : Use the master keycard on the exit scanner.")
         print("- go lobby / back     : Walk out the normal way, back to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_take(item: str) -> None:
         """
         Handles picking up an item from the corner pile.
 
@@ -184,7 +227,7 @@ def enterProjectRoom1(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' in the pile.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement, both inside the room and out of it.
 
@@ -208,12 +251,12 @@ def enterProjectRoom1(state: dict) -> str:
             "to corner": "corner",
             "corner": "corner",
             "to room": "room",
-            "room": "room"
+            "room": "room",
         }
 
         if destination in inside_areas:
             progress["location"] = inside_areas[destination]
-            describeArea(progress["location"])
+            describe_area(progress["location"])
             return None
 
         if destination in ["lobby", "back"]:
@@ -221,14 +264,14 @@ def enterProjectRoom1(state: dict) -> str:
                 print("You stroll back out into the Lobby, keycard in hand.")
             else:
                 print("You push the handle and slip out into the Lobby.")
-                print("Vance calls after you: \"The lockers will still be here!\"")
+                print('Vance calls after you: "The lockers will still be here!"')
             state["previous_room"] = "projectroom1"
             return "lobby"
 
         print(f"❌ You can't go to '{destination}' from here.")
         return None
 
-    def handleOpenLocker(number: str) -> None:
+    def handle_open_locker(number: str) -> None:
         """
         Handles opening one of the five lockers on the back wall.
 
@@ -290,7 +333,7 @@ def enterProjectRoom1(state: dict) -> str:
         if locker["coins"] == 0 and locker["item"] is None:
             print("Inside: one very old sandwich. You close the door again, quickly.")
 
-    def handleSwipeKeycard() -> str:
+    def handle_swipe_keycard() -> str | None:
         """
         Handles the real escape: swiping the master keycard on the exit scanner.
 
@@ -310,9 +353,7 @@ def enterProjectRoom1(state: dict) -> str:
             print("It's locked away somewhere on that back wall.")
             return None
 
-        showActivityAnimation("qte")
-        sleep(1)
-        clearScreen()
+        clear_screen()
 
         state["completed"]["projectroom1"] = True
 
@@ -320,7 +361,7 @@ def enterProjectRoom1(state: dict) -> str:
         print("BEEP. Green light. The bolt retracts and the exit door swings wide.")
         print("")
         print("Professor Vance actually applauds, once.")
-        print(f"\"{progress['money_found']} coins and my keycard. Go on, get out.\"")
+        print(f'"{progress["money_found"]} coins and my keycard. Go on, get out."')
         print("")
         print("Stepping back out into the Lobby...")
 
@@ -335,44 +376,55 @@ def enterProjectRoom1(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_take(item)
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command.startswith("open locker"):
-            clearScreen()
+            clear_screen()
             # Everything after "open locker" is the number, e.g. "open locker 3"
             number = command[11:].strip()
             if not number:
                 number = input("Which locker (1-5)? > ").strip()
-            handleOpenLocker(number)
+            handle_open_locker(number)
 
-        elif command in ["swipe keycard", "unlock door", "escape"]:
-            clearScreen()
-            result = handleSwipeKeycard()
+        elif command in [
+            "swipe keycard",
+            "unlock door",
+            "escape",
+        ]:
+            clear_screen()
+            result = handle_swipe_keycard()
             if result:
                 return result
 
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+    
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You sit down at one of Vance's desks and give up. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

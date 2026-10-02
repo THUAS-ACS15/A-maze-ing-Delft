@@ -4,37 +4,43 @@
 # Organization: THUAS
 # Location: Delft
 # Date: September 2026
-#Contribution: fixed status bar not updating
-
+# Contributors: Dominik, Gift Odigwe
+# -----------------------------------------------------------------------------
 
 import sys
-from utilities.clear_screen import clearScreen
-print(sys.version)
-def enterTeachersRoom1(state: dict) -> str:
-    clearScreen()
-    state["visited"]["teachesroom1"] = True
+
+from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
+
+
+def enter_teachers_room1(state: dict) -> str:
+    clear_screen()
     print("\nYou step into Teachers Room 1.")
-    print("A teacher is sat over a laptop, muttering under their breath at the screen.")
+    print("A teacher is sitting at a laptop, muttering under their breath at the screen.")
     print("Sticky notes covered in function names are scattered across the desk.")
 
     def handle_look():
         print("\nYou take a look around.")
-        print("It's a standard teachers room, shelves full of documents lining the left side wall. On the right there are some posters and notice boards.")
+        print(
+            "It's a standard teachers room, shelves full of documents lining the left side wall."
+            " On the right there are some posters and notice boards."
+        )
         print("The teacher's screen shows a Python code, almost finished.")
-        if not state["visited"]["teachersroom1"]:
-            print("The teacher looks up: \"Oh, perfect timing. I'm missing one last piece of this code.\"")
-            print("\"If you can figure out why  my code doesn't work, I'll make it worth your while.\"")
+        if not state["completed"]["teachersroom1"]:
+            print('The teacher looks up: "Oh, perfect timing. I\'m missing one last piece of this code."')
+            print("\"If you can figure out why my code doesn't work, I'll make it worth your while.\"")
             print("""
     def sum_even_numbers(numbers):
         total = 0
         for n in numbers:
-            if n % 1 == 0:
+            if ____ == 0:
                 total += n
         return total
 """)
-            print("The teacher points to the screen: \"The code always returns the wrong number\"")
+            print('The teacher points to the screen: "The code always returns the wrong number"')
         else:
-            print("The teacher grins: \"That fix worked perfectly, thanks again!\"")
+            print('The teacher grins: "That fix worked perfectly, thanks again!"')
             if "debug_notes" not in state["inventory"]:
                 print("A small notebook labeled 'Debug Notes' is still sitting on the desk.")
             else:
@@ -44,27 +50,37 @@ def enterTeachersRoom1(state: dict) -> str:
 
     def handle_help():
         print("\nAvailable commands:")
+        print("- ?                   : Show this help message.")
         print("- look around         : Examine the room and the code on screen.")
-        if not state["visited"]["teachersroom1"]:
+        if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        if state["visited"]["teachersroom1"] and "debug_notes" not in state["inventory"]:
+        if state["completed"]["teachersroom1"] and "debug_notes" not in state["inventory"]:
             print("- take notebook       : Pick up the notebook once it's offered.")
         print("- go Lobby / back  : Leave the room and return to the Lobby.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game entirely.")
 
     def handle_take(item):
-        if item in ["notebook", "debug notes", "debug_notes"]:
-            if not state["visited"]["teachersroom1"]:
+        if item in [
+            "notebook",
+            "debug notes",
+            "debug_notes",
+        ]:
+            if not state["completed"]["teachersroom1"]:
                 print("There's nothing to take yet. Maybe help the teacher first.")
             elif "debug_notes" in state["inventory"]:
                 print("You already have the notebook in your backpack.")
             else:
                 state["coin_balance"] += 10
-                clearScreen()
-                print("You pick up the notebook. \"Take this, you've earned it,\" the teacher says.")
-                print("After taking the notebook the teacher is handing you, you notice something shiny in the corner of your eye.")
-                print("You look closer and realize you found some shiny coins, teacher allows you to take them (+ 10 coins)")
+                clear_screen()
+                print('You pick up the notebook. "Take this, you\'ve earned it," the teacher says.')
+                print(
+                    "After taking the notebook the teacher is handing you, you notice something shiny in the corner "
+                    "of your eye."
+                )
+                print(
+                    "You look closer and realize you found some shiny coins, teacher allows you to take them "
+                    "(+ 10 coins)"
+                )
                 state["inventory"].append("debug_notes")
         else:
             print(f"There is no '{item}' here to take.")
@@ -78,54 +94,69 @@ def enterTeachersRoom1(state: dict) -> str:
             return None
 
     def handle_answer(answer):
-        if state["visited"]["teachersroom1"]:
+        if state["completed"]["teachersroom1"]:
             print("You've already solved this challenge.")
             return
         # accept a few equivalent ways of writing "n % 2"
         normalized = answer.strip().lower().replace(" ", "")
-        accepted = ["%2", "n%2", "n % 2"]
+        accepted = ["n%2", "n % 2"]
         if normalized in accepted:
+<<<<<<< HEAD
             state["visited"]["teachersroom1"] = True
             state["completed"]["teachersroom1"] = True
             clearScreen()
             print("Correct! The teacher's eyes light up: \"% 2 — of course! Thank you!\"")
             print("Here take this I have no use for this now, it didn't help anyways.")
             print("The teacher hands you a small notebook labeled 'Debug Notes'.")
+=======
+            print('Correct! The teacher\'s eyes light up: "n % 2 — of course! Thank you!"')
+            state["completed"]["teachersroom1"] = True
+            print("Here, take this! I have no use for this now.")
+            print("The teacher points to a small notebook labeled 'Debug Notes'.")
+>>>>>>> ef3229ac1f890becb1d2b60541fc0cf9ba6079ec
         else:
-            print("The teacher shakes their head: \"Not quite. Think about how you check if a number is even.\"")
+            print('The teacher shakes their head: "Not quite. Think about how you check if a number is even."')
 
     while True:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
+            clear_screen()
             handle_look()
 
         elif command == "?":
-            clearScreen()
+            clear_screen()
             handle_help()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
             handle_take(item)
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
             result = handle_go(destination)
             if result:
                 return result
 
         elif command.startswith("answer "):
-            clearScreen()
+            clear_screen()
             answer = command[7:].strip()
             handle_answer(answer)
 
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+
         elif command == "quit":
-            clearScreen()
-            print("You leave the teacher to their code and exit the room.")
+            clear_screen()
+            print("👋 You leave the teacher to their code and exit the room.")
+            sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("Unknown command. Type '?' to see available commands.")

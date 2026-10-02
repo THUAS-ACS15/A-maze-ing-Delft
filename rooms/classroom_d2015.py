@@ -4,16 +4,22 @@
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributors: Sadanand
+# Contributors: Sadanand, Gift Odigwe
 # -----------------------------------------------------------------------------
 
 import sys
 from time import sleep
-from utilities.animations import showActivityAnimation
-from utilities.clear_screen import clearScreen
+
+from utilities.check_status import check_status
+from utilities.clear_screen import clear_screen
+from utilities.save_gui import display_save_menu
 
 # Loose components lying on the antistatic mat, which the player can take.
-bench_items = ["usb cable", "resistor", "multimeter"]
+bench_items = [
+    "usb cable",
+    "resistor",
+    "multimeter",
+]
 
 # The two answers the player has to work out from the BODMAS clues:
 #   lab notebook : 12 - 2 * 4 + 6  -> 12 - 8 + 6 -> 10
@@ -22,14 +28,13 @@ CORRECT_VOLTAGE = 10
 CORRECT_FREQUENCY = 30
 
 # Reward for getting the rover across the test track.
-ROVER_REWARD = 50
+ROVER_REWARD = 20
 
 
-def enterClassroomD2015(state: dict) -> str:
+def enter_classroom_d2015(state: dict) -> str:
     """Starter function for Classroom D2.015."""
 
-    clearScreen()
-    state["visited"]["classroomd2015"] = True
+    clear_screen()
     print("🤖 You enter Classroom D2.015, the embedded systems lab.")
     print("A marked test track takes up the middle of the floor, and a small robot rover")
     print("sits dead in the middle of it. Its status LED is off.")
@@ -42,7 +47,7 @@ def enterClassroomD2015(state: dict) -> str:
     if "d2015_progress" not in state:
         state["d2015_progress"] = {
             "power_set": False,
-            "rover_calibrated": False
+            "rover_calibrated": False,
         }
 
     progress = state["d2015_progress"]
@@ -51,7 +56,7 @@ def enterClassroomD2015(state: dict) -> str:
     # | Puzzle helper functions |
     # +-------------------------+
 
-    def printBenchStatus() -> None:
+    def print_bench_status() -> None:
         """
         Helper function to print the current state of the rover puzzle.
 
@@ -74,7 +79,7 @@ def enterClassroomD2015(state: dict) -> str:
         else:
             print("    - Rover IR link: 📴 no carrier frequency set.")
 
-    def roverPuzzleCheck() -> bool:
+    def rover_puzzle_check() -> bool:
         """
         Checks if both halves of the rover puzzle are solved.
 
@@ -96,7 +101,7 @@ def enterClassroomD2015(state: dict) -> str:
     # | Command handlers |
     # +------------------+
 
-    def handleLook() -> None:
+    def handle_look() -> None:
         """
         Describes the room and gives clues.
 
@@ -112,16 +117,19 @@ def enterClassroomD2015(state: dict) -> str:
         if not state["completed"]["classroomd2015"]:
             print("You take a closer look at the workbench.")
             print("A lab notebook is open at a page headed 'BENCH SUPPLY CALCULATION':")
-            print("    \"Set line voltage to:  12 - 2 * 4 + 6\"")
+            print('    "Set line voltage to:  12 - 2 * 4 + 6"')
             print("")
             print("You crouch by the rover. A sticker on its chassis reads:")
-            print("    \"IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz\"")
+            print('    "IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz"')
             print("")
             print("Its little screen blinks: 'OFFLINE - needs power and calibration.'")
-            printBenchStatus()
+            print_bench_status()
 
             if bench_items:
-                print("Loose on the antistatic mat:", ", ".join(bench_items))
+                print(
+                    "Loose on the antistatic mat:",
+                    ", ".join(bench_items),
+                )
             else:
                 print("The antistatic mat is bare.")
         else:
@@ -129,9 +137,12 @@ def enterClassroomD2015(state: dict) -> str:
             print("It has already finished its run. There's nothing more to do here.")
 
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
+        print(
+            "- Your current inventory:",
+            state["inventory"],
+        )
 
-    def handleHelp() -> None:
+    def handle_help() -> None:
         """
         Lists available commands.
 
@@ -143,17 +154,17 @@ def enterClassroomD2015(state: dict) -> str:
         """
 
         print("Available commands:")
-        print("- look around         : Examine the bench, the notebook and the rover.")
+        print("- ?                   : Show this help message.")
+        print("- look around         : Examine the room for clues.")
         if not state["completed"]["classroomd2015"]:
             print("- set power           : Dial a voltage into the bench supply.")
             print("- calibrate rover     : Send an IR carrier frequency to the rover.")
             print("- start rover         : Run the rover, once power and IR are both set.")
         print("- take <item>         : Pick up a component from the workbench.")
         print("- go lobby / back     : Leave the lab and return to the corridor.")
-        print("- ?                   : Show this help message.")
         print("- quit                : Quit the game completely.")
 
-    def handleTake(item: str) -> None:
+    def handle_take(item: str) -> None:
         """
         Handles picking up a component from the workbench.
 
@@ -173,7 +184,7 @@ def enterClassroomD2015(state: dict) -> str:
         else:
             print(f"❌ There's no '{item}' on the workbench.")
 
-    def handleGo(destination: str) -> str:
+    def handle_go(destination: str) -> str | None:
         """
         Handles movement out of the room.
 
@@ -198,7 +209,7 @@ def enterClassroomD2015(state: dict) -> str:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
 
-    def handleSetPower() -> None:
+    def handle_set_power() -> None:
         """
         Handles the first half of the puzzle: the bench power supply.
 
@@ -211,7 +222,7 @@ def enterClassroomD2015(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
         print("You grab the dial on the bench supply.")
         print("Notebook clue: 12 - 2 * 4 + 6")
 
@@ -224,13 +235,13 @@ def enterClassroomD2015(state: dict) -> str:
 
         if int(voltage) == CORRECT_VOLTAGE:
             progress["power_set"] = True
-            print(f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails hum.")
+            print(f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails " f"hum.")
             print("A row of green LEDs runs down the edge of the test track.")
         else:
             print(f"\nBZZT! {voltage}V trips the bench breaker instantly.")
             print("Remember the order of operations: multiplication before subtraction.")
 
-    def handleCalibrateRover() -> None:
+    def handle_calibrate_rover() -> None:
         """
         Handles the second half of the puzzle: the infrared carrier frequency.
 
@@ -243,7 +254,7 @@ def enterClassroomD2015(state: dict) -> str:
         Outputs: NONE
         """
 
-        clearScreen()
+        clear_screen()
 
         # The rover is bus powered from the rails, so step one has to come first
         if not progress["power_set"]:
@@ -262,13 +273,13 @@ def enterClassroomD2015(state: dict) -> str:
 
         if int(frequency) == CORRECT_FREQUENCY:
             progress["rover_calibrated"] = True
-            print(f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED turns amber.")
+            print(f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED " f"turns amber.")
             print("It's waiting for a start command.")
         else:
             print(f"\nBEEP! {frequency} kHz rejected, the sensor stays dark.")
             print("Brackets first: work out the sum inside them before you divide.")
 
-    def handleStartRover() -> None:
+    def handle_start_rover() -> None:
         """
         Handles starting the rover once both halves of the puzzle are solved.
 
@@ -284,33 +295,37 @@ def enterClassroomD2015(state: dict) -> str:
 
         # Refuse to start and say exactly which step is still missing
         if not progress["power_set"]:
-            clearScreen()
+            clear_screen()
             print("You press start. Silence. The rails still have no power.")
             return
 
         if not progress["rover_calibrated"]:
-            clearScreen()
+            clear_screen()
             print("You press start. The rover twitches once and stops.")
             print("It hasn't got a carrier frequency to follow.")
             return
 
-        showActivityAnimation("qte")
-        sleep(1)
-        clearScreen()
+        if state["completed"]["classroomd2015"]:
+            clear_screen()
+            print("The rover has already completed its run. There's nothing more to do " "here.")
+            return
+        else:
+            sleep(1)
+            clear_screen()
 
-        print("The rover's twin motors buzz to life.")
-        print("It tears down the test track, swerves around two cones, and slams")
-        print("onto the target pad at the far end. A hatch pops open in its side.")
-        print("")
+            print("The rover's twin motors buzz to life.")
+            print("It tears down the test track, swerves around two cones, and slams")
+            print("onto the target pad at the far end. A hatch pops open in its side.")
+            print("")
 
-        # Mark the room complete and hand out the rewards
-        state["completed"]["classroomd2015"] = True
-        state["inventory"].append("security dongle")
-        state["coin_balance"] += ROVER_REWARD
+            # Mark the room complete and hand out the rewards
+            state["completed"]["classroomd2015"] = True
+            state["inventory"].append("security dongle")
+            state["coin_balance"] += ROVER_REWARD
 
-        print("Inside the hatch: a small USB 'security dongle' with an Equinox logo")
-        print("etched on the casing, and the lab's prize money.")
-        print(f"You pocket both. (+{ROVER_REWARD} coins)")
+            print("Inside the hatch: a small USB 'security dongle' with an Equinox logo")
+            print("etched on the casing, and the lab's prize money.")
+            print(f"You pocket both. (+{ROVER_REWARD} coins)")
 
     # +--------------+
     # | Command loop |
@@ -320,39 +335,46 @@ def enterClassroomD2015(state: dict) -> str:
         command = input("\n> ").strip().lower()
 
         if command == "look around":
-            clearScreen()
-            handleLook()
+            clear_screen()
+            handle_look()
 
         elif command == "?":
-            clearScreen()
-            handleHelp()
+            clear_screen()
+            handle_help()
 
         elif command.startswith("take "):
-            clearScreen()
+            clear_screen()
             item = command[5:].strip()
-            handleTake(item)
+            handle_take(item)
 
         elif command.startswith("go "):
-            clearScreen()
+            clear_screen()
             destination = command[3:].strip()
-            result = handleGo(destination)
+            result = handle_go(destination)
             if result:
                 return result
 
         elif command == "set power":
-            handleSetPower()
+            handle_set_power()
 
         elif command == "calibrate rover":
-            handleCalibrateRover()
+            handle_calibrate_rover()
 
         elif command == "start rover":
-            handleStartRover()
+            handle_start_rover()
 
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+        
         elif command == "quit":
-            clearScreen()
+            clear_screen()
             print("👋 You switch off the bench supply and call it a day. Game over.")
             sys.exit()
 
         else:
-            clearScreen()
+            clear_screen()
             print("❓ Unknown command. Type '?' to see available commands.")

@@ -1,0 +1,26 @@
+# ==============================================================================
+# UI, VISUALS & MEDIA PROCESSING
+# ==============================================================================
+
+# Rich text formatting, colorized terminal output, and status spinners
+rich==15.0.0
+
+# ASCII art generation and stylized text rendering for CLI interfaces
+art==6.5
+
+# Image processing library (handling image manipulation, formats, and thumbnails)
+pillow==12.3.0
+
+
+# ==============================================================================
+# CODE QUALITY, LINTING & TESTING
+# ==============================================================================
+
+# Fast Python linter and code formatter (replaces flake8, isort, and pyflakes)
+ruff==0.16.9
+
+# Uncompromising code formatter (ensures consistent PEP 8 styling)
+black==26.5.1
+
+# Static type checker (verifies type hints and catches type mismatch errors)
+mypy>=1.0.0

@@ -1,0 +1,170 @@
+{
+    "game_phase": "EXPLORATION",
+    "running": true,
+    "player": {
+        "current_room": "lobby",
+        "inventory": []
+    },
+    "workbench": {
+        "installed_parts": [],
+        "required_parts": [
+            "chassis_frame",
+            "battery_pack",
+            "mainboard",
+            "sensory_module",
+            "wifi_credentials",
+            "motors_speakers",
+            "api_usb"
+        ],
+        "is_ready": false
+    },
+    "flags": {
+        "tr1_desk_unlocked": false,
+        "tr2_whiteboard_inspected": false,
+        "tr4_drawer_decrypted": false,
+        "lab_power_on": false
+    },
+    "items": {
+        "blueprint": {
+            "name": "Robot Assembly Blueprint",
+            "description": "Diagram listing all 7 components needed to construct Project A.I.G.I.S.",
+            "is_assembly_part": false
+        },
+        "chassis_frame": {
+            "name": "Robot Chassis Frame",
+            "description": "An aluminum skeleton designed to house microcontrollers and servos.",
+            "is_assembly_part": false
+        },
+        "keycard_lvl1": {
+            "name": "Level-1 Staff Keycard",
+            "description": "A magnetic keycard. Opens restricted project and staff rooms.",
+            "is_assembly_part": false
+        },
+        "battery_pack": {
+            "name": "High-Capacity Battery Pack",
+            "description": "A heavy 24V lithium-ion battery unit with high discharge current.",
+            "is_assembly_part": false
+        },
+        "mainboard": {
+            "name": "Microcontroller / Mainboard",
+            "description": "A high-performance computing board equipped with custom neural processors.",
+            "is_assembly_part": false
+        },
+        "sensory_module": {
+            "name": "Sensory Module",
+            "description": "A integrated unit containing a high-res camera and dual-microphone array.",
+            "is_assembly_part": false
+        },
+        "wifi_credentials": {
+            "name": "Wi-Fi Credentials Note",
+            "description": "A slip of paper with network ID 'CS_LAB_NET' and its WPA2 passkey.",
+            "is_assembly_part": false
+        },
+        "motors_speakers": {
+            "name": "Servo Motors & Speaker Assembly",
+            "description": "Actuators for physical joint rotation along with an audio driver.",
+            "is_assembly_part": false
+        },
+        "api_usb": {
+            "name": "Encrypted API & Prompt USB Drive",
+            "description": "Contains OpenAI API auth keys and system instructions for the robot.",
+            "is_assembly_part": true
+        }
+    },
+    "rooms": {
+        "lobby": {
+            "name": "Lobby",
+            "description": "The main floor lobby. A flickering terminal sits near the entrance.",
+            "is_locked": false,
+            "required_item": false,
+            "exits": {"north": "classroom_d2015", "east": "teachers_room_1"},
+            "items": ["blueprint", "chassis_frame"],
+            "interactables": {
+                "terminal": "Displaying 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED'."
+            }
+        },
+        "classroom_d2015": {
+            "name": "Classroom D 2015",
+            "description": "A standard lecture hall littered with loose papers.",
+            "is_locked": false,
+            "required_item": null,
+            "exits": {"south": "lobby", "east": "classroom_d2035"},
+            "items": ["battery_pack"],
+            "interactables": {}
+        },
+        "teachers_room_1": {
+            "name": "Teachers Room 1",
+            "description": "An office filled with filing cabinets and a locked desk.",
+            "is_locked": false,
+            "required_item": null,
+            "exits": {"west": "lobby", "north": "classroom_d2035"},
+            "items": [],
+            "interactables": {
+                "desk": {
+                    "is_locked": true,
+                    "code": "2015",
+                    "reward_item": "keycard_lvl1",
+                    "hint": "Keypad hint: 'Room number where CS101 was held.'"
+                }
+            }
+        },
+        "classroom_d2035": {
+            "name": "Classroom D 2035",
+            "description": "A lab room with multiple presentation workstations.",
+            "is_locked": false,
+            "required_item": null,
+            "exits": {"west": "classroom_d2015", "south": "teachers_room_1", "east": "project_room_1"},
+            "items": ["mainboard"],
+            "interactables": {}
+        },
+        "project_room_1": {
+            "name": "Project Room 1",
+            "description": "A high-tech hardware testing bay.",
+            "is_locked": true,
+            "required_item": "keycard_lvl1",
+            "exits": {"west": "classroom_d2035", "south": "teachers_room_2"},
+            "items": ["sensory_module"],
+            "interactables": {}
+        },
+        "teachers_room_2": {
+            "name": "Teachers Room 2",
+            "description": "An administrative room featuring a massive whiteboard.",
+            "is_locked": false,
+            "required_item": null,
+            "exits": {"north": "project_room_1", "east": "project_room_2"},
+            "items": ["wifi_credentials"],
+            "interactables": {
+                "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
+            }
+        },
+        "project_room_2": {
+            "name": "Project Room 2",
+            "description": "A robotics testing arena containing component crates.",
+            "is_locked": false,
+            "required_item": true,
+            "exits": {"west": "teachers_room_2", "south": "teacher_room_4"},
+            "items": ["motors_speakers"],
+            "interactables": {}
+        },
+        "teacher_room_4": {
+            "name": "Teacher Room 4",
+            "description": "The senior faculty office. Papers cover the desk.",
+            "is_locked": true,
+            "required_item": "keycard_lvl1",
+            "exits": {"north": "project_room_2", "west": "lab_d2001"},
+            "items": ["api_usb"],
+            "interactables": {}
+        },
+        "lab_d2001": {
+            "name": "Lab D 2001",
+            "description": "The final assembly lab equipped with an industrial workbench.",
+            "is_locked": false,
+            "required_item": null,
+            "exits": {"east": "teacher_room_4"},
+            "items": [],
+            "interactables": {
+                "workbench": "A heavy metal table connected to a main server terminal."
+            }
+        }
+    }
+}
