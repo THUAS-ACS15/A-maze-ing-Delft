@@ -14,327 +14,91 @@ from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
 
-# Loose components lying on the antistatic mat, which the player can take.
-bench_items = [
-    "usb cable",
-    "resistor",
-    "multimeter",
+# ANSI Color Codes (Defined here to keep the text below easy to read)
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+RED = "\033[91m"
+MAGENTA = "\033[1;95m"
+RESET = "\033[0m"
+
+# Items available to pick up in this room
+room_items = [
+    "high-capacity battery pack"
 ]
-
-# The two answers the player has to work out from the BODMAS clues:
-#   lab notebook : 12 - 2 * 4 + 6  -> 12 - 8 + 6 -> 10
-#   rover sticker: (40 + 20) / 2   -> 60 / 2     -> 30
-CORRECT_VOLTAGE = 10
-CORRECT_FREQUENCY = 30
-
-# Reward for getting the rover across the test track.
-ROVER_REWARD = 20
-
 
 def enter_classroom_d2015(state: dict) -> str:
     """Starter function for Classroom D2.015."""
 
     clear_screen()
-    print("🤖 You enter Classroom D2.015, the embedded systems lab.")
-    print("A marked test track takes up the middle of the floor, and a small robot rover")
-    print("sits dead in the middle of it. Its status LED is off.")
-    print("Along the east wall, a workbench hums with test equipment.")
-    print("Maybe you should check it out.")
+    print(f"{MAGENTA}=== CLASSROOM D 2015 ==={RESET}")
+    print(f"{CYAN}You enter Classroom D2.015. Leftover student project bins are scattered everywhere.{RESET}")
+    print(f"{CYAN}You spot some old circuit boards and wiring sticking out of the boxes.{RESET}")
 
-    # The rover puzzle has two stages, and both have to be solved in order.
-    # These are kept inside the state dict so the progress survives if the
-    # player walks out to the Lobby and comes back later.
-    if "d2015_progress" not in state:
-        state["d2015_progress"] = {
-            "power_set": False,
-            "rover_calibrated": False,
-        }
-
-    progress = state["d2015_progress"]
-
-    # +-------------------------+
-    # | Puzzle helper functions |
-    # +-------------------------+
-
-    def print_bench_status() -> None:
-        """
-        Helper function to print the current state of the rover puzzle.
-
-        This function shows whether the bench power supply has been set and
-        whether the rover's infrared sensor has been calibrated, so the player
-        always knows which of the two steps is still missing.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        if progress["power_set"]:
-            print("    - Bench supply : ⚡ energised, track rails are live.")
-        else:
-            print("    - Bench supply : 🔌 idle, the track rails are dead.")
-
-        if progress["rover_calibrated"]:
-            print("    - Rover IR link: 📡 synced.")
-        else:
-            print("    - Rover IR link: 📴 no carrier frequency set.")
-
-    def rover_puzzle_check() -> bool:
-        """
-        Checks if both halves of the rover puzzle are solved.
-
-        The rover can only drive if the track rails are powered AND the infrared
-        sensor is calibrated to the right carrier frequency.
-
-        Inputs: NONE
-
-        Outputs:
-            - bool: True if the rover is ready to run, False otherwise.
-        """
-
-        if progress["power_set"] and progress["rover_calibrated"]:
-            return True
-        else:
-            return False
+    # Ensure inventory exists in state to avoid errors
+    if "inventory" not in state:
+        state["inventory"] = []
 
     # +------------------+
     # | Command handlers |
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
-
-        This function describes the lab, prints the two BODMAS clues (the lab
-        notebook on the bench and the sticker on the rover chassis) and shows
-        how far the player has got. It also shows the exits and the inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        if not state["completed"]["classroomd2015"]:
-            print("You take a closer look at the workbench.")
-            print("A lab notebook is open at a page headed 'BENCH SUPPLY CALCULATION':")
-            print('    "Set line voltage to:  12 - 2 * 4 + 6"')
-            print("")
-            print("You crouch by the rover. A sticker on its chassis reads:")
-            print('    "IR CARRIER FREQUENCY:  (40 + 20) / 2 kHz"')
-            print("")
-            print("Its little screen blinks: 'OFFLINE - needs power and calibration.'")
-            print_bench_status()
-
-            if bench_items:
-                print(
-                    "Loose on the antistatic mat:",
-                    ", ".join(bench_items),
-                )
-            else:
-                print("The antistatic mat is bare.")
+        """Describes the room and items."""
+        print(f"{CYAN}You look through the messy project bins.{RESET}")
+        
+        if "high-capacity battery pack" in room_items:
+            print(f"Inside a plastic bin, you see a heavy {GREEN}High-Capacity Battery Pack{RESET}.")
         else:
-            print("The rover is parked on its charging pad with a solid green LED.")
-            print("It has already finished its run. There's nothing more to do here.")
+            print(f"{CYAN}The bins are mostly empty now. You already took what you needed.{RESET}")
 
-        print("- Possible exits: lobby")
-        print(
-            "- Your current inventory:",
-            state["inventory"],
-        )
+        print(f"\n- Possible exits: {YELLOW}front desk{RESET}, {YELLOW}d2035{RESET}")
+        print(f"- Your current inventory: {state['inventory']}")
 
     def handle_help() -> None:
-        """
-        Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        print("Available commands:")
-        print("- ?                   : Show this help message.")
-        print("- look around         : Examine the room for clues.")
-        if not state["completed"]["classroomd2015"]:
-            print("- set power           : Dial a voltage into the bench supply.")
-            print("- calibrate rover     : Send an IR carrier frequency to the rover.")
-            print("- start rover         : Run the rover, once power and IR are both set.")
-        print("- take <item>         : Pick up a component from the workbench.")
-        print("- go lobby / back     : Leave the lab and return to the corridor.")
-        print("- quit                : Quit the game completely.")
+        """Lists available commands."""
+        print(f"{YELLOW}Available commands:{RESET}")
+        print("- ?                 : Show this help message.")
+        print("- look around       : Examine the room for items.")
+        print("- take <item>       : Pick up a component.")
+        print("- go <room>         : Move to an adjacent room.")
+        print("- status            : Check your player status.")
+        print("- pause / save      : Open the save menu.")
+        print("- quit              : Quit the game.")
 
     def handle_take(item: str) -> None:
-        """
-        Handles picking up a component from the workbench.
-
-        This function checks whether the named component is still on the mat. If
-        it is, the component is moved into the player's inventory.
-
-        Inputs:
-            - item (str): The name of the component the player wants to take.
-
-        Outputs: NONE
-        """
-
-        if item in bench_items:
-            bench_items.remove(item)
-            state["inventory"].append(item)
-            print(f"You pocket the {item}.")
+        """Handles picking up a component."""
+        if item in room_items:
+            room_items.remove(item)
+            state["inventory"].append(item.title())
+            print(f"{GREEN}>> You lug the {item.title()} into your inventory. Heavy, but necessary.{RESET}")
         else:
-            print(f"❌ There's no '{item}' on the workbench.")
+            print(f"{RED}❌ There's no '{item}' here to take.{RESET}")
 
     def handle_go(destination: str) -> str | None:
-        """
-        Handles movement out of the room.
-
-        This function checks if the player can move to the given destination from
-        this room. If the destination is valid it returns the destination string,
-        otherwise it prints an error message and returns None.
-
-        Inputs:
-            - destination (str): The destination the player wants to go to.
-
-        Outputs:
-            - location (str): "lobby" if valid, None otherwise.
-        """
-
-        valid_destinations = ["lobby", "back"]
-
-        if destination in valid_destinations:
-            print("You pull the lab door shut behind you and head back to the Lobby.")
+        """Handles movement out of the room."""
+        if destination in ["front desk", "front_desk", "lobby", "back"]:
+            print(f"{YELLOW}You head back out to the Lobby (Front Desk).{RESET}")
             state["previous_room"] = "classroomd2015"
-            return "lobby"
+            return "front_desk"
+            
+        elif destination in ["d2035", "classroom d2035"]:
+            print(f"{YELLOW}You walk over to Classroom D2.035.{RESET}")
+            state["previous_room"] = "classroomd2015"
+            return "classroom_d2035"
+            
         else:
-            print(f"❌ You can't go to '{destination}' from here.")
+            print(f"{RED}❌ You can't go to '{destination}' from here.{RESET}")
             return None
-
-    def handle_set_power() -> None:
-        """
-        Handles the first half of the puzzle: the bench power supply.
-
-        This function asks the player for a voltage and compares it to the answer
-        of the BODMAS sum in the lab notebook. A correct answer energises the
-        track rails, a wrong one prints the sum again as a hint.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        clear_screen()
-        print("You grab the dial on the bench supply.")
-        print("Notebook clue: 12 - 2 * 4 + 6")
-
-        voltage = input("\nTarget voltage in volts > ").strip()
-
-        # Reject anything that isn't a plain number before comparing
-        if not voltage.isnumeric():
-            print("The dial only takes whole volts. Try a number.")
-            return
-
-        if int(voltage) == CORRECT_VOLTAGE:
-            progress["power_set"] = True
-            print(f"\nClick-turn. The supply settles on {CORRECT_VOLTAGE}V and the rails " f"hum.")
-            print("A row of green LEDs runs down the edge of the test track.")
-        else:
-            print(f"\nBZZT! {voltage}V trips the bench breaker instantly.")
-            print("Remember the order of operations: multiplication before subtraction.")
-
-    def handle_calibrate_rover() -> None:
-        """
-        Handles the second half of the puzzle: the infrared carrier frequency.
-
-        This function asks the player for a frequency in kHz and compares it to
-        the answer of the sum on the rover's chassis sticker. The rover refuses
-        to listen at all if the track rails have not been powered first.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        clear_screen()
-
-        # The rover is bus powered from the rails, so step one has to come first
-        if not progress["power_set"]:
-            print("You aim the IR programmer at the rover. Nothing happens.")
-            print("Of course, the rails are dead. The rover has no power to listen with.")
-            return
-
-        print("You hold the IR programmer over the rover's sensor window.")
-        print("Chassis sticker: (40 + 20) / 2 kHz")
-
-        frequency = input("\nCarrier frequency in kHz > ").strip()
-
-        if not frequency.isnumeric():
-            print("The programmer only accepts a whole number of kHz.")
-            return
-
-        if int(frequency) == CORRECT_FREQUENCY:
-            progress["rover_calibrated"] = True
-            print(f"\nBeep-boop. The rover locks onto {CORRECT_FREQUENCY} kHz and its LED " f"turns amber.")
-            print("It's waiting for a start command.")
-        else:
-            print(f"\nBEEP! {frequency} kHz rejected, the sensor stays dark.")
-            print("Brackets first: work out the sum inside them before you divide.")
-
-    def handle_start_rover() -> None:
-        """
-        Handles starting the rover once both halves of the puzzle are solved.
-
-        This function checks that the rails are powered and the IR link is synced,
-        then plays the puzzle animation, marks the room as completed, adds the
-        security dongle to the inventory and pays the lab prize into the coin
-        balance shown in the status bar.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        # Refuse to start and say exactly which step is still missing
-        if not progress["power_set"]:
-            clear_screen()
-            print("You press start. Silence. The rails still have no power.")
-            return
-
-        if not progress["rover_calibrated"]:
-            clear_screen()
-            print("You press start. The rover twitches once and stops.")
-            print("It hasn't got a carrier frequency to follow.")
-            return
-
-        if state["completed"]["classroomd2015"]:
-            clear_screen()
-            print("The rover has already completed its run. There's nothing more to do " "here.")
-            return
-        else:
-            sleep(1)
-            clear_screen()
-
-            print("The rover's twin motors buzz to life.")
-            print("It tears down the test track, swerves around two cones, and slams")
-            print("onto the target pad at the far end. A hatch pops open in its side.")
-            print("")
-
-            # Mark the room complete and hand out the rewards
-            state["completed"]["classroomd2015"] = True
-            state["inventory"].append("security dongle")
-            state["coin_balance"] += ROVER_REWARD
-
-            print("Inside the hatch: a small USB 'security dongle' with an Equinox logo")
-            print("etched on the casing, and the lab's prize money.")
-            print(f"You pocket both. (+{ROVER_REWARD} coins)")
 
     # +--------------+
     # | Command loop |
     # +--------------+
 
     while True:
-        command = input("\n> ").strip().lower()
+        command = input(f"\n{YELLOW}>{RESET} ").strip().lower()
 
-        if command == "look around":
+        if command == "look around" or command == "look":
             clear_screen()
             handle_look()
 
@@ -354,27 +118,18 @@ def enter_classroom_d2015(state: dict) -> str:
             if result:
                 return result
 
-        elif command == "set power":
-            handle_set_power()
-
-        elif command == "calibrate rover":
-            handle_calibrate_rover()
-
-        elif command == "start rover":
-            handle_start_rover()
-
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
-        
-        elif command == "quit":
+            
+        elif command in ["quit", "exit"]:
             clear_screen()
-            print("👋 You switch off the bench supply and call it a day. Game over.")
+            print(f"{RED}Shutting down system. Game over.{RESET}")
             sys.exit()
 
         else:
             clear_screen()
-            print("❓ Unknown command. Type '?' to see available commands.")
+            print(f"{RED}❓ Unknown command. Type '?' to see available commands.{RESET}")
