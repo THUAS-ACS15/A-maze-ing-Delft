@@ -8,9 +8,7 @@
 
 import os
 import sys
-
 from utilities.status_bar import update_status_bar
-
 
 def clear_screen(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
     main_module = sys.modules.get("__main__")

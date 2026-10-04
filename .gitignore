@@ -1,8 +1,10 @@
 .idea/
 .venv/
-*.pyc
 ./rooms/__pycache__/
 ./utilities/__pycache__
 .mypy_cache/
 .ruff_cache/
+*.pyc
 saves.db
+scoreboard.db
+debug_options.py
