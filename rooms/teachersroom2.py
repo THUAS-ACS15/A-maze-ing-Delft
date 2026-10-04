@@ -117,14 +117,8 @@ Enrollments table:
         normalized = answer.strip()
         if normalized == "mia" or normalized == "Mia":
             state["coin_balance"] += 5
-<<<<<<< HEAD
             state["visited"]["teachersroom2"] = True
             state["completed"]["teachersroom2"] = True
-            clearScreen()
-            print("Correct! The teacher's face lights up: \"Mia - of course! Thank you, I would've emailed the wrong student entirely.\"")
-            print("The teacher hands you the login credentials for the database on a small sticky note: \"Here you go can you please dispose of this for me so that nobody else can access this database?\"")
-            print("As you take the sticky note and begin to head towards the door, you suddenly kick a small plastic bag containing some coins. You take them (+ 5 coins)")
-=======
             clear_screen()
             print(
                 "Correct! The teacher's face lights up: \"Mia - of course! Thank you, I"
@@ -140,7 +134,6 @@ Enrollments table:
                 "suddenly kick a small plastic bag containing some coins. You take them (+ 5 coins)"
             )
             state["completed"]["teachersroom2"] = True
->>>>>>> ef3229ac1f890becb1d2b60541fc0cf9ba6079ec
         else:
             print("The teacher frowns: \"Hmm, I don't think that's right. Trace it step by step -")
             print("First find der Linde's course, then Baker's course, then check who's in one but not the other.\"")
