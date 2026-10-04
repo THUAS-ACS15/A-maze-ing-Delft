@@ -10,7 +10,7 @@
 import sqlite3
 import time
 
-DB_TABLE_STRUCTURE = """
+DB_TABLE_STRUCTURE = """  
 CREATE TABLE IF NOT EXISTS general (
     save_slot INTEGER PRIMARY KEY,
     current_room TEXT NOT NULL,
