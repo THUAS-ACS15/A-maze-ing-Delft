@@ -4,7 +4,7 @@
 # Organization: THUAS
 # Location: Delft
 # Date: September 2026
-# Contributors: Dominik, Gift Odigwe
+# Contributors: Dominik,
 # -----------------------------------------------------------------------------
 
 import sys
@@ -101,19 +101,13 @@ def enter_teachers_room1(state: dict) -> str:
         normalized = answer.strip().lower().replace(" ", "")
         accepted = ["n%2", "n % 2"]
         if normalized in accepted:
-<<<<<<< HEAD
             state["visited"]["teachersroom1"] = True
             state["completed"]["teachersroom1"] = True
-            clearScreen()
-            print("Correct! The teacher's eyes light up: \"% 2 — of course! Thank you!\"")
-            print("Here take this I have no use for this now, it didn't help anyways.")
-            print("The teacher hands you a small notebook labeled 'Debug Notes'.")
-=======
+            clear_screen()
             print('Correct! The teacher\'s eyes light up: "n % 2 — of course! Thank you!"')
             state["completed"]["teachersroom1"] = True
             print("Here, take this! I have no use for this now.")
             print("The teacher points to a small notebook labeled 'Debug Notes'.")
->>>>>>> ef3229ac1f890becb1d2b60541fc0cf9ba6079ec
         else:
             print('The teacher shakes their head: "Not quite. Think about how you check if a number is even."')
 

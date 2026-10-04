@@ -24,6 +24,10 @@ The goal of the project is to:
    ```bash
    docker compose run --build --rm app   
    ```
+   or 
+4. ```bash
+   python main.py
+5. ```
 ## Usage
 
 
