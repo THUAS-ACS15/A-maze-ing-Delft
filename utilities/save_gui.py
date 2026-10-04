@@ -51,7 +51,6 @@ def display_save_art(console: Console):
 
     slots = Table.grid(padding=(0, 2))
     slots.add_column(justify="center")
-    slots.add_column(justify="center")
 
     for slot, indicator in enumerate(slot_indicators, start = 1):
         save_info = get_save_info(slot)
@@ -60,9 +59,9 @@ def display_save_art(console: Console):
         else:
             info_rows = [
                 f"Room: {save_info['current_room']}",
-                f"Exploration: {save_info['exploration_percent']}%",
+                f"Exploration: {round(save_info['exploration_percent'], 2)}%",
                 f"Coins: {save_info['coin_balance']}",
-                f"Time: {save_info['time_elapsed']}s",
+                f"Time: {round(save_info['time_elapsed'], 2)}s",
             ]
 
         indicator_rows = indicator.strip("\n").splitlines()
