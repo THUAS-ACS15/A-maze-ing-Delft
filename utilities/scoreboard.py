@@ -86,9 +86,9 @@ def show_scoreboard() -> None:
         # so we can just check if the char is a two-byte sequence
         # the second char K is for < and M is for >
         if os.name == "nt":
-            win_key = msvcrt.getch()
+            win_key = msvcrt.getch() # type: ignore[attr-defined]
             if win_key in (b"\x00", b"\xe0"):
-                char = msvcrt.getch()
+                char = msvcrt.getch() # type: ignore[attr-defined]
                 if char == b"K":
                     return "<"
                 elif char == b"M":
