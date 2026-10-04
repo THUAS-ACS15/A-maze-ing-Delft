@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# File: clear_screen.py
+# File: display_menu.py
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft

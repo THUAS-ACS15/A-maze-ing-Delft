@@ -8,7 +8,6 @@
 # -----------------------------------------------------------------------------
 
 import sys
-from time import sleep
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen

@@ -9,7 +9,7 @@
 import time
 
 from rooms.dispatcher import enter_room
-from utilities.clear_screen import clear_screen
+from utilities.main_menu import display_main_menu
 
 start_time = time.time()
 
@@ -53,8 +53,8 @@ state = {
 
 
 def main():
-    clear_screen()
-
+    display_main_menu()
+    
     # Main room-navigation loop.
     # Repeatedly reads the player's current room from state, falls back to "lobby"
     # if the value is missing or invalid, and calls enter_room() to determine the
