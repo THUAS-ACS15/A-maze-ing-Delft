@@ -175,7 +175,17 @@ def enter_front_desk(state: dict) -> str:
 
         Outputs: NONE
         """
+        
+        print("You look around the reception office.")
+        print("The staff member is busy typing on his laptop, and doesn't notice you.")
+        print("On the counter, you see:")
+        for item in desk_items:
+            print(f"- {item}")
 
+    def handle_take(item: str) -> None:
+        """
+        Handles picking up an item from the reception counter.
+        """
         if item in desk_items:
             desk_items.remove(item)
             state["inventory"].append(item)
@@ -213,7 +223,7 @@ def enter_front_desk(state: dict) -> str:
         elif command.startswith("take "):
             clear_screen()
             item = command[5:].strip()
-            handle_look()
+            handle_take(item)
 
         elif command.startswith("go "):
             clear_screen()
