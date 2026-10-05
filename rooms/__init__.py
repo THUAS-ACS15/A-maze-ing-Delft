@@ -8,6 +8,7 @@
 
 from .classroom_d2015 import enter_classroom_d2015
 from .classroom_d2035 import enter_classroom_d2035
+from .classroom_d2031 import enter_classroom_d2031
 from .equinox_student_society import enter_equinox_student_society
 from .front_desk import enter_front_desk
 from .lab_d2001 import enter_lab_d2001
