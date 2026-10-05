@@ -38,6 +38,7 @@ def enter_lobby(state):
         "projectroom1",
         "projectroom2",
         "classroomd2015",
+        "classroomd2031",
         "classroomd2035",
     ]
 
