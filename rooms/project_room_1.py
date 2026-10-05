@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import time
+from typing import TypedDict
 
 from rich.console import Console
 from rich.errors import MarkupError
@@ -280,7 +281,13 @@ def run_room(state: dict, cfg: dict) -> str:
 # Five lockers on the back wall; every code is a BODMAS sum hidden in the room.
 #   1 -> Sensory Module (Camera & Mic) + coins    2 -> USB cable (needs the brass key, no code)
 #   3 -> keycard for Teachers Room 4 + coins      4 -> coins                   5 -> coins
-LOCKERS = {
+class Locker(TypedDict):
+    code: int | None
+    coins: int
+    item: str | None
+
+
+LOCKERS: dict[str, Locker] = {
     "1": {"code": 182, "coins": 50, "item": "Sensory Module"},
     "2": {"code": None, "coins": 0, "item": "USB cable"},
     "3": {"code": 24, "coins": 20, "item": "Teachers Room 4 Keycard"},
@@ -361,7 +368,7 @@ def locker_game(state: dict) -> bool:
 def enter_project_room1(state: dict) -> str:
     return run_room(state, {
         "key": "projectroom1",
-        "title": "PROJECT ROOM 1",
+        "title": "Project Room 1",
         "emoji": "🔐",
         "color": "#87ff87",
         "intro": [

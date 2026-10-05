@@ -16,6 +16,7 @@ special cases (gated Equinox room, quit/exit, unknown room names).
 import time
 
 from .classroom_d2015 import enter_classroom_d2015
+from .classroom_d2031 import enter_classroom_d2031
 from .classroom_d2035 import enter_classroom_d2035
 from .equinox_student_society import enter_equinox_student_society
 from .front_desk import enter_front_desk
@@ -40,6 +41,7 @@ ROOM_HANDLERS = {
     "frontdesk": enter_front_desk,
     "equinoxstudentsociety": enter_equinox_student_society,
     "classroomd2015": enter_classroom_d2015,
+    "classroomd2031": enter_classroom_d2031,
     "classroomd2035": enter_classroom_d2035,
 }
 

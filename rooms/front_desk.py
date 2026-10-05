@@ -55,9 +55,11 @@ def register(state: dict) -> bool:
             break
     state["student_id_obtained"] = True
     say(f"[bold #87ff87]🖨️  The printer whirs. \"There you go, {state['player_name']}. Don't lose this one.\"[/]")
-    say("[#af87ff]He taps the lobby terminal: 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED'. \"The professor left it unfinished.")
-    say("[#af87ff]Collect every part on this floor and assemble it in Lab D2.001. Doors are locked after hours, so every room needs something.\"[/]")
-    say("[#5fd7ff]\"Your ID opens the lecture halls, by the way. Good luck.\"[/]")
+    say("[#af87ff]He taps the lobby terminal: 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED'. "
+        "\"The professor left it unfinished.")
+    say("[#af87ff]Collect every part on this floor and assemble it in Lab D2.001. Doors are locked"
+        " after hours, so every room needs something.\"[/]")
+    say("[#5fd7ff]\"Your ID opens the Student Society, by the way. Good luck.\"[/]")
     return True
 
 
@@ -73,7 +75,8 @@ def enter_front_desk(state: dict) -> str:
             "[#af87ff]A campus map is pinned to the wall and an old logbook lies open.[/]",
         ],
         "objects": {
-            "counter": "[#87ff87]A sign: 'Lost your ID? Register here.' Inspect [bold]printer[/] to get a new Student ID card.[/]",
+            "counter": "[#87ff87]A sign: 'Lost your ID? Register here.' Inspect [bold]printer[/]"
+             " to get a new Student ID card.[/]",
             "printer": "",
             "logbook": LOGBOOK,
             "map": FLOOR_MAP,

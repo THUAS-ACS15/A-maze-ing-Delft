@@ -23,7 +23,8 @@ def _clues(state: dict) -> None:
 
 
 def _lecturer(state: dict) -> None:
-    say('[#af87ff]Lecturer: "My students never sit where they should. Arrange them, and I will hand over the seating plan."[/]')
+    say('[#af87ff]Lecturer: "My students never sit where they should. '
+        ' Arrange them, and I will hand over the seating plan."[/]')
     say('[#af87ff]"After that, finish the timetable sequence on the podium. The D2.015 lab opens with it."[/]')
 
 
@@ -42,7 +43,8 @@ def class_game(state: dict) -> bool:
                 say("[bold #87ff87]Everyone is in the right seat. The lecturer hands you the Seating plan.[/]")
                 say('[#af87ff]"Classroom D2.031 keeps a coded message about it. Take this plan there."[/]')
                 break
-            say("[#ffaf5f]The students shuffle around and nobody is happy. Check each clue against the seat numbers.[/]")
+            say("[#ffaf5f]The students shuffle around and nobody is happy. "
+                "Check each clue against the seat numbers.[/]")
         else:
             return False
     say("[bold #af87ff]PART 2: TIMETABLE SEQUENCE[/]")
