@@ -1,6 +1,6 @@
 name: A-maze-ing-Delft CI
-run-name: CI Checks for ${{ github.ref_name }} by @${{ github.actor }}
-description: Automated code quality pipeline that enforces formatting (Black), linting (Ruff), and static type safety (Mypy) on main branch pushes and pull requests.
+run-name: CI Linting, Type Check and Testing for ${{ github.ref_name }} by @${{ github.actor }}
+description: Automated code quality and testing pipeline that enforces formatting (Black), linting (Ruff), and static type safety (Mypy) and testing on main branch pushes and pull requests.
 
 on:
   push:
@@ -26,8 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install ruff mypy
-
+          pip install ruff mypy pytest
 
       - name: Lint with Ruff
         run: |
@@ -36,3 +35,6 @@ jobs:
       - name: Type check with Mypy
         run: |
           mypy .
+      - name: Testing
+        run: |
+          pytest
