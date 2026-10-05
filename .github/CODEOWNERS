@@ -1,5 +1,5 @@
 # Global owner for all files in the repository
-* @org/global-dev-team
+* @THUAS-ACS15/developers
 
 # Directory specific owners
 /.github/ @nwikeodigwe
