@@ -22,6 +22,7 @@ from .teachersroom4 import enter_teachers_room4
 
 __all__ = [
     "enter_classroom_d2015",
+    "enter_classroom_d2031",
     "enter_classroom_d2035",
     "enter_equinox_student_society",
     "enter_front_desk",
