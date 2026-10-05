@@ -20,7 +20,7 @@ This document provides a technical overview of  engine architecture module bound
             │                                                    │
             ▼                                                    ▼
 ┌───────────────────────┐                            ┌───────────────────────┐
-│     src/parser.py     │                            │   src/ai_client.py    │
+│     src/parser.py     │                            │   src/ai.py    │
 │  (Command Normalizer) │                            │  (OpenAI API Bridge)  │
 └───────────┬───────────┘                            └───────────┬───────────┘
             │                                                    │

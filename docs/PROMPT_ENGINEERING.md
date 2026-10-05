@@ -27,8 +27,6 @@ Max Tokens                              `200`                                   
 Top P                                   `0.9`                                       Ensures consistent tone while allowing natural word choices.
 Stream                                  True                                        Delivers real-time token streaming to standard output (`sys.stdout.write`).
 
-
-
 ## 3. Context Window & History Management
 To prevent token cost escalation and stay within model context bounds during extended chat sessions, `src/ai.py` implements a rolling window truncation algorithm.
 
@@ -59,7 +57,7 @@ Players may attempt to "jailbreak" A-maze-ing-Delft. by typing inputs like
 If `OPENAI_API_KEY` is missing from `.env` or network connectivity fails, the engine falls back to `Simulated AI Mode` so the game remains beatable without crashing.
 
 `FALLBACK_RESPONSES = [
-    "A.I.G.I.S. > Neural link stable. Optical sensors report Lab D 2001 is secure. How can I assist with our escape plan?",
-    "A.I.G.I.S. > Battery output holding at 98%. I am analyzing the building's electronic door locks now.",
-    "A.I.G.I.S. > Campus network 'CS_LAB_NET' connected. I'm ready to follow your commands, Creator."
+    "A-maze-ing-Delft > Neural link stable. Optical sensors report Lab D 2001 is secure. How can I assist with our escape plan?",
+    "A-maze-ing-Delft > Battery output holding at 98%. I am analyzing the building's electronic door locks now.",
+    "A-maze-ing-Delft > Campus network 'CS_LAB_NET' connected. I'm ready to follow your commands, Creator."
 ]`
