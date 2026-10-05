@@ -5,7 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
-"""Classroom D2.015 (needs the D2.015 timetable): calibrate the rover, get the Battery Pack and the final code digits."""
+"""Classroom D2.015 (needs the D2.015 timetable): 
+calibrate the rover, get the Battery Pack and the final code digits."""
 
 import os
 
@@ -62,14 +63,17 @@ def enter_classroom_d2015(state: dict) -> str:
         "emoji": "🔋",
         "color": "#ffaf5f",
         "intro": [
-            "[#ffaf5f]The embedded systems lab. A marked test track fills the floor and a dead robot rover sits in the middle.[/]",
+            "[#ffaf5f]The embedded systems lab. A marked test track fills the floor"
+             " and a dead robot rover sits in the middle.[/]",
             "[#5fd7ff]Leftover student project bins line the wall and a workbench hums with test equipment.[/]",
         ],
         "lock": {"items": ["D2.015 timetable"],
-                 "text": "The lab is closed outside timetabled hours. You need the D2.015 timetable. (use <item> on door)",
+                 "text": "The lab is closed outside timetabled hours. You need the D2.015 timetable."
+                 " (use <item> on door)",
                  "ok": "The timetable matches. The door opens."},
         "objects": {
-            "bins": "[#ffd75f]Old circuit boards and wiring. Nothing useful, but a heavy battery pack sits in the rover hatch.[/]",
+            "bins": "[#ffd75f]Old circuit boards and wiring. Nothing useful, "
+            "but a heavy battery pack sits in the rover hatch.[/]",
             "workbench": _bench, "rover": _rover, "track": "",
         },
         "game": {"name": "ROVER CALIBRATION", "object": "track", "play": rover_game},
