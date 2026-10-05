@@ -1,6 +1,5 @@
 import json
 import os
-from copy import deepcopy
 
 DATA_PATH = os.path.join("data", "game_state.json")
 SAVE_DIR = "saves"
@@ -13,7 +12,7 @@ class GameStateManager:
 
     def load_default_state(self):
         """Loads a fresh instance from the master game_state.json data template."""
-        with open(DATA_PATH, "r", encoding="utf-8") as f:
+        with open(DATA_PATH, encoding="utf-8") as f:
             self.state = json.load(f)
 
     def save_to_file(self, filename="save_slot_1.json"):
@@ -32,7 +31,7 @@ class GameStateManager:
             print("[System] No save file found.")
             return False
 
-        with open(save_path, "r", encoding="utf-8") as f:
+        with open(save_path, encoding="utf-8") as f:
             self.state = json.load(f)
         print(f"[System] Loaded save file from {save_path}")
         return True
