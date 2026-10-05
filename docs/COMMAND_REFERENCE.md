@@ -4,7 +4,7 @@ This manual lists all supported commands, shortcuts, directional aliases, and ph
 ## 1.  Input Processing Rules
 The engine normalizes all user input before passing it to src/parser.py:
 
-* Case-Insensitive: `GO NORTH`, `Go North`, and `go nort`h are treated identically.
+* Case-Insensitive: `GO <ROOM>`, `Go <Room>`, and `go <north>`h are treated identically.
 * Trimmed Whitespace: Leading, trailing, and duplicate spaces are stripped ( take   battery_pack  $\rightarrow$ take battery_pack)
 * Noise Word Stripping: Articles like the, `a`, and `an` are ignored (take the battery_pack $\rightarrow$ take battery_pack).
 
@@ -19,7 +19,7 @@ go [room]                              move [room], walk [room]                 
 ### Environment & Inspection
 **Command Syntax                       Aliases / Shortcuts                      Example**                                     Target Action / Result
 `look`                                 l, ls, examine room                      look                                        Displays current room title, description, visible items, and exits.
-inspect [target]                       examine [target],                        inspect desk, inspect battery_pack
+`inspect [target]`                     examine [target],                        inspect desk, inspect battery_pack
                                        read [target], check [target]
 
 ### Inventory Management
@@ -38,10 +38,10 @@ enter [code]                          type [code], unlock [code
 
 ### System & Meta Commands
 **Command Syntax                       Aliases / Shortcuts                      Example**                                     Target Action / Result
-`save`                                `save game`                              `save`                                      Writes current in-memory state to `saves/save_slot_1.json.`
-`load`                                `load game`                              `load`                                      Restores game state from `saves/save_slot_1.json`.
-`help`                                `?`, `commands`                         `help`                                      Renders a quick summary of command verbs inside the CLI.
-`quit`                                `exit`, `q`                             `quit`                                      Prompts for save verification, then cleanly terminates application.
+`save`                                `save game`                              `save`                                         Writes current in-memory state to `saves/save_slot_1.json.`
+`load`                                `load game`                              `load`                                         Restores game state from `saves/save_slot_1.json`.
+`help`                                `?`, `commands`                          `help`                                         Renders a quick summary of command verbs inside the CLI.
+`quit`                                `exit`, `q`                              `quit`                                         Prompts for save verification, then cleanly terminates application.
 
 
 ## 3. Assembly Phase Commands
