@@ -228,6 +228,8 @@ def enter_front_desk(state: dict) -> str:
         elif command.startswith("go "):
             clear_screen()
             destination = command[3:].strip()
+            if destination in ["lobby", "back"]:
+                return "lobby"
             result = handle_go(destination)
             if result:
                 return result
