@@ -33,6 +33,7 @@ state = {
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
+        "classroomd2031":False,
         "classroomd2035": False,
     },
     "accessible": {
@@ -46,6 +47,7 @@ state = {
         "frontdesk": False,
         "equinoxstudentsociety": False,
         "classroomd2015": False,
+        "classroomd2031":False,
         "classroomd2035": False,
     },
     "inventory": [],
