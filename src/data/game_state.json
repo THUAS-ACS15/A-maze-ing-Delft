@@ -123,7 +123,7 @@
             "description": "A high-tech hardware testing bay.",
             "is_locked": null,
             "required_item": "keycard_lvl1",
-            "exits": {"west": "classroom_d2035", "south": "teachers_room_2"},``
+            "exits": {"west": "classroom_d2035", "south": "teachers_room_2"},
             "items": ["sensory_module"],
             "interactables": {}
         },
