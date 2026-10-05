@@ -32,7 +32,7 @@ room_commands = [
 quiz_questions: list[tuple[str, dict[str, str], str]] = [
     (
         "How many locations does De Haagse Hogeschool have in total?",
-        {"a": "1", "b": "2", "c": "3", "d": "4"},
+        {"a": "1", "b": "3", "c": "7", "d": "5"},
         "d",
     ),
     (
@@ -69,9 +69,6 @@ def enter_equinox_student_society(state: dict) -> str:
     print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
     print("The room is well-lit and organized, with a few tables and chairs arranged neatly.")
     print("A computer is set up on an office table, and a small shelf holds some books and board games.")
-    # +-------------------------+
-    # | Puzzle helper functions |
-    # +-------------------------+
 
     # +------------------+
     # | Command handlers |
@@ -134,6 +131,10 @@ def enter_equinox_student_society(state: dict) -> str:
         else:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
+
+    # +-------------------------+
+    # | Puzzle helper functions |
+    # +-------------------------+
 
     def handle_quiz_start() -> None:
         """
