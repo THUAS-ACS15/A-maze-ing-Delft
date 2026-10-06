@@ -93,7 +93,7 @@ The engine operates on a finite state machine governed by game_state["game_phase
                 │ + load_game(slot_name) -> bool       │
                 └──────────────────────────────────────┘
 
-`../src/Display.py`– **UI & CLI Formatting**
+`../src/display.py`– **UI & CLI Formatting**
 
 ### Standard Terminal Header Layout
 
