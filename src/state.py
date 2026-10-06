@@ -29,18 +29,7 @@ class StateManager:
 
     def get_current_room_id(self) -> str:
         room = self.state.get("player", {}).get("current_room", "lobby")
-        if isinstance(room, str) and room in self.state.get("rooms", {}):
-            return room
-        return "lobby"
-
-    def ensure_spawn(self, room_id: str = "lobby") -> str:
-        """Guarantee a valid spawn point (default lobby)."""
-        rooms = self.state.get("rooms", {})
-        player = self.state.setdefault("player", {})
-        current = player.get("current_room")
-        if not isinstance(current, str) or current not in rooms:
-            player["current_room"] = room_id if room_id in rooms else next(iter(rooms), "lobby")
-        return player["current_room"]
+        return room if isinstance(room, str) else "lobby"
 
     def get_room_data(self, room_id: str) -> dict[str, Any]:
         rooms = self.state.get("rooms", {})
@@ -64,27 +53,15 @@ class StateManager:
         room_id = self.get_current_room_id()
         return room_for(room_id, self.get_room_data(room_id))
 
-    def move_player(self, destination: str) -> tuple[bool, str]:
-        """Move by direction ('north'/'n') or adjacent room id/name.
-
-        Adjacent-only: a room name is accepted only if it appears in the
-        current room's exits values. Returns (ok, next_room_id or message).
-        """
-        from .parser import ROOM_ALIASES, resolve_room_target
+    def move_player(self, direction: str) -> tuple[bool, str]:
+        """Move via exits dict. Returns (ok, message/next_room_id)."""
         from .room import room_for
 
         current_id = self.get_current_room_id()
         current_data = self.get_room_data(current_id)
-        exits = current_data.get("exits") or {}
-        target = resolve_room_target(destination)
-        if target in ROOM_ALIASES.values():
-            direction = ROOM_ALIASES.get(target, target)
-            target_id = exits.get(direction)
-        else:
-            target_id = target if target in exits.values() else None
+        target_id = (current_data.get("exits") or {}).get(direction)
         if not target_id:
-            adjacent = ", ".join(sorted(set(exits.values()))) or "nowhere"
-            return False, f"You cannot go {destination} from here. Adjacent: {adjacent}."
+            return False, f"You cannot go {direction} from here."
         target_data = self.get_room_data(target_id)
         if not target_data:
             return False, f"Unknown destination '{target_id}'."
