@@ -52,6 +52,22 @@ class DisplayManager:
     def draw_line(self, char: str = "-") -> None:
         self._out(self.colorize(char * self.terminal_width, "\033[2m"))
 
+    def clear(self) -> None:
+        """Clear the terminal screen (Windows/posix/PyCharm-safe)."""
+        try:
+            from rich.console import Console
+
+            Console().clear()
+        except Exception:
+            import os
+
+            if os.getenv("PYCHARM_HOSTED"):
+                import builtins
+
+                builtins.print("\n" * 50)
+            else:
+                os.system("cls" if os.name == "nt" else "clear")
+
     def render_room(self, room_id: str, room_data: dict[str, Any],
                     items_db: dict[str, Any]) -> None:
         """Displays current location, description, exits, items, and interactable features."""
@@ -223,6 +239,7 @@ class DisplayManager:
             ("System", [
                 ("save \\[slot]", "Save game", "save"),
                 ("load \\[slot]", "Load game", "load"),
+                ("clear (cls)", "Clear screen", "clear"),
                 ("help (?, h)", "Show this help", "help"),
                 ("quit (q, exit)", "Quit game", "quit"),
             ]),

@@ -140,6 +140,8 @@ VERB_ALIASES = {
     "commands": "help",
     "save": "save",
     "load": "load",
+    "clear": "clear",
+    "cls": "clear",
     "quit": "quit",
     "exit": "quit",
     "q": "quit",
@@ -154,7 +156,11 @@ VERB_ALIASES = {
 # Item display name/alias to canonical item_id mapping
 ITEM_ALIASES = {
     "blueprint": "blueprint",
+    "Blueprint": "blueprint",
+    "BLUEPRINT": "blueprint",
     "robot assembly blueprint": "blueprint",
+    "Robot Assembly Blueprint": "blueprint",
+    "ROBOT ASSEMBLY BLUEPRINT": "blueprint",
     "schematic": "blueprint",
     "chassis": "chassis_frame",
     "chassis_frame": "chassis_frame",
@@ -244,6 +250,9 @@ class CommandParser:
 
         if verb == "help":
             return ("help", {"raw": arg_str})
+
+        if verb == "clear":
+            return ("clear", {"raw": arg_str})
 
         if verb == "save":
             slot = args[0] if args else "save_slot_1.json"
