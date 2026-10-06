@@ -7,8 +7,7 @@
 # -----------------------------------------------------------------------------
 import time
 
-from rooms.dispatcher import enter_room
-from utilities.main_menu import display_main_menu
+from src import Engine, StateManager
 
 start_time = time.time()
 
@@ -54,7 +53,10 @@ state = {
 
 
 def main():
-    display_main_menu()
+    state_manager = StateManager()
+    engine = Engine(state_manager)
+    engine.run()
+    # display_main_menu()
     
     # Main room-navigation loop.
     # Repeatedly reads the player's current room from state, falls back to "lobby"
@@ -62,14 +64,14 @@ def main():
     # next room. The loop continues until enter_room() returns "quit" or "exit",
     # at which point the game ends. Otherwise, the returned room is saved back into
     # state["current_room"] for the next iteration.
-    while True:
-        current = state.get("current_room", "lobby")
-        if not isinstance(current, str):
-            current = "lobby"
-        next_room = enter_room(current, state)
-        if next_room in ("quit", "exit"):
-            break
-        state["current_room"] = next_room
+    # while True:
+    #     current = state.get("current_room", "lobby")
+    #     if not isinstance(current, str):
+    #         current = "lobby"
+    #     next_room = enter_room(current, state)
+    #     if next_room in ("quit", "exit"):
+    #         break
+    #     state["current_room"] = next_room
 
 
 if __name__ == "__main__":

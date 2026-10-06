@@ -76,12 +76,12 @@
         "lobby": {
             "name": "Lobby",
             "description": "The main floor lobby. A flickering terminal sits near the entrance.",
-            "is_locked": true,
+            "is_locked": false,
             "required_item": null,
             "exits": {"north": "classroom_d2015", "east": "teachers_room_1"},
             "items": ["blueprint", "chassis_frame"],
-            "interactables": {
-                "terminal": "Displaying 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED'."
+            "interactable": {
+                "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
             }
         },
         "classroom_d2015": {
@@ -91,7 +91,7 @@
             "required_item": null,
             "exits": {"south": "lobby", "east": "classroom_d2035"},
             "items": ["battery_pack"],
-            "interactables": {}
+            "interactable": {}
         },
         "teachers_room_1": {
             "name": "Teachers Room 1",
@@ -100,7 +100,7 @@
             "required_item": null,
             "exits": {"west": "lobby", "north": "classroom_d2035"},
             "items": [],
-            "interactables": {
+            "interactable": {
                 "desk": {
                     "is_locked": true,
                     "code": "2015",
@@ -116,7 +116,7 @@
             "required_item": null,
             "exits": {"west": "classroom_d2015", "south": "teachers_room_1", "east": "project_room_1"},
             "items": ["mainboard"],
-            "interactables": {}
+            "interactable": {}
         },
         "project_room_1": {
             "name": "Project Room 1",
@@ -125,7 +125,7 @@
             "required_item": "keycard_lvl1",
             "exits": {"west": "classroom_d2035", "south": "teachers_room_2"},
             "items": ["sensory_module"],
-            "interactables": {}
+            "interactable": {}
         },
         "teachers_room_2": {
             "name": "Teachers Room 2",
@@ -134,7 +134,7 @@
             "required_item": null,
             "exits": {"north": "project_room_1", "east": "project_room_2"},
             "items": ["wifi_credentials"],
-            "interactables": {
+            "interactable": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
         },
@@ -145,7 +145,7 @@
             "required_item": null,
             "exits": {"west": "teachers_room_2", "south": "teacher_room_4"},
             "items": ["motors_speakers"],
-            "interactables": {}
+            "interactable": {}
         },
         "teacher_room_4": {
             "name": "Teacher Room 4",
@@ -154,7 +154,7 @@
             "required_item": "keycard_lvl1",
             "exits": {"north": "project_room_2", "west": "lab_d2001"},
             "items": ["api_usb"],
-            "interactables": {}
+            "interactable": {}
         },
         "lab_d2001": {
             "name": "Lab D 2001",
@@ -163,7 +163,7 @@
             "required_item": null,
             "exits": {"east": "teacher_room_4"},
             "items": [],
-            "interactables": {
+            "interactable": {
                 "workbench": "A heavy metal table connected to a main server terminal."
             }
         }

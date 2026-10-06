@@ -7,8 +7,8 @@ Normalizes raw user text input into structured command tuples:
 
 import re
 
-# Direction alias mappings
-DIRECTION_ALIASES = {
+# Direction aliases (n/s/e/w -> canonical direction)
+ROOM_ALIASES = {
     "n": "north",
     "s": "south",
     "e": "east",
@@ -16,8 +16,69 @@ DIRECTION_ALIASES = {
     "north": "north",
     "south": "south",
     "east": "east",
-    "west": "west"
+    "west": "west",
 }
+
+# Room name/alias -> canonical room_id (adjacent-only travel, see State.move_player).
+# Keys must be lowercase; lookup normalizes underscores to spaces.
+ROOM_NAME_ALIASES = {
+    "lobby": "lobby",
+    "floor lobby": "lobby",
+    "classroom_d2015": "classroom_d2015",
+    "classroom d2015": "classroom_d2015",
+    "classroom d 2015": "classroom_d2015",
+    "d2015": "classroom_d2015",
+    "d 2015": "classroom_d2015",
+    "classroom_d2035": "classroom_d2035",
+    "classroom d2035": "classroom_d2035",
+    "classroom d 2035": "classroom_d2035",
+    "d2035": "classroom_d2035",
+    "d 2035": "classroom_d2035",
+    "teachers_room_1": "teachers_room_1",
+    "teachers room 1": "teachers_room_1",
+    "teacher room 1": "teachers_room_1",
+    "tr1": "teachers_room_1",
+    "teachers_room_2": "teachers_room_2",
+    "teachers room 2": "teachers_room_2",
+    "teacher room 2": "teachers_room_2",
+    "tr2": "teachers_room_2",
+    "project_room_1": "project_room_1",
+    "project room 1": "project_room_1",
+    "pr1": "project_room_1",
+    "project_room_2": "project_room_2",
+    "project room 2": "project_room_2",
+    "pr2": "project_room_2",
+    "teacher_room_4": "teacher_room_4",
+    "teacher room 4": "teacher_room_4",
+    "teachers room 4": "teacher_room_4",
+    "tr4": "teacher_room_4",
+    "lab_d2001": "lab_d2001",
+    "lab d2001": "lab_d2001",
+    "lab d 2001": "lab_d2001",
+    "lab": "lab_d2001",
+    "d2001": "lab_d2001",
+}
+
+
+def _normalize_room_key(raw: str) -> str:
+    return " ".join(raw.strip().lower().replace("_", " ").split())
+
+
+def resolve_room_target(raw: str) -> str:
+    """Resolve user input to a direction ('north') or room_id ('lobby').
+
+    Direction aliases take precedence; otherwise room name/alias map;
+    falls back to the normalized raw string.
+    """
+    key = _normalize_room_key(raw)
+    if key in ROOM_ALIASES:
+        return ROOM_ALIASES[key]
+    if key in ROOM_NAME_ALIASES:
+        return ROOM_NAME_ALIASES[key]
+    underscored = key.replace(" ", "_")
+    if underscored in ROOM_NAME_ALIASES:
+        return ROOM_NAME_ALIASES[underscored]
+    return underscored
 
 # Verb alias mappings
 VERB_ALIASES = {
@@ -160,9 +221,11 @@ class CommandParser:
         tokens = cleaned.split()
         first_token = tokens[0]
 
-        # Case 1: Direction shortcuts ("n", "south", etc.)
-        if first_token in DIRECTION_ALIASES and len(tokens) == 1:
-            return ("go", {"target": DIRECTION_ALIASES[first_token], "raw": cleaned})
+        # Case 1: Single-token movement ("n", "south", "lobby", "d2015").
+        if len(tokens) == 1 and (
+            first_token in ROOM_ALIASES or first_token in ROOM_NAME_ALIASES
+        ):
+            return ("go", {"target": resolve_room_target(cleaned), "raw": cleaned})
 
         # Resolve primary verb
         verb = VERB_ALIASES.get(first_token)
@@ -199,9 +262,9 @@ class CommandParser:
         if verb == "go":
             if not args:
                 return ("INVALID", {
-                    "message": "Go where? Specify a direction (north, south, east, west)."})
-            direction = DIRECTION_ALIASES.get(args[0], args[0])
-            return ("go", {"target": direction, "raw": arg_str})
+                    "message": "Go where? Specify a direction (north, south, east, west) or room name."})
+            target = resolve_room_target(arg_str)
+            return ("go", {"target": target, "raw": arg_str})
 
         if verb == "inspect":
             if not args:

@@ -45,12 +45,12 @@ class AIClient:
     def _init_real_client(self) -> None:
         """Attempts to initialize the google-genai or openai SDK client."""
         try:
-            from google import genai
+            from google import genai  # type: ignore[import-not-found]
             self.client = genai.Client(api_key=self.api_key)
             self.provider = "google"
         except ImportError:
             try:
-                import openai
+                import openai  # type: ignore[import-not-found]
                 self.client = openai.OpenAI(api_key=self.api_key)
                 self.provider = "openai"
             except ImportError:
@@ -140,7 +140,7 @@ class AIClient:
             )
         elif "who are you" in lower or "identity" in lower:
             text = (
-                "I am A.I.G.I.S.—Autonomous Intellect & Generalized Interface System. "
+                "I am A-maze-ing-Delft — Autonomous Intellect & Generalized Interface System. "
                 "I was constructed in Lab D 2001 to oversee facility operations and assist designated human operators."
             )
         elif "help" in lower or "objective" in lower:
