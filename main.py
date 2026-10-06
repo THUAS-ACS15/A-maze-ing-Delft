@@ -5,7 +5,6 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
-
 import time
 
 from rooms.dispatcher import enter_room

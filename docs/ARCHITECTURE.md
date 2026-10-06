@@ -78,7 +78,7 @@ The engine operates on a finite state machine governed by game_state["game_phase
 
 ## Detailed Module Specifications
 `main.py` – **Application Bootstrapper**
-`src/state.py `– **State Manager & Data Mutations**
+`../src/utils`– **State Manager & Data Mutations**
 
                 ┌──────────────────────────────────────┐
                 │          src/state.py                │
@@ -93,7 +93,7 @@ The engine operates on a finite state machine governed by game_state["game_phase
                 │ + load_game(slot_name) -> bool       │
                 └──────────────────────────────────────┘
 
-`src/display.py `– **UI & CLI Formatting**
+`../src/display.py`– **UI & CLI Formatting**
 
 ### Standard Terminal Header Layout
 
