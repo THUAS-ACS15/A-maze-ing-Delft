@@ -1,5 +1,5 @@
 """
-Project A-maze-ing-Delft - AI Client Module (src/Client.py)
+Project A-maze-ing-Delft - AI Client Module (src/client.py)
 
 Manages integrations with Gemini / OpenAI API endpoints to handle streaming
 interactive responses for Phase 2 of Project A-maze-ing-Delft
@@ -140,7 +140,7 @@ class AIClient:
             )
         elif "who are you" in lower or "identity" in lower:
             text = (
-                "I am A-maze-ing-Delft — Autonomous Intellect & Generalized Interface System. "
+                "I am A.I.G.I.S.—Autonomous Intellect & Generalized Interface System. "
                 "I was constructed in Lab D 2001 to oversee facility operations and assist designated human operators."
             )
         elif "help" in lower or "objective" in lower:
