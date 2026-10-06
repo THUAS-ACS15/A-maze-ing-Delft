@@ -8,8 +8,10 @@
 
 import time
 
-from src import Engine, StateManager
-from utilities.main_menu import display_main_menu, select_save_slot
+from rooms.dispatcher import enter_room
+from utilities.save_gui import display_load_menu
+from utilities.main_menu import display_main_menu
+from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
 
 # This module-level "state" is read directly by utilities/clear_screen.py and
@@ -71,6 +73,7 @@ def main() -> None:
 
     Outputs: NONE
     """
+    global state
 
     while True:
         choice = display_main_menu()
@@ -82,30 +85,32 @@ def main() -> None:
             display_credits()
             continue
 
-        elif choice == "new game":
-            slot = select_save_slot("new game")
-            if slot is None:
-                continue
+        elif choice in ("new game", "continue"):
+            if choice == "continue":
+                loaded_state = display_load_menu()
+                if loaded_state is None:
+                    continue
+                if isinstance(loaded_state, dict):
+                    state = loaded_state
 
-            state_manager = StateManager()
-            state_manager.save_to_file(f"save_slot_{slot}.json")
+            # keep dispatching rooms until the player actually exits,
+            # so main menu doesn't take over
+            current = state.get("current_room", "lobby")
+            if not isinstance(current, str):
+                current = "lobby"
 
-        elif choice == "continue":
-            slot = select_save_slot("continue")
-            if slot is None:
-                continue
+            while current not in ("quit", "exit"):
+                next_room = enter_room(current, state)
+                if not isinstance(next_room, str):
+                    break
+                current = next_room
+                state["current_room"] = current
 
-            state_manager = StateManager()
-            loaded = state_manager.load_from_file(f"save_slot_{slot}.json")
-            if not loaded:
-                continue
-
-        else:
+            break
+        
+        elif choice == "scoreboard":
+            display_scoreboard()
             continue
-
-        engine = Engine(state_manager)
-        engine.run()
-        break
 
 
 if __name__ == "__main__":

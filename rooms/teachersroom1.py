@@ -87,8 +87,11 @@ def enter_teachers_room1(state: dict) -> str:
 
     def handle_go(destination):
         if destination in ["lobby", "back"]:
-            print("You wave goodbye to the teacher and step back into the Lobby.")
             return "lobby"
+        if destination == "labd2001":
+            return "labd2001"
+        if destination == "projectroom1":
+            return "projectroom1"
         else:
             print(f"You can't go to '{destination}' from here.")
             return None
