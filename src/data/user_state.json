@@ -1,0 +1,37 @@
+{
+  "player": {
+    "current_room": "lobby",
+    "inventory": [
+      "blueprint",
+      "keycard_lvl1"
+    ],
+    "flags": {
+      "visited_lab_d_2001": false,
+      "visited_storage_closet": false,
+      "visited_server_room": false,
+      "has_inspected_blueprint": true,
+      "assembly_unlocked": false,
+      "aigis_activated": false,
+      "phase": 1
+    }
+  },
+  "workbench": {
+    "location": "lab_d_2001",
+    "required_parts": [
+      "chassis_frame",
+      "battery_pack",
+      "mainboard",
+      "sensory_module",
+      "motors_speakers",
+      "wifi_credentials",
+      "api_usb"
+    ],
+    "installed_parts": [],
+    "is_complete": false
+  },
+  "game_state": {
+    "save_version": "1.0.0",
+    "timestamp": "2026-10-05T22:10:00Z",
+    "game_phase": 1
+  }
+}
