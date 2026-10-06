@@ -8,6 +8,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    environment: CI  # Links this job to the CI environment
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
