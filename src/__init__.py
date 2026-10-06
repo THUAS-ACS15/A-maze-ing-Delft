@@ -12,9 +12,13 @@ __all__ = [
     "DisplayManager",
     "Engine",
     "LabD2001",
+    "ROOM_ALIASES",
+    "ROOM_NAME_ALIASES",
     "Room",
     "StateManager",
     "TeachersRoom1",
     "TeachersRoom2",
+    "print_logo",
+    "resolve_room_target",
     "room_for",
 ]

@@ -11,6 +11,9 @@ art==6.5
 # Image processing library (handling image manipulation, formats, and thumbnails)
 pillow==12.3.0
 
+rich-pyfiglet==2.0.1
+pyfiglet==1.0.4
+
 
 # ==============================================================================
 # CODE QUALITY, LINTING & TESTING
