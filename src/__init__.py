@@ -1,9 +1,9 @@
-from .Client import AIClient
-from .Display import Colors, DisplayManager
-from .Engine import Engine
-from .Parser import CommandParser
-from .Room import LabD2001, Room, TeachersRoom1, TeachersRoom2, room_for
-from .State import StateManager
+from .client import AIClient
+from .display import Colors, DisplayManager
+from .engine import Engine
+from .parser import CommandParser
+from .room import LabD2001, Room, TeachersRoom1, TeachersRoom2, room_for
+from .state import StateManager
 
 __all__ = [
     "AIClient",

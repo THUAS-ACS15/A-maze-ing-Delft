@@ -1,5 +1,5 @@
 """
-Project A-maze-ing-Delft - AI Client Module (src/Client.py)
+Project A-maze-ing-Delft - AI Client Module (src/client.py)
 
 Manages integrations with Gemini / OpenAI API endpoints to handle streaming
 interactive responses for Phase 2 of Project A-maze-ing-Delft
@@ -45,12 +45,12 @@ class AIClient:
     def _init_real_client(self) -> None:
         """Attempts to initialize the google-genai or openai SDK client."""
         try:
-            from google import genai
+            from google import genai  # type: ignore[import-not-found]
             self.client = genai.Client(api_key=self.api_key)
             self.provider = "google"
         except ImportError:
             try:
-                import openai
+                import openai  # type: ignore[import-not-found]
                 self.client = openai.OpenAI(api_key=self.api_key)
                 self.provider = "openai"
             except ImportError:

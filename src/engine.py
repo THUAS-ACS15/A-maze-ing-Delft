@@ -1,7 +1,7 @@
-from .State import StateManager
-from .Parser import CommandParser
-from .Client import AIClient
-from .Display import DisplayManager
+from .state import StateManager
+from .parser import CommandParser
+from .client import AIClient
+from .display import DisplayManager
 
 
 class Engine:
@@ -21,7 +21,7 @@ class Engine:
                 self.handle_assembly_turn()
             elif phase == "CHAT_MODE":
                 self.handle_chat_turn()
-    def get_input(self) -> CommandParser:
+    def get_input(self) -> str:
         return input("What is your name?")
 
     def handle_exploration_turn(self) -> None:

@@ -1,4 +1,4 @@
-"""Room model (src/Room.py).
+"""Room model (src/room.py).
 
 Data-driven base class + puzzle subclasses.
 Rooms are defined in game_state.json under ``rooms`` (see STATE_SCHEMA.md).
@@ -8,7 +8,7 @@ look / inspect / take / use / enter / exit.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 class Room:
@@ -23,11 +23,11 @@ class Room:
         room_id: str,
         name: str = "",
         description: str = "",
-        exits: Optional[Dict[str, str]] = None,
-        items: Optional[list] = None,
-        interactables: Optional[Dict[str, Any]] = None,
+        exits: dict[str, str] | None = None,
+        items: list | None = None,
+        interactables: dict[str, Any] | None = None,
         is_locked: bool = False,
-        required_item: Optional[str] = None,
+        required_item: str | None = None,
     ) -> None:
         # Backwards compat: old stub was Room(name).
         # Room("lobby") -> room_id="lobby", name="lobby".
@@ -43,7 +43,7 @@ class Room:
         self.required_item = required_item
 
     @classmethod
-    def from_data(cls, room_id: str, data: Dict[str, Any]) -> "Room":
+    def from_data(cls, room_id: str, data: dict[str, Any]) -> Room:
         return cls(
             room_id=room_id,
             name=data.get("name", room_id),
@@ -57,7 +57,7 @@ class Room:
 
     # -- generic behaviour (override only on_* hooks below) --
 
-    def can_enter(self, inventory: list) -> Tuple[bool, str]:
+    def can_enter(self, inventory: list) -> tuple[bool, str]:
         if self.required_item and self.required_item not in (inventory or []):
             return False, f"The door is locked. Access requires: {self.required_item}."
         if self.is_locked:
@@ -78,7 +78,7 @@ class Room:
             return str(data.get("hint", data.get("description", f"You inspect the {target}.")))
         return str(data)
 
-    def on_take(self, item_id: str, state) -> Tuple[bool, str]:
+    def on_take(self, item_id: str, state) -> tuple[bool, str]:
         rooms = state.state.get("rooms", {})
         room_data = rooms.get(self.room_id, {})
         room_items = room_data.get("items", [])
@@ -88,13 +88,13 @@ class Room:
         state.state.setdefault("player", {}).setdefault("inventory", []).append(item_id)
         return True, f"You picked up {item_id}."
 
-    def on_use(self, item_id: str, target: Optional[str], state) -> Tuple[bool, str]:
+    def on_use(self, item_id: str, target: str | None, state) -> tuple[bool, str]:
         inventory = state.state.get("player", {}).get("inventory", [])
         if item_id not in inventory:
             return False, f"You are not carrying '{item_id}'."
         return False, "Nothing happens."
 
-    def on_exit(self, direction: str, state) -> Optional[str]:
+    def on_exit(self, direction: str, state) -> str | None:
         return self.exits.get(direction)
 
 
@@ -114,7 +114,7 @@ class TeachersRoom1(Room):
         hint = desk.get("hint", "Keypad hint: 'Room number where CS101 was held.'") if isinstance(desk, dict) else desk
         return f"A locked desk with a keypad. {hint} (use: 'use 2015 on desk')"
 
-    def on_use(self, item_id: str, target: Optional[str], state) -> Tuple[bool, str]:
+    def on_use(self, item_id: str, target: str | None, state) -> tuple[bool, str]:
         # Accept both `use 2015 on desk` and `enter 2015` style via item_id==code.
         code = item_id if (target == "desk" or target is None) else None
         if target == "desk" or (target is None and item_id == self.DESK_CODE):
@@ -144,7 +144,7 @@ class TeachersRoom2(Room):
 class LabD2001(Room):
     """Workbench assembly: `use <part> on workbench`, `activate` when ready."""
 
-    def on_use(self, item_id: str, target: Optional[str], state) -> Tuple[bool, str]:
+    def on_use(self, item_id: str, target: str | None, state) -> tuple[bool, str]:
         if target != "workbench":
             return super().on_use(item_id, target, state)
         wb = state.state.setdefault("workbench", {})
@@ -165,7 +165,7 @@ class LabD2001(Room):
             return True, f"{item_id} installed. ALL COMPONENTS INSTALLED — type 'activate'."
         return True, f"{item_id} installed ({len(installed)}/{len(required)})."
 
-    def on_activate(self, state) -> Tuple[bool, str]:
+    def on_activate(self, state) -> tuple[bool, str]:
         wb = state.state.get("workbench", {})
         if not wb.get("is_ready"):
             missing = len(wb.get("required_parts", [])) - len(wb.get("installed_parts", []))
@@ -182,7 +182,7 @@ ROOM_CLASSES = {
 }
 
 
-def room_for(room_id: str, data: Dict[str, Any]) -> Room:
+def room_for(room_id: str, data: dict[str, Any]) -> Room:
     """Factory: return specialised subclass if registered, else plain Room."""
     cls = ROOM_CLASSES.get(room_id, Room)
     return cls.from_data(room_id, data)
