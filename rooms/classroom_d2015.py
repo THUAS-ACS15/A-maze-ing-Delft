@@ -59,7 +59,7 @@ def rover_game(state: dict) -> bool:
 def enter_classroom_d2015(state: dict) -> str:
     return run_room(state, {
         "key": "classroomd2015",
-        "title": "CLASSROOM D2.015",
+        "title": "Classroom D2.015",
         "emoji": "🔋",
         "color": "#ffaf5f",
         "intro": [

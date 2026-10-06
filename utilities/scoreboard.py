@@ -13,6 +13,7 @@ from rich.align import Align
 from rich.console import Console, Group
 from rich.table import Table
 
+from utilities.status_bar import display_top_bar
 
 SCOREBOARD_TITLE_ART: str = """
 ██▀██ ██▀██ ██▀██ ██▀██ ██▀██ ██▀█▄ ██▀██ ██▀██ ██▀██ ██▀█▄
@@ -64,7 +65,7 @@ def add_scoreboard_entry(player_name: str, time_elapsed: float) -> None:
         (player_name, time_elapsed))
         db.commit()
 
-def show_scoreboard() -> None:
+def display_scoreboard() -> None:
     """
     Displays the scoreboard on the screen, in increments of 10 entries.
 
@@ -143,6 +144,7 @@ def show_scoreboard() -> None:
             table.add_column(Align.center("No entries yet."), width = 20)
 
         console.clear()
+        display_top_bar(console)
         console.print(
             Align.center(
                 Group(

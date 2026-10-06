@@ -8,14 +8,13 @@
 
 from time import sleep
 from utilities.clear_screen import clear_screen
+from utilities.status_bar import display_top_bar
 from rich.console import Console
 from rich.align import Align
 
 CREDITS_LINES = [
     "",
-    "",
     "A-MAZE-ING DELFT",
-    "",
     "",
     "PROGRAMMING",
     "Sadanand",
@@ -23,24 +22,12 @@ CREDITS_LINES = [
     "João",
     "Gift",
     "Dominik",
-    "PUZZLE DESIGN",
-    "[name]",
-    "[name]",
-    "",
-    "STORY & WRITING",
-    "[name]",
-    "",
-    "PROJECT LEAD",
-    "[name]",
-    "",
     "",
     "Made with Python",
     "ACS Q1 - THUAS, Delft",
     "",
     "",
-    "Thanks for playing!",
-    "",
-    "",
+    "Thanks for playing!"
 ]
 
 
@@ -57,14 +44,16 @@ def display_credits() -> None:
 
     Outputs: NONE
     """
-
     console = Console()
-    clear_screen()
+    clear_screen("", False)
+    display_top_bar(console)
 
     for line in CREDITS_LINES:
+        if line == "":
+            console.print("\n")
         console.print(Align.center(line))
         sleep(0.4)
 
-    console.print()
-    console.print(Align.center("[press enter to go back]"))
+    # Escape the brackets so Rich displays the message instead of treating it as markup.
+    console.print(Align.center("\n\\[press enter to go back]"))
     input()
