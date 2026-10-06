@@ -52,7 +52,7 @@ The game features 8 total inventory items (1 reference blueprint + 7 required as
                                             [Lab D 2001 Assembly Bench]
 
 ## 5. Workbench Assembly & Phase Transition
-The game's culmination takes place in lab_d2001 at the industrial assembly bench (interactables["workbench"]).
+The game's culmination takes place in lab_d2001 at the industrial assembly bench (interactable["workbench"]).
 
 ================================================================================
                     ALL SYSTEM COMPONENTS INSTALLED
