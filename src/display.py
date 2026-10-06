@@ -1,6 +1,9 @@
 # Standard Colors
 from typing import Any
 
+from rich.console import Console
+from rich.text import Text
+
 
 class Colors:
     BLACK = "\033[30m"
@@ -32,35 +35,65 @@ class DisplayManager:
     def colorize(self, text: str, color_code: str) -> str:
         return f"{color_code}{text}\033[0m" if self.enable_colors else text
 
-    def draw_line(self, char: str = "─") -> None:
-        print(self.colorize(char * self.terminal_width, "\033[2m"))
+    def _safe(self, text: str) -> str:
+        table = str.maketrans({"─": "-", "═": "=", "•": "*", "→": "->", "←": "<-"})
+        text = text.translate(table)
+        try:
+            text.encode("cp1252")
+            return text
+        except UnicodeEncodeError:
+            return text.encode("cp1252", errors="replace").decode("cp1252")
+
+    def _out(self, text: str = "") -> None:
+        import builtins
+
+        builtins.print(self._safe(text))
+
+    def draw_line(self, char: str = "-") -> None:
+        self._out(self.colorize(char * self.terminal_width, "\033[2m"))
+
+    def clear(self) -> None:
+        """Clear the terminal screen (Windows/posix/PyCharm-safe)."""
+        try:
+            from rich.console import Console
+
+            Console().clear()
+        except Exception:
+            import os
+
+            if os.getenv("PYCHARM_HOSTED"):
+                import builtins
+
+                builtins.print("\n" * 50)
+            else:
+                os.system("cls" if os.name == "nt" else "clear")
 
     def render_room(self, room_id: str, room_data: dict[str, Any],
                     items_db: dict[str, Any]) -> None:
         """Displays current location, description, exits, items, and interactable features."""
         self.draw_line("═")
         room_name = room_data.get("name", room_id).upper()
-        print(
+        self._out(
             self.colorize(f"LOCATION: {room_name}", Colors.BRIGHT_YELLOW + Colors.BOLD)
             )
         self.draw_line("═")
 
         # Room Narrative
-        print(f"\n{room_data.get('description', '')}\n")
+        self._out(f"\n{room_data.get('description', '')}\n")
 
         # Exits
         exits = room_data.get("exits", {})
         if exits:
             formatted_exits = [f"{direction.upper()} -> {target}" for direction, target
                                in exits.items()]
-            print(self.colorize(f"Exits: {', '.join(formatted_exits)}", Colors.CYAN))
+            self._out(self.colorize(f"Exits: {', '.join(formatted_exits)}", Colors.CYAN))
         else:
-            print(self.colorize("Exits: None available.", Colors.RED))
+            self._out(self.colorize("Exits: None available.", Colors.RED))
 
         # Loose Items
         room_items = room_data.get("items", [])
         if room_items:
-            print(self.colorize("\nItems in area:", Colors.BRIGHT_WHITE + Colors.BOLD))
+            self._out(self.colorize("\nItems in area:", Colors.BRIGHT_WHITE + Colors.BOLD))
             for item_id in room_items:
                 item_data = items_db.get(item_id, {})
                 display_name = item_data.get("name", item_id)
@@ -69,28 +102,50 @@ class DisplayManager:
                     if item_data.get("is_assembly_part")
                     else ""
                 )
-                print(
+                self._out(
                     f"  • {self.colorize(display_name, Colors.BRIGHT_YELLOW)}{component_tag}"
                     )
 
         # Points of Interest
-        interactables = room_data.get("interactables", {})
+        interactables = room_data.get("interactables", room_data.get("interactable", {}))
         if interactables:
-            print(self.colorize("\nInteractive Objects:", Colors.DIM))
+            self._out(self.colorize("\nInteractive Objects:", Colors.DIM))
             for poi_key in interactables.keys():
-                print(f"  • {self.colorize(poi_key, Colors.WHITE)}")
+                self._out(f"  • {self.colorize(poi_key, Colors.WHITE)}")
 
-        print()
+        self._out()
+
+    def render_art(self, text: str, font: str = "block") -> None:
+        """Render ASCII art (pyfiglet if present, else art, else plain)."""
+        ascii_text: str = text
+        try:
+            try:
+                import pyfiglet  # type: ignore[import-not-found]
+
+                ascii_text = pyfiglet.figlet_format(text, font=font)
+            except Exception:
+                try:
+                    from art import text2art  # type: ignore[import-untyped]
+
+                    ascii_text = text2art(text, font=font)
+                except Exception:
+                    ascii_text = text
+            try:
+                Console(highlight=False).print(Text(ascii_text))
+            except Exception:
+                self._out(ascii_text)
+        except Exception:
+            self._out(text)
 
     def render_inventory(self, inventory: list[str], items_db: dict[str, Any]) -> None:
         """Renders carried items and displays total core assembly parts held."""
         self.draw_line("─")
-        print(self.colorize("INVENTORY", Colors.BRIGHT_CYAN + Colors.BOLD))
+        self._out(self.colorize("INVENTORY", Colors.BRIGHT_CYAN + Colors.BOLD))
         self.draw_line("─")
 
         if not inventory:
-            print(self.colorize("Your inventory is empty.", Colors.DIM))
-            print()
+            self._out(self.colorize("Your inventory is empty.", Colors.DIM))
+            self._out()
             return
 
         parts_carried = 0
@@ -106,15 +161,15 @@ class DisplayManager:
             else:
                 tag = ""
 
-            print(f" • {self.colorize(name, Colors.BRIGHT_YELLOW)}{tag}")
-            print(f"   {self.colorize(desc, Colors.DIM)}")
+            self._out(f" • {self.colorize(name, Colors.BRIGHT_YELLOW)}{tag}")
+            self._out(f"   {self.colorize(desc, Colors.DIM)}")
 
-        print(
+        self._out(
             self.colorize(
                 f"\nAssembly Components Carried: {parts_carried}/7", Colors.BRIGHT_WHITE
                 )
             )
-        print()
+        self._out()
 
     def render_workbench(self, workbench_data: dict[str, Any],
                          items_db: dict[str, Any]) -> None:
@@ -123,13 +178,13 @@ class DisplayManager:
         required = workbench_data.get("required_parts", [])
 
         self.draw_line("═")
-        print(
+        self._out(
             self.colorize(
                 "WORKBENCH ASSEMBLY STATUS", Colors.BRIGHT_MAGENTA + Colors.BOLD
                 )
             )
         self.draw_line("═")
-        print(f"Progress: {len(installed)} / {len(required)} components installed.\n")
+        self._out(f"Progress: {len(installed)} / {len(required)} components installed.\n")
 
         for part_id in required:
             item_data = items_db.get(part_id, {})
@@ -142,17 +197,17 @@ class DisplayManager:
             else:
                 status = self.colorize("[ MISSING   ]", Colors.RED + Colors.DIM)
 
-            print(f" {status} - {part_name}")
+            self._out(f" {status} - {part_name}")
 
-        print()
+        self._out()
         if len(installed) == len(required):
-            print(
+            self._out(
                 self.colorize(
                     ">> ALL CORE COMPONENTS INSTALLED <<",
                     Colors.BRIGHT_GREEN + Colors.BOLD
                     )
                 )
-            print(
+            self._out(
                 self.colorize(
                     "Type 'activate' or 'power on' to start the neural link.",
                     Colors.BRIGHT_YELLOW
@@ -160,13 +215,62 @@ class DisplayManager:
                 )
         else:
             remaining = len(required) - len(installed)
-            print(
+            self._out(
                 self.colorize(
                     f"Locate remaining {remaining} part(s) to complete assembly.",
                     Colors.DIM
                     )
                 )
-        print()
+        self._out()
+
+    def render_help(self, phase: str = "EXPLORATION") -> None:
+        """Grouped Available Commands table (rich Table, plaintext fallback)."""
+        sections: list[tuple[str, list[tuple[str, str, str]]]] = [
+            ("Movement", [
+                ("go <direction|room>", "Move (n/s/e/w or adjacent room name)", "go north, go lab"),
+                ("look", "Re-render current room", "look"),
+            ]),
+            ("Inspect & Items", [
+                ("inspect <target>", "Examine object or item", "inspect desk"),
+                ("take <item>", "Pick up item", "take battery_pack"),
+                ("use <item> on <target>", "Use item / solve puzzle", "use 2015 on desk"),
+                ("inventory", "Show carried items (inv, i)", "inventory"),
+            ]),
+            ("System", [
+                ("save \\[slot]", "Save game", "save"),
+                ("load \\[slot]", "Load game", "load"),
+                ("clear (cls)", "Clear screen", "clear"),
+                ("help (?, h)", "Show this help", "help"),
+                ("quit (q, exit)", "Quit game", "quit"),
+            ]),
+        ]
+        if phase == "ASSEMBLY":
+            sections.append(("Assembly", [
+                ("activate", "Boot unit (power on, start)", "activate"),
+                ("inspect workbench", "Show installed vs missing parts", "inspect workbench"),
+            ]))
+
+        try:
+            import os
+
+            from rich.console import Console
+            from rich.table import Table
+
+            console = Console(highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True)
+            for title, rows in sections:
+                table = Table(title=title, show_header=True, header_style="bold")
+                table.add_column("Command", style="cyan", no_wrap=True)
+                table.add_column("Description")
+                table.add_column("Example", style="dim")
+                for cmd, desc, ex in rows:
+                    table.add_row(cmd, desc, ex)
+                console.print(table)
+        except Exception:
+            self._out("Available Commands:")
+            for title, rows in sections:
+                self._out(f"[{title}]")
+                for cmd, desc, ex in rows:
+                    self._out(f"  {cmd:<24} {desc}  e.g. {ex}")
 
     # def render_system_ready(self) -> None:
     #     """Displays initialization message when assembly complete."""
