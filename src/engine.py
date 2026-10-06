@@ -1,7 +1,7 @@
 from .state import StateManager
 from .parser import CommandParser
 from .client import AIClient
-from .display import DisplayManager
+from .display import DisplayManager, Colors
 from .a_maze_ing_delft import print_logo
 
 
@@ -234,7 +234,7 @@ class Engine:
             self.state.save_to_file("save_slot_1.json")
             return
 
-        print("AIGIS > ", end="", flush=True)
+        print("A-maze-ing-delft > ", end="", flush=True)
         try:
             for token in self.ai_client.stream_response(raw):
                 print(token, end="", flush=True)
@@ -243,6 +243,12 @@ class Engine:
             print(f"\n[Comms error: {exc}]")
 
     def _out_boot_banner(self) -> None:
-        print("A-maze-ing-Delft IS ONLINE.")
-        print("You are linked to A.I.G.I.S. in Lab D 2001. Speak freely.")
-        print("Type 'quit' to disconnect.")
+        self.display._out(
+            self.display.colorize(
+                "A-maze-ing-Delft IS ONLINE.", Colors.BRIGHT_GREEN + Colors.BOLD
+                )
+        )
+        self.display._out(
+            "You are now connected to the A-maze-ing-Delft super intelligence in Lab D 2001. Speak freely."
+        )
+        self.display._out("Type 'quit' to disconnect.")
