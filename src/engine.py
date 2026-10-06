@@ -61,6 +61,10 @@ class Engine:
         if verb == "help":
             self.display.render_help(self.state.get_phase())
             return
+        if verb == "clear":
+            self.display.clear()
+            self._render_current_room()
+            return
         if verb == "look":
             self._render_current_room()
             return

@@ -28,7 +28,7 @@
     "items": {
         "blueprint": {
             "name": "Robot Assembly Blueprint",
-            "description": "Diagram listing all 7 components needed to construct Project A.I.G.I.S.",
+            "description": "Diagram listing all 7 components needed to construct A-maze-ing-Delft",
             "is_assembly_part": false
         },
         "chassis_frame": {
