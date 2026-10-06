@@ -132,7 +132,117 @@ class Engine:
         print(f"Unhandled command '{verb}'.")
 
     def handle_assembly_turn(self) -> None:
-        return
+        """Locked in lab_d2001 until 'activate'. Single prompt cycle."""
+        if self.state.get_current_room_id() != "lab_d2001":
+            self.state.state["player"]["current_room"] = "lab_d2001"
+            self._last_room_id = None
+        if self._last_room_id != "lab_d2001":
+            self._render_current_room()
+            self.display.render_workbench(
+                self.state.state.get("workbench", {}),
+                self.state.state.get("items", {}))
+
+        raw = self.get_input()
+        verb, details = self.parser.parse(raw)
+
+        if verb == "EMPTY":
+            return
+        if verb == "UNKNOWN":
+            print("Assembly locked. Type 'activate' (or 'inspect workbench', 'help').")
+            return
+        if verb == "INVALID":
+            print(details.get("message", "Invalid command."))
+            return
+        if verb == "quit":
+            self.state.state["running"] = False
+            print("Goodbye.")
+            return
+        if verb == "help":
+            self.display.render_help("ASSEMBLY")
+            return
+        if verb == "clear":
+            self.display.clear()
+            self._last_room_id = None
+            return
+        if verb == "look":
+            self._last_room_id = None
+            return
+        if verb == "inventory":
+            self.display.render_inventory(
+                self.state.get_inventory(), self.state.state.get("items", {}))
+            return
+        if verb == "save":
+            self.state.save_to_file(details.get("target", "save_slot_1.json"))
+            return
+        if verb == "load":
+            if self.state.load_from_file(details.get("target", "save_slot_1.json")):
+                self.state.ensure_spawn("lobby")
+                self._last_room_id = None
+            return
+        if verb == "go":
+            print("Navigation disabled during assembly. Type 'activate' to boot the unit.")
+            return
+        if verb == "take":
+            print("Assembly locked. All components are on the workbench. Type 'activate'.")
+            return
+        if verb == "use":
+            print("Assembly locked. Type 'activate' to boot the unit.")
+            return
+        if verb == "inspect":
+            target = details.get("target", "")
+            if target in ("workbench", ""):
+                self.display.render_workbench(
+                    self.state.state.get("workbench", {}),
+                    self.state.state.get("items", {}))
+                return
+            print(self.state.current_room().on_inspect(target, self.state))
+            return
+        if verb == "activate":
+            current = self.state.current_room()
+            handler = getattr(current, "on_activate", None)
+            if handler is None:
+                print("Nothing to activate here.")
+                return
+            ok, msg = handler(self.state)
+            print(msg)
+            self._last_room_id = None
+            return
+        print("Assembly locked. Type 'activate'.")
 
     def handle_chat_turn(self) -> None:
-        return
+        """Finale: freeform chat via AIClient. Single prompt cycle."""
+        if not getattr(self, "_chat_booted", False):
+            self.display.clear()
+            self._out_boot_banner()
+            self._chat_booted = True
+
+        raw = self.get_input().strip()
+        if not raw:
+            return
+        lowered = raw.lower()
+        if lowered in ("quit", "exit", "q"):
+            self.state.state["running"] = False
+            print("Connection closed. Goodbye.")
+            return
+        if lowered in ("help", "?", "h", "commands"):
+            self.display.render_help("CHAT_MODE")
+            return
+        if lowered in ("clear", "cls"):
+            self.display.clear()
+            return
+        if lowered == "save":
+            self.state.save_to_file("save_slot_1.json")
+            return
+
+        print("AIGIS > ", end="", flush=True)
+        try:
+            for token in self.ai_client.stream_response(raw):
+                print(token, end="", flush=True)
+            print()
+        except Exception as exc:
+            print(f"\n[Comms error: {exc}]")
+
+    def _out_boot_banner(self) -> None:
+        print("A-maze-ing-Delft IS ONLINE.")
+        print("You are linked to A.I.G.I.S. in Lab D 2001. Speak freely.")
+        print("Type 'quit' to disconnect.")
