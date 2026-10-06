@@ -226,6 +226,8 @@ ITEM_ALIASES = {
     "wifi credentials": "wifi_credentials",
     "Wifi Credentials": "wifi_credentials",
     "WIFI CREDENTIALS": "wifi_credentials",
+    "wi-fi credentials note": "wifi_credentials",
+    "Wi-Fi Credentials Note": "wifi_credentials",
     "wifi": "wifi_credentials",
     "Wifi": "wifi_credentials",
     "WIFI": "wifi_credentials",
