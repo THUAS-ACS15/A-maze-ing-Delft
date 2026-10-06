@@ -69,7 +69,9 @@ class Room:
     # -- generic behaviour (override only on_* hooks below) --
 
     def can_enter(self, inventory: list) -> tuple[bool, str]:
-        if self.required_item and self.required_item not in (inventory or []):
+        if self.required_item:
+            if self.required_item in (inventory or []):
+                return True, ""
             return False, f"The door is locked. Access requires: {self.required_item}."
         if self.is_locked:
             return False, "The door is locked."
