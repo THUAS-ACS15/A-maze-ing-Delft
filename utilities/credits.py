@@ -1,0 +1,70 @@
+# -----------------------------------------------------------------------------
+# File: credits.py
+# Project: A-maze-ing Delft
+# Organization: THUAS (The Hague University of Applied Sciences)
+# Location: Delft
+# Date: October 2026
+# -----------------------------------------------------------------------------
+
+from time import sleep
+from utilities.clear_screen import clear_screen
+from rich.console import Console
+from rich.align import Align
+
+CREDITS_LINES = [
+    "",
+    "",
+    "A-MAZE-ING DELFT",
+    "",
+    "",
+    "PROGRAMMING",
+    "Sadanand",
+    "Leon",
+    "João",
+    "Gift",
+    "Dominik",
+    "PUZZLE DESIGN",
+    "[name]",
+    "[name]",
+    "",
+    "STORY & WRITING",
+    "[name]",
+    "",
+    "PROJECT LEAD",
+    "[name]",
+    "",
+    "",
+    "Made with Python",
+    "ACS Q1 - THUAS, Delft",
+    "",
+    "",
+    "Thanks for playing!",
+    "",
+    "",
+]
+
+
+def display_credits() -> None:
+    """
+    Shows the game credits, scrolling slowly up the screen line by line.
+
+    This function prints the CREDITS_LINES list one line at a time, with a
+    short pause between each, giving a slow scrolling effect similar to the
+    end credits of a game. The player can skip the credits at any point by
+    pressing Enter.
+
+    Inputs: NONE
+
+    Outputs: NONE
+    """
+
+    console = Console()
+    clear_screen()
+
+    for line in CREDITS_LINES:
+        console.print(Align.center(line))
+        sleep(0.4)
+
+    console.print()
+    console.print(Align.center("[press enter to go back]"))
+    input()
