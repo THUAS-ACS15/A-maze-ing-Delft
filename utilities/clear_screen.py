@@ -10,9 +10,9 @@ import os
 import sys
 from utilities.status_bar import update_status_bar
 
-def clear_screen(
-        header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo"
-    ) -> None:
+message = "stuck? use \"quit\" to quit or \"reset\" to redo"
+
+def clear_screen( header_message: str = message, ) -> None:
     main_module = sys.modules.get("__main__")
     if main_module is None:
         raise RuntimeError("Error: the __main__ module is unavailable!")
