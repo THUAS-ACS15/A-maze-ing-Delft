@@ -50,11 +50,11 @@ def read_key() -> str:
     """
 
     if IS_WINDOWS:
-        key = msvcrt.getch()
+        key = msvcrt.getch()  # type: ignore[attr-defined]
 
         # Arrow keys are sent as two bytes on Windows: b'\xe0' followed by a direction byte
         if key == b"\xe0":
-            direction = msvcrt.getch()
+            direction = msvcrt.getch()  # type: ignore[attr-defined]
             if direction == b"H":
                 return "up"
             elif direction == b"P":
@@ -111,7 +111,7 @@ def display_main_menu() -> str:
         Outputs: NONE
         """
 
-        clear_screen("", run_bar_update = False)
+        clear_screen("", run_status_bar_update=False)
         display_top_bar(console)
         console.print(Align.center(GAME_TITLE_ART, vertical="middle"))
         console.print()
