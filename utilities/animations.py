@@ -23,7 +23,7 @@ def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: f
     Clears the screen and displays the specified animation, frame-by-frame.
 
     This function takes the specified type, clears the screen and prints
-    that animation in the CLI.
+    that animation in the CLI, with a delay between each line and a final delay after the animation is fully printed.
 
     Inputs:
         - type (str): "puzzle", "quiz" or "qte"

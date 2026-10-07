@@ -62,14 +62,27 @@ def update_elapsed_time(state: dict) -> None:
 
 
 def recreate_db_table(db: sqlite3.Connection) -> None:
-    """Recreates the database 'saves' table."""
+    """
+    Recreates the database 'saves' table.
+    
+    This function ensures that the database table structure is up-to-date,
+    by executing the SQL script defined in DB_TABLE_STRUCTURE.
+    
+    Inputs:
+        - db: An active SQLite database connection.
+        
+    Outputs: NONE
+    """
     cursor = db.cursor()
     cursor.executescript(DB_TABLE_STRUCTURE)
     db.commit()
 
 def get_save_info(slot: int) -> dict | None:
     """
-    Retrieve some save info from the specified slot, for display in the save GUI.
+    Retrieves some save info from the specified slot, for display in the save GUI.
+
+    This function retrieves the current room, coin balance, exploration percentage,
+    and time elapsed from the specified save slot in the database.
 
     Inputs:
         - slot: The save slot number (1, 2, or 3).

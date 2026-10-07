@@ -32,7 +32,7 @@ DEFAULT_COMMANDS = [
 
 def get_help(extra_commands=None, include_go_back=True):
     """
-    Display the room's command list: extras first, then the defaults.
+    Displays the room's command list: extras first, then the defaults.
 
     Inputs:
         - extra_commands: list of (command, description) tuples with the
