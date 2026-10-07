@@ -139,11 +139,10 @@ def enter_project_room2(state: dict) -> str:
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
-        valid_destinations = ["lobby", "back"]
+        valid_destinations = ["teachersroom2", "back"]
 
         if destination in valid_destinations:
-            print("You decide to leave the projector behind and return to the lobby.")
-            return "lobby"
+            return "teachersroom2"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
             return ""

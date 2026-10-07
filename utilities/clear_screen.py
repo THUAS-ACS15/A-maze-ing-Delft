@@ -10,9 +10,7 @@ import os
 import sys
 from utilities.status_bar import update_status_bar
 
-def clear_screen(
-        header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo"
-    ) -> None:
+def clear_screen(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo", run_bar_update: bool = True) -> None:
     main_module = sys.modules.get("__main__")
     if main_module is None:
         raise RuntimeError("Error: the __main__ module is unavailable!")
@@ -22,4 +20,5 @@ def clear_screen(
         print("\n" * 50)  # fallback for PyCharm
     else:
         os.system("cls" if os.name == "nt" else "clear")
-    update_status_bar(state, header_message)
+    if run_bar_update:
+        update_status_bar(state, header_message)

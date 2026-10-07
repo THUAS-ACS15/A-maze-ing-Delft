@@ -28,18 +28,8 @@ def enter_lobby(state):
         )
 
     available_rooms = [
-        "labd2001",
-        "store",
-        "teachersroom1",
-        "teachersroom2",
-        "teachersroom4",
-        "frontdesk",
-        "equinoxstudentsociety",
-        "projectroom1",
-        "projectroom2",
-        "classroomd2015",
-        "classroomd2031",
         "classroomd2035",
+        "teachersroom1"
     ]
 
     def handle_look():
