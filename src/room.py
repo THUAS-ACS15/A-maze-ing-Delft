@@ -66,7 +66,7 @@ class Room:
             required_item=data.get("required_item"),
         )
 
-    # -- generic behaviour (override only on_* hooks below) --
+    # -- generic behaviour (override only on_* hooks below) --                  
 
     def can_enter(self, inventory: list) -> tuple[bool, str]:
         if self.required_item:
@@ -118,7 +118,7 @@ class Room:
             return target
         return None
 
-
+    
 def room_for(room_id: str, data: dict[str, Any]) -> Room:
     """Factory: return specialised subclass if registered, else plain Room."""
     import importlib

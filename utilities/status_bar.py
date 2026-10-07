@@ -11,6 +11,8 @@ import math
 import shutil
 import time
 
+from rich.console import Console
+
 # This dict just matches the room identifiers to a fancier display name, for use in
 # updateStatusBar()
 room_fancy_names = {
@@ -92,6 +94,10 @@ def get_exploration_percent(state: dict) -> float:
 
     return exploration_percent
 
+def display_top_bar(console: Console) -> None:
+    terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
+    console.print(f"{'█' * terminal_width}\n")
+
 def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and
@@ -142,4 +148,4 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
     gap = terminal_width - 5 - len(left_status_data) - len(right_status_data)
 
     print(f"{left_status_data}{' ' * gap}{right_status_data}")
-    print(f"{'█' * terminal_width}\n")
+    display_top_bar(console=Console())
