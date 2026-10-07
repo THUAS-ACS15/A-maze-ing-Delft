@@ -8,6 +8,7 @@
 # -----------------------------------------------------------------------------
 
 from utilities.save_management import get_save_info, load_save, save_game
+from utilities.status_bar import display_top_bar
 from utilities.clear_screen import clear_screen
 
 from time import sleep
@@ -44,9 +45,9 @@ SAVE_3_INDICATOR: str = """▄▄▄▄▄
  ▀▀▀ """
 
 def display_save_art(console: Console):
-    clear_screen()
+    clear_screen("", False)
+    display_top_bar(console)
     console.print(Align.center(CHOOSE_SAVE_ART, vertical="middle"))
-
     slot_indicators = [SAVE_1_INDICATOR, SAVE_2_INDICATOR, SAVE_3_INDICATOR]
 
     slots = Table.grid(padding=(0, 2))
@@ -84,13 +85,13 @@ def display_save_menu(state: dict):
         if save_slot_input not in ["1", "2", "3", "quit"]:
             console.print(Align.center("[bold red]Invalid input. Please enter 1, 2, 3, or 'quit'.[/bold red]"))
             sleep(2)
-            clear_screen()
+            clear_screen("", False)
             display_save_art(console)
             continue
         if save_slot_input == "quit":
             console.print(Align.center("[bold red]Exiting save menu...[/bold red]"))
             sleep(1)
-            return
+            return None
         save_slot = int(save_slot_input)
 
         save_game(state, save_slot)
@@ -106,15 +107,13 @@ def display_load_menu():
     while True:
         save_slot_input = console.input("\n[bold white]LOAD YOUR PROGRESS FROM SLOT:[/bold white] ")
 
-        if save_slot_input not in ["1", "2", "3", "quit"]:
+        if save_slot_input not in ["1", "2", "3", "quit", "exit", "back"]:
             console.print(Align.center("[bold red]Invalid input. Please enter 1, 2, 3, or 'quit'.[/bold red]"))
             sleep(2)
-            clear_screen()
+            clear_screen("", False)
             display_save_art(console)
             continue
-        if save_slot_input == "quit":
-            console.print(Align.center("[bold red]Exiting...[/bold red]"))
-            sleep(1)
+        if save_slot_input == "quit" or save_slot_input == "exit" or save_slot_input == "back":
             return None
         save_slot = int(save_slot_input)
         

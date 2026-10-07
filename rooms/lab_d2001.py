@@ -158,10 +158,9 @@ def enter_lab_d2001(state: dict) -> str:
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
-        valid_destinations = ["lobby", "back"]
-
+        valid_destinations = ["projectroom2", "teachersroom1", "teachersroom4"]
         if destination in valid_destinations:
-            return "lobby"
+            return destination
         else:
             print(f"❌ You can't go to '{destination}' from here.")
             return None

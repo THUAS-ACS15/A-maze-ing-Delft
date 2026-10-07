@@ -104,8 +104,9 @@ Enrollments table:
 
     def handle_go(destination):
         if destination in ["lobby", "back"]:
-            print("You leave the teacher to their emails and step back into the lobby.")
             return "lobby"
+        elif destination == "projectroom2":
+            return "projectroom2"
         else:
             print(f"You can't go to '{destination}' from here.")
             return None
