@@ -13,14 +13,8 @@ import random
 import time
 from typing import Literal
 
-from rich.console import (
-    Console,
-)
-from rich.progress import (
-    BarColumn,
-    Progress,
-    TaskProgressColumn,
-)
+from rich.console import Console
+from rich.progress import BarColumn, Progress, TaskProgressColumn
 
 
 def loader(
