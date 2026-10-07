@@ -6,22 +6,14 @@
 # Date: October 2026
 # -----------------------------------------------------------------------------
 
-import sys
+import readchar  # type: ignore[import-not-found, import-untyped]
 from utilities.clear_screen import clear_screen
 from utilities.status_bar import display_top_bar
 from rich.console import Console
 from rich.align import Align
 from rich.text import Text
 
-# Cross-platform single key reading: msvcrt exists only on Windows,
-# termios/tty are used instead on macOS/Linux.
-try:
-    import msvcrt
-    IS_WINDOWS = True
-except ImportError:
-    import termios
-    import tty
-    IS_WINDOWS = False
+# Cross-platform single key reading via readchar.
 
 # ASCII Font is Blunder
 GAME_TITLE_ART: str = """
@@ -39,8 +31,8 @@ def read_key() -> str:
     """
     Reads a single keypress from the terminal, without needing Enter.
 
-    Works on Windows (msvcrt) and on macOS/Linux (termios/tty). Arrow key
-    presses are translated into "up" or "down"; Enter is translated into
+    Backend is readchar (cross-platform). Arrow key presses are
+    translated into "up" or "down"; Enter is translated into
     "enter". Any other key returns an empty string.
 
     Inputs: NONE
@@ -48,42 +40,17 @@ def read_key() -> str:
     Outputs:
         - str: "up", "down", "enter" or "" for any other key.
     """
-
-    if IS_WINDOWS:
-        key = msvcrt.getch()  # type: ignore[attr-defined]
-
-        # Arrow keys are sent as two bytes on Windows: b'\xe0' followed by a direction byte
-        if key == b"\xe0":
-            direction = msvcrt.getch()  # type: ignore[attr-defined]
-            if direction == b"H":
-                return "up"
-            elif direction == b"P":
-                return "down"
-            return ""
-        elif key in (b"\r", b"\n"):
-            return "enter"
+    try:
+        key = readchar.readkey()
+    except Exception:
         return ""
-
-    else:
-        file_descriptor = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(file_descriptor)
-        try:
-            tty.setraw(file_descriptor)
-            key = sys.stdin.read(1)
-
-            # Arrow keys are sent as an escape sequence on macOS/Linux: '\x1b[A' (up), '\x1b[B' (down)
-            if key == "\x1b":
-                key += sys.stdin.read(2)
-                if key == "\x1b[A":
-                    return "up"
-                elif key == "\x1b[B":
-                    return "down"
-                return ""
-            elif key in ("\r", "\n"):
-                return "enter"
-            return ""
-        finally:
-            termios.tcsetattr(file_descriptor, termios.TCSADRAIN, old_settings) # ignore [attr-defined]
+    if key in (readchar.key.UP, "\x1b[A"):
+        return "up"
+    if key in (readchar.key.DOWN, "\x1b[B"):
+        return "down"
+    if key in (readchar.key.ENTER, "\r", "\n"):
+        return "enter"
+    return ""
 
 def display_main_menu() -> str:
     """
