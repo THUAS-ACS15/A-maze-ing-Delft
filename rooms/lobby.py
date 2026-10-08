@@ -9,33 +9,24 @@
 
 import sys
 
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
+
+room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
+available_rooms = ["frontdesk", "teachersroom1"]
 
 def enter_lobby(state):
     """Starter function for the Lobby room."""
     clear_screen()
-    print("🚶 You are standing in the school's main lobby.")
-    print(
-        "You see a long corridor with many doors and glass walls on both sides. There are lots of doors waiting to be "
-        "explored."
-    )
+    print_dialogue(room_dialogue_bank["header"])
+    print_dialogue(room_dialogue_bank["enter"])
     if not state["student_id_obtained"]:
-        print(
-            "You notice you're missing your student ID. You should check out the Front Desk to see if you can obtain "
-            "a new one."
-        )
-
-    available_rooms = [
-        "frontdesk",
-        "projectroom1",
-        "classroomd2015",
-        "classroomd2031",
-        "classroomd2035",
-        "teachersroom1",
-
-    ]
+        print_dialogue(room_dialogue_bank["no_student_id"], print_newline_after = False)
 
     def handle_look():
         """
@@ -48,9 +39,17 @@ def enter_lobby(state):
 
         Outputs: NONE
         """
+
         clear_screen()
-        print("You take a look around.")
-        print("Students and teachers are walking in both directions along the corridor. You see several labeled doors:")
+        print_dialogue(look_around_dialogue_bank["lobby"])
+        if "Robot Chassis Frame" not in state["inventory"]:
+            print_dialogue(look_around_dialogue_bank["lobby-chassis-pickup"], print_newline_after = False)
+            print_assembly_part_obtained("(+ Robot Chassis Frame)")
+            state["current_objective_id"] += 1
+            state["inventory"].append("Robot Chassis Frame")
+            print()
+            print_current_objective(state)
+        
         print(f"- Possible doors: {', '.join(available_rooms)}")
         print(f"- Your inventory: {state['inventory']}")
 
@@ -67,9 +66,14 @@ def enter_lobby(state):
         clear_screen()
         print("Available commands:")
         print("- look around         : See what's in the corridor and where you can go.")
-        print("- go <room name>      : Move to another room. Examples: 'go frontdesk', 'go projectroom1'")
+        print("- go <room name>      : Move to another room.'")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game.")
+        print("- status              : Show current game status.")
+        print("- save                : Save the current game state.")
+
+        print()
+        print_current_objective(state)
 
     def handle_go(room_name):
         """
@@ -81,7 +85,7 @@ def enter_lobby(state):
         clear_screen()
 
         if room_name in available_rooms:
-            state["previous_room"] = "lobby"
+            state["current_room"] = "lobby"
             return room_name
         else:
             print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")
@@ -111,7 +115,7 @@ def enter_lobby(state):
 
         elif command == "quit":
             clear_screen()
-            print("👋 You leave the school and the adventure comes to an end. Game over.")
+            print(room_dialogue_bank["quit"])
             sys.exit()
 
         else:
