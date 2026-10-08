@@ -127,7 +127,7 @@ def display_scoreboard() -> None:
         return ""
 
     while True:
-        table = Table(title = "Ordered by time played.\n\n\n\n")
+        table = Table(title = "ordered by time played (lowest to highest)\n\n\n\n", width = 50)
 
         # If entries exist display them from start
         if len(entries) > 0:

@@ -13,18 +13,18 @@ from utilities.save_gui import display_load_menu
 from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
+from utilities.story_animations import play_intro
 
-# This module-level "state" is read directly by utilities/clear_screen.py and
-# utilities/status_bar.py (via sys.modules["__main__"].state) to draw the status
-# bar, so it must exist before the main menu is first shown. It is kept in sync
-# with whichever save slot the player picks, separately from the StateManager
-# used by the Engine for actual gameplay.
+from debug_settings import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
+
 state = {
     "current_room": "lobby",
     "time_elapsed": 0.0,
     "start_time": time.time(),
+    "has_intro_played": False,
     "is_gametime_paused": False,
     "coin_balance": 0,
+    "current_objective_id": 0,
     "student_id_obtained": False,
     "equinox_coins_claimed": False,
     "store_available_items": ["Eeyore plushie", "Delft mug"],
@@ -59,7 +59,6 @@ state = {
     "inventory": [],
 }
 
-
 def main() -> None:
     """
     Entry point of the game.
@@ -76,7 +75,10 @@ def main() -> None:
     global state
 
     while True:
-        choice = display_main_menu()
+        if SKIP_MAIN_MENU_TO_NEW_GAME:
+            choice = "new game"
+        else:
+            choice = display_main_menu()
 
         if choice == "exit":
             break
@@ -92,6 +94,16 @@ def main() -> None:
                     continue
                 if isinstance(loaded_state, dict):
                     state = loaded_state
+
+            if state["has_intro_played"] is False and not SKIP_INTRO:
+                state["is_gametime_paused"] = True
+                play_intro()
+                state["is_gametime_paused"] = False
+                state["has_intro_played"] = True
+
+            # if skipping intro make sure to not play it after value is toggled on the same save
+            if SKIP_INTRO:
+                state["has_intro_played"] = True
 
             # keep dispatching rooms until the player actually exits,
             # so main menu doesn't take over

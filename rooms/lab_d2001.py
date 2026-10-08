@@ -137,12 +137,13 @@ def enter_lab_d2001(state: dict) -> str:
         print("Available commands:")
         print("- ?                   : Show this help message.")
         print("- look around         : Examine the room for clues.")
-        print("- status              : Check your current status.")
         if not state["completed"]["labd2001"]:
             print("- start stacking      : Try stacking the boxes.")
             print("- reset               : Reset the puzzle to its initial state.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- quit                : Quit the game completely or exit a puzzle if in progress.")
+        print("- status              : Show current game status.")
+        print("- save                : Save the current game state.")
 
     def handle_go(destination: str) -> str | None:
         """

@@ -11,7 +11,7 @@ from time import sleep
 
 from art import text2art # type: ignore[import-untyped]
 from rich.console import Console
-from utilities.print_line import print_line
+from utilities.print_helpers import print_line
 
 PUZZLE_FINAL_TEXT = "PUZZLE!"
 QUIZ_FINAL_TEXT = "QUIZ!"
