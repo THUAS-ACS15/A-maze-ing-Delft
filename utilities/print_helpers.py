@@ -71,7 +71,7 @@ def print_current_objective(state: dict) -> None:
     """
     console = Console()
 
-    console.print(f"Current objective: ", style = "bold white", end = "")
+    console.print("Current objective: ", style = "bold white", end = "")
     console.print(objective_dialogue_bank[state["current_objective_id"]], style = "bold green")
 
 def print_line(

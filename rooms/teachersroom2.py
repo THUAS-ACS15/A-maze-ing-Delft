@@ -12,7 +12,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
-from utilities.print_helpers import print_dialogue, print_assembly_part_obtained
+from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -53,7 +53,7 @@ def enter_teachers_room2(state):
         clear_screen()
         print("You take a look around.")
         if not state["completed"]["teachersroom2"]:
-            print_dialogue(room_dialogue_bank["look_around"])
+            print_dialogue(look_around_dialogue_bank["teachersroom2"])
         else:
             print_dialogue(room_dialogue_bank["puzzle_already_complete"])
             if "Wi-Fi Credentials" not in state["inventory"]:
@@ -62,6 +62,8 @@ def enter_teachers_room2(state):
                 print("The desk is tidy now, you've already taken the credentials.")
         print("- Possible exits: lobby")
         print("- Your current inventory:", state["inventory"])
+        print()
+        print_current_objective(state)
 
     def handle_help():
         clear_screen()
