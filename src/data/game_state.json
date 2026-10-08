@@ -133,7 +133,7 @@
             "is_locked": null,
             "required_item": null,
             "exits": {"north": "project_room_1", "east": "project_room_2"},
-            "items": ["wifi_credentials"],
+            "items": ["wifi_credentials", "mega_phone"],
             "interactable": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
