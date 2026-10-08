@@ -18,7 +18,7 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.get_help import get_help
-from utilities.print_line import print_line
+from utilities.print_helpers import print_line
 from utilities.save_gui import display_save_menu
 
 room_commands = [

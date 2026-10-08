@@ -98,7 +98,7 @@ def display_top_bar(console: Console) -> None:
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
     console.print(f"{'█' * terminal_width}\n")
 
-def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo") -> None:
+def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to quit or \"?\" for help") -> None:
     """
     Updates the status bar with the current room, completion status, coin balance, and
     time played.

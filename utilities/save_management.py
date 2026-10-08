@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS general (
     save_slot INTEGER PRIMARY KEY,
     current_room TEXT NOT NULL,
     time_elapsed REAL NOT NULL,
+    has_intro_played INTEGER NOT NULL,
     coin_balance INTEGER NOT NULL,
+    current_objective_id INTEGER NOT NULL,
     student_id_obtained INTEGER NOT NULL,
     equinox_coins_claimed INTEGER NOT NULL
 );
@@ -158,15 +160,17 @@ def save_game(state: dict, slot: int) -> None:
         # Save the general game state
         cursor.execute("""
             INSERT OR REPLACE INTO general 
-            (save_slot, current_room, time_elapsed, coin_balance,
-            student_id_obtained, equinox_coins_claimed)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (save_slot, current_room, time_elapsed, has_intro_played,
+            coin_balance, current_objective_id, student_id_obtained, equinox_coins_claimed)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 slot,
                 state["current_room"],
                 state["time_elapsed"],
+                int(state["has_intro_played"]),
                 state["coin_balance"],
+                state["current_objective_id"],
                 int(state["student_id_obtained"]),
                 int(state["equinox_coins_claimed"]),
             ),
@@ -234,8 +238,8 @@ def load_save(slot: int) -> dict | None:
 
         # Get general state data
         cursor.execute(
-            "SELECT current_room, time_elapsed, coin_balance, "
-            "student_id_obtained, equinox_coins_claimed "
+            "SELECT current_room, time_elapsed, has_intro_played, "
+            "coin_balance, current_objective_id, student_id_obtained, equinox_coins_claimed "
             "FROM general WHERE save_slot = ?",
             (slot,),
         )
@@ -282,11 +286,13 @@ def load_save(slot: int) -> dict | None:
         reconstructed_state = {
             "current_room": general_info[0],
             "time_elapsed": general_info[1],
+            "has_intro_played": bool(general_info[2]),
             "start_time": time.time(),
             "is_gametime_paused": False,
-            "coin_balance": general_info[2],
-            "student_id_obtained": bool(general_info[3]),
-            "equinox_coins_claimed": bool(general_info[4]),
+            "coin_balance": general_info[3],
+            "current_objective_id": general_info[4],
+            "student_id_obtained": bool(general_info[5]),
+            "equinox_coins_claimed": bool(general_info[6]),
             "store_available_items": store_items,
             "completed": completed_rooms,
             "accessible": accessible_rooms,
