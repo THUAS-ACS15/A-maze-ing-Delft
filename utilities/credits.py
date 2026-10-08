@@ -13,28 +13,25 @@ from rich.console import Console
 from rich.align import Align
 
 CREDITS_LINES = [
-    "",
     "A-MAZE-ING DELFT",
     "",
-    "PROGRAMMING",
-
+    "PROGRAMMING & GAME DEVELOPERS",
     "Sadanand Pandit",
     "Leon Stanciu",
     "João Silva",
     "Gift Odigwe",
     "Dominik Knapek",
     "",
-    "GAME DEVELOPERS",
-    "Leon Stanciu",
-    "João Silva",
-    "Dominik Knapek",
-    "Gift Odigwe",
-    "Sadanand Pandit",
-     "",
+    "LECTURERS",
+    "Aram Rostamnejad Khatir",
+    "Glenn Abraas",
+    "Wesley van der Velde",
+    "Renee Tentori",
+    "Sam van Buuren",
+    "",
     "Made with Python",
     "",
-    "ACS Q1 - THUAS, Delft",
-    "",
+    "ACS Q1 - The Hague University of Applied Sciences, Delft, 2026",
     "",
     "Thanks for playing!"
 ]
@@ -64,5 +61,5 @@ def display_credits() -> None:
         sleep(0.4)
 
     # Escape the brackets so Rich displays the message instead of treating it as markup.
-    console.print(Align.center("\n\\[press enter to go back]"))
+    console.print(Align.center("\\[press enter to go back]"))
     input()

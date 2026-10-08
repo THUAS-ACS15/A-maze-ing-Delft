@@ -16,12 +16,16 @@ from rich.syntax import Syntax
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_menu
 from utilities.loader import loader
-from utilities.print_line import print_line
+from utilities.print_helpers import print_dialogue, print_line, print_current_objective, print_assembly_part_obtained
 from utilities.save_gui import display_save_menu
+
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 header_style = "bold green"
 
 items = ["computer", "paperclip", "note", "mug"]
+room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom4"]
 
 file_system_without_secret = dedent("""\
 .     [blue]just_another_folder[/]           
@@ -36,7 +40,7 @@ file_system_with_secret = dedent("""\
 room_commands = [
     (
         "look around",
-        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray " "area.",
+        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray area.",
     ),
     (
         "get comfortable",
@@ -65,6 +69,17 @@ commands = [
     "exit",
 ]
 
+computer_commands = [
+    (
+        "shutdown",
+        "Check the abandoned desk. The mug is off-limits—everything else is fair game.",
+    ),
+    (
+        "help/?",
+        "Need a hint? Here's the map. And no, you didn't need to ask the teacher.",
+    ),
+]
+
 position_commands = [
     (
         "stand up",
@@ -91,7 +106,7 @@ BLUE = "\033[34m"
 BOLD = "\033[1m"
 
 
-def _get_prompt(username: str = "username", hostname: str = "teacher4", path: str = "~") -> str:
+def get_prompt(username: str = "username", hostname: str = "teacher4", path: str = "~") -> str:
     # Top line: ┌──(username㉿hostname)-[path]
     top_line = f"{CYAN}┌──({BLUE}{username}㉿{hostname}{CYAN})-[{BOLD}{path}{RESET}" f"{CYAN}]{RESET}"
 
@@ -101,14 +116,15 @@ def _get_prompt(username: str = "username", hostname: str = "teacher4", path: st
     return f"{top_line}\n{bottom_line}"
 
 
-def _remaining_items(state: dict) -> list:
+def remaining_items(state: dict) -> list:
     """Items still on the desk (taken ones stay in the inventory)."""
     return [item for item in items if item not in state.get("inventory", [])]
 
 
-def _show_desk(console: Console, state: dict) -> None:
+def show_desk(console: Console, state: dict) -> None:
     """Show the desk contents in a panel."""
-    remaining = _remaining_items(state)
+    print_dialogue(look_around_dialogue_bank["teachersroom4"])
+    remaining = remaining_items(state)
     if remaining:
         console.print(
             Panel(
@@ -125,14 +141,13 @@ def _show_desk(console: Console, state: dict) -> None:
         )
 
 
-def _show_goodbye() -> None:
+def show_goodbye() -> None:
     """Splash shown when leaving the computer (shutdown or logout)."""
     clear_screen()
     message = text2art("Good bye!", font="univers", chr_ignore=True)
     print_line(message, delay=0.002)
     time.sleep(1)
     clear_screen()
-
 
 def enter_teachers_room4(state: dict) -> str:
     """Greet the player in Teachers Room 4 and send them back to the Lobby."""
@@ -142,11 +157,8 @@ def enter_teachers_room4(state: dict) -> str:
     # Display loading state
     loader(label="Loading teachers room...")
 
-    print_line("[cyan]You step into Teachers Room 4. 🎉[/]")
-    print_line("Plot twist: the teacher saw you coming and vanished faster than free pizza at " "a student event.")
-    print_line('A note on the desk reads: "Gone. Probably. Don\'t touch my mug. — The Teacher"')
-    print_line("No lessons, no questions — put your feet up and get comfortable. You earned " "this break. ☕")
-    state["previous_room"] = "teachersroom4"
+    print_dialogue(room_dialogue_bank["enter"])
+    state["current_room"] = "teachersroom4"
 
     choice = input(">")
     while choice not in ("leave", "exit"):
@@ -167,7 +179,7 @@ def enter_teachers_room4(state: dict) -> str:
                                 position_commands,
                             )
                         case "pick up":
-                            remaining = _remaining_items(state)
+                            remaining = remaining_items(state)
                             if not remaining:
                                 print_line("Nothing left but crumbs. Leave those too.")
                             else:
@@ -215,17 +227,7 @@ def enter_teachers_room4(state: dict) -> str:
                             time.sleep(1)
                             print_line(text="[bold green]NIXOS // teacher-pc[/]")
                             print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                            computer_commands = [
-                                (
-                                    "shutdown",
-                                    "Check the abandoned desk. The mug is off-limits—everything else is fair game.",
-                                ),
-                                (
-                                    "help/?",
-                                    "Need a hint? Here’s the map. And no, you didn’t need to ask the teacher.",
-                                ),
-                            ]
-                            computer = input(_get_prompt())
+                            computer = input(get_prompt())
                             while computer != "shutdown":
                                 match computer:
                                     case "?" | "help":
@@ -238,11 +240,8 @@ def enter_teachers_room4(state: dict) -> str:
                                     case "ls -a":
                                         print_line(file_system_with_secret)
                                     case "cat super_secret_file.txt":
-                                        code = """
-                                        # Congrats you completed this challenge!
-                                        """
                                         syntax_disp = Syntax(
-                                            code,
+                                            room_dialogue_bank["puzzle_take_api_and_prompt"],
                                             "python",
                                             theme="monokai",
                                             line_numbers=True,
@@ -251,9 +250,12 @@ def enter_teachers_room4(state: dict) -> str:
                                         time.sleep(0.4)
                                         console.print(syntax_disp)
                                         time.sleep(0.4)
-                                        if "super_secret_file.txt" not in state.get("inventory", []):
-                                            state.setdefault("inventory", []).append("super_secret_file.txt")
-                                            print_line("[yellow]New item added to inventory[/]")
+                                        if "Encrypted API & Prompt USB" not in state.get("inventory", []):
+                                            state["inventory"].append("Encrypted API & Prompt USB")
+                                            state["current_objective_id"] += 1
+                                            print_assembly_part_obtained("(+ Encrypted API & Prompt USB)")
+                                            print()
+                                            print_current_objective(state)
                                     case "clear":
                                         clear_screen()
                                     case _:
@@ -262,12 +264,12 @@ def enter_teachers_room4(state: dict) -> str:
                                 if computer != "shutdown":
                                     print_line("[bold green]NIXOS // teacher-pc[/]")
                                     print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                                    computer = input(_get_prompt())
-                            _show_goodbye()
+                                    computer = input(get_prompt())
+                            show_goodbye()
                             break
                         case "stand up":
                             break
             case "look around":
-                _show_desk(console, state)
-        choice = input(">")
-    return "labd2001"
+                show_desk(console, state)
+        choice = input("> ")
+    return "lobby"
