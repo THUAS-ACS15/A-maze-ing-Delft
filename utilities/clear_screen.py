@@ -11,7 +11,7 @@ import sys
 from utilities.status_bar import update_status_bar
 
 def clear_screen(
-        header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo", 
+        header_message: str = "stuck? use \"quit\" to quit or \"?\" for help", 
         run_status_bar_update: bool = True
     ) -> None:
     """

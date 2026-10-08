@@ -14,6 +14,10 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
+
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 rainbow_colors_correct = [
     "Red",
@@ -29,15 +33,15 @@ colors_on_projector = rainbow_colors_correct.copy()
 while colors_on_projector == rainbow_colors_correct:
     random.shuffle(colors_on_projector)
 
+valid_destinations = ["teachersroom2", "back"]
+room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom2"]
 
 def enter_project_room2(state: dict) -> str:
     """Starter function for the Project Room."""
 
     clear_screen()
-    print("🎨 You enter the Project Room.")
-    print("In the middle of the room stands an old projector, humming quietly.")
-    print("It projects 7 colored slides onto the wall, but they look completely out of order.")
-    print("Maybe you should take a closer look at the projector.")
+    print_dialogue(room_dialogue_bank["header"])
+    print_dialogue(room_dialogue_bank["enter"])
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -93,18 +97,15 @@ def enter_project_room2(state: dict) -> str:
         Outputs: NONE
         """
 
+        print_dialogue(look_around_dialogue_bank["projectroom2"])
         if not state["completed"]["projectroom2"]:
-            print("You take a closer look at the projector.")
-            print("The 7 slides show colors, but shuffled in a random order.")
-            print("It looks like they are meant to be arranged in the order of the rainbow.")
-            print("Maybe you should try swapping the slides around.")
+            print_dialogue(room_dialogue_bank["puzzle_not_complete"])
         else:
-            print("You've already arranged the colors correctly. There's nothing more for you to do.")
+            print_dialogue(room_dialogue_bank["puzzle_already_complete"])
         print("- Possible exits: lobby")
-        print(
-            "- Your current inventory:",
-            state["inventory"],
-        )
+        print("- Your current inventory:", state["inventory"])
+        print()
+        print_current_objective(state)
 
     def handle_help() -> None:
         """
@@ -139,10 +140,9 @@ def enter_project_room2(state: dict) -> str:
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
-        valid_destinations = ["teachersroom2", "back"]
 
         if destination in valid_destinations:
-            return "teachersroom2"
+            return destination
         else:
             print(f"❌ You can't go to '{destination}' from here.")
             return ""
@@ -192,13 +192,13 @@ def enter_project_room2(state: dict) -> str:
         # When loop exits, re-check if solve is valid and then set room as completed
         if color_puzzle_check():
             state["completed"]["projectroom2"] = True
+            state["inventory"].append("Makeshift Mic and Speaker Combo")
+            state["current_objective_id"] += 1
             clear_screen()
-            print("🌈 The slides light up in perfect rainbow order, congratulations!")
-            state["inventory"].append("Lab D2.003 Keycard")
-            print(
-                "💳 A small compartment on the projector opens, revealing a keycard labeled 'LAB D2.003'. You take it."
-            )
-            print("It looks like it could open the door to LAB D2.003 somewhere else in the building.")
+            print_dialogue(room_dialogue_bank["puzzle_completed"])
+            print_dialogue(room_dialogue_bank["puzzle_take_mic_and_speaker"], print_newline_after = False)
+            print_assembly_part_obtained("(+ Makeshift Mic and Speaker Combo)")
+            print_current_objective(state)
 
     # +--------------+
     # | Command loop |
@@ -227,18 +227,18 @@ def enter_project_room2(state: dict) -> str:
                 handle_puzzle_start()
             else:
                 clear_screen()
-                print("You've already completed the puzzle. There's nothing more to do here.")
+                print_dialogue(room_dialogue_bank["puzzle_already_complete"])
 
-        elif command in ["status", "check status",]:
+        elif command in ["status", "check status"]:
             clear_screen()
-            check_status(state, pause=True)
+            check_status(state, pause = True)
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
         elif command == "quit":
             clear_screen()
-            print("👋 You switch off the projector and close your eyes. Game over.")
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
 
         else:
