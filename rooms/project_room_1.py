@@ -5,10 +5,16 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
-"""Project Room 1: Professor Vance's locker room (Sensory Module, USB cable, TR4 keycard).
+"""Project Room 1: Professor Vance's locker room.
 
-Also holds the shared helpers and the room engine used by Front Desk, D2.015, D2.031 and D2.035,
-so that no extra utility files are needed."""
+HOW THIS FILE IS ORGANISED
+1. PART 1 (top): the Project Room 1 code. It is plain and self-contained: one function,
+   enter_project_room1(), with its own command loop and every dialogue line written as a print().
+2. PART 2 (bottom): TEMPORARY compatibility code. front_desk.py, classroom_d2015.py, classroom_d2031.py and
+   classroom_d2035.py still import say / ask / run_room from this file. Part 2 keeps them working so the
+   game does not crash. Once those four files are replaced with the standalone versions, delete Part 2
+   (everything below the "PART 2" banner) and the imports it needs (os, re, rich).
+"""
 
 import os
 import re
@@ -24,6 +30,214 @@ from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
 
+# =============================================================================
+# PART 1: PROJECT ROOM 1
+# =============================================================================
+
+class Locker(TypedDict):
+    """One locker: its BODMAS code (None = opens with the brass key), the coins inside and the item inside."""
+
+    code: int | None
+    coins: int
+    item: str | None
+
+
+LOCKERS: dict[str, Locker] = {
+    "1": {"code": 182, "coins": 50, "item": "Sensory Module"},
+    "2": {"code": None, "coins": 0, "item": "USB cable"},
+    "3": {"code": 24, "coins": 20, "item": "Teachers Room 4 Keycard"},
+    "4": {"code": 30, "coins": 30, "item": None},
+    "5": {"code": 46, "coins": 20, "item": None},
+}
+# Items that open the door: the key from Classroom D2.031 or a staff keycard.
+ENTRY_ITEMS = ["Classroom 2.021 key", "Level-1 Staff Keycard", "Level 1 Staff Keycard", "Teacher Access Keycard"]
+
+
+def enter_project_room1(state):
+    """Project Room 1: Professor Vance's locker room (Sensory Module, USB cable, Teachers Room 4 keycard)."""
+    key = "projectroom1"
+    state["completed"].setdefault(key, False)
+    loot = state.setdefault("room_loot", {}).setdefault(key, ["brass key"])  # items lying around the room
+    unlocked = state.setdefault("room_unlocked", {})  # which locked doors are already open
+    progress = state.setdefault("projectroom1_progress", {"opened": []})  # lockers that are already open
+
+    if state["completed"][key]:
+        clear_screen()
+        print("You have already completed this room. There is nothing else to do here.")
+        time.sleep(2)
+        return "lobby"
+
+    clear_screen()
+    print("You stand in front of Project Room 1.")
+    if not unlocked.get(key):
+        print("INVITATION ONLY. You need a key or staff keycard. (Try: use <item> on door)")
+    else:
+        print("A project room. Professor Vance stands at the front, capping a whiteboard marker.")
+        print("Five lockers line the back wall.")
+
+    def handle_look():
+        print("You take a look around.")
+        if not unlocked.get(key):
+            print("The door is shut.")
+        else:
+            print("Things you can inspect: whiteboard, desks, pile, vance, lockers")
+            if loot:
+                print("On the floor:", ", ".join(loot))
+        print("- Possible exits: lobby")
+        print("- Your current inventory:", state["inventory"])
+
+    def handle_help():
+        print("Available commands:")
+        print("- look around         : Describe the room.")
+        print("- inspect <object>    : Look closer (try the lockers).")
+        print("- take <item>         : Pick up an item.")
+        print("- use <item> on door  : Unlock the door with an item.")
+        print("- go lobby / back     : Leave the room.")
+        print("- status / save       : Show your status / open the save menu.")
+        print("- ?                   : Show this help message.")
+        print("- quit                : Quit the game entirely.")
+
+    def play_lockers():
+        # Type a locker number and its BODMAS code. Locker 2 needs the brass key instead of a code.
+        while len(progress["opened"]) < len(LOCKERS):
+            print("\nBack wall:")
+            for number in LOCKERS:
+                print(f"  Locker {number}: " + ("open" if number in progress["opened"] else "shut"))
+            choice = input("Which locker (1-5)? ('back' to step away) > ").strip().lower()
+            if choice == "back":
+                print("Vance calls after you: \"The lockers will still be here!\"")
+                return False
+            if choice not in LOCKERS:
+                print("There are only five lockers, numbered 1 to 5.")
+                continue
+            if choice in progress["opened"]:
+                print("That one is already open and empty.")
+                continue
+            locker = LOCKERS[choice]
+            if locker["code"] is None:
+                if "brass key" not in state["inventory"]:
+                    print("Locker 2 has an old brass padlock. The key must be in the pile in the corner.")
+                    continue
+                print("You try the brass key. Click, it turns.")
+            else:
+                code = input(f"Code for locker {choice} > ").strip()
+                if not code.isdigit() or int(code) != locker["code"]:
+                    print("BZZT. The keypad resets. BODMAS: do the multiplication BEFORE adding or subtracting.")
+                    continue
+                print(f"Click. Locker {choice} swings open.")
+            progress["opened"].append(choice)
+            if locker["coins"]:
+                state["coin_balance"] += locker["coins"]
+                print(f"Cash inside. (+{locker['coins']} coins)")
+            if locker["item"]:
+                state["inventory"].append(locker["item"])
+                print(f"You find: {locker['item']}. (Added to your inventory)")
+        print("All five lockers are open. Vance applauds, once. \"Now get out of my room.\"")
+        return True
+
+    def handle_inspect(obj):
+        if not unlocked.get(key):
+            print("The door is shut. Try 'use <item> on door'.")
+        elif obj == "whiteboard":
+            print("You step up to the whiteboard. Vance's handwriting is terrible.")
+            print('    "LOCKER 1:  2 + 6 * 30"')
+            print('    "LOCKER 3:  (2 + 6) * 3"')
+            print("Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then add/subtract.")
+            print("(Two more codes are written somewhere else in the room.)")
+        elif obj == "desks":
+            print("Between the rows of wooden desks, something is carved into desk #3:")
+            print('    "LOCKER 4:  50 - 5 * 4"')
+        elif obj == "pile":
+            print("A pile of broken desks and chairs. A sticker peels off a snapped chair:")
+            print('    "LOCKER 5:  2 ** 4 + 3 * 10"')
+            print("Something shiny is half buried in the pile (try 'look' and 'take').")
+        elif obj == "vance":
+            print("Vance: \"Five lockers, five combinations, every number is somewhere in this room.")
+            print("The USB cable and the keycard for the old Linux room are in there. Earn them.\"")
+        elif obj == "lockers":
+            if play_lockers():
+                state["completed"][key] = True
+            else:
+                print("No worries, inspect the lockers again whenever you like to continue.")
+        else:
+            print(f"There is no '{obj}' here.")
+
+    def handle_take(item):
+        for thing in loot:
+            if item and item in thing.lower():
+                loot.remove(thing)
+                state["inventory"].append(thing)
+                print(f"You took the {thing}.")
+                return
+        print(f"There is no '{item}' here to take.")
+
+    def handle_go(destination):
+        if destination in ["lobby", "back"]:
+            print("You leave Vance to his lockers and step back into the lobby.")
+            return "lobby"
+        print(f"You can't go to '{destination}' from here.")
+        return None
+
+    def handle_use(item, target):
+        owned = next((i for i in state["inventory"] if i.lower() == item), None)
+        if owned is None:
+            print(f"You don't have '{item}'.")
+        elif target == "door" and not unlocked.get(key) and owned in ENTRY_ITEMS:
+            unlocked[key] = True
+            print("Beep! The door clicks open.")
+        else:
+            print("Nothing happens.")
+
+    while True:
+        command = input("\n> ").lower().strip()
+
+        if command in ["look around", "look", "ls"]:
+            clear_screen()
+            handle_look()
+
+        elif command == "?":
+            clear_screen()
+            handle_help()
+
+        elif command.startswith("inspect "):
+            clear_screen()
+            handle_inspect(command[8:].strip())
+
+        elif command.startswith("take "):
+            clear_screen()
+            handle_take(command[5:].strip())
+
+        elif command.startswith("use ") and " on " in command:
+            clear_screen()
+            item, target = command[4:].split(" on ", 1)
+            handle_use(item.strip(), target.strip())
+
+        elif command.startswith("go "):
+            clear_screen()
+            result = handle_go(command[3:].strip())
+            if result:
+                return result
+
+        elif command in ["status", "check status"]:
+            clear_screen()
+            check_status(state, pause=True)
+
+        elif command in ["pause", "save"]:
+            display_save_menu(state)
+
+        elif command == "quit":
+            clear_screen()
+            print("You leave Project Room 1 and exit the maze.")
+            sys.exit()
+
+        else:
+            clear_screen()
+            print("Unknown command. Type '?' to see available commands.")
+
+
+# =============================================================================
+# PART 2: TEMPORARY COMPATIBILITY CODE (delete once the other four rooms are standalone)
+# =============================================================================
 # -----------------------------------------------------------------------------
 # Shared helpers + room engine (used by Front Desk, D2.015, D2.031, D2.035 and
 # this room). They live here so that no extra utility files are needed.
@@ -273,113 +487,3 @@ def run_room(state: dict, cfg: dict) -> str:
             sys.exit()
         else:
             say("[red]❓ Unknown command. Type '?' for help.[/]")
-
-
-# -----------------------------------------------------------------------------
-# Project Room 1 itself
-# -----------------------------------------------------------------------------
-# Five lockers on the back wall; every code is a BODMAS sum hidden in the room.
-#   1 -> Sensory Module (Camera & Mic) + coins    2 -> USB cable (needs the brass key, no code)
-#   3 -> keycard for Teachers Room 4 + coins      4 -> coins                   5 -> coins
-class Locker(TypedDict):
-    code: int | None
-    coins: int
-    item: str | None
-
-
-LOCKERS: dict[str, Locker] = {
-    "1": {"code": 182, "coins": 50, "item": "Sensory Module"},
-    "2": {"code": None, "coins": 0, "item": "USB cable"},
-    "3": {"code": 24, "coins": 20, "item": "Teachers Room 4 Keycard"},
-    "4": {"code": 30, "coins": 30, "item": None},
-    "5": {"code": 46, "coins": 20, "item": None},
-}
-# Items that open the Project Room 1 door (the key from D2.031 or a staff keycard).
-ENTRY_ITEMS = ["Classroom 2.021 key", "Level-1 Staff Keycard", "Level 1 Staff Keycard", "Teacher Access Keycard"]
-
-
-# Clue objects: inspecting these prints the maths code for a locker.
-def _board(state: dict) -> None:
-    say("[#ffd75f]You step up to the whiteboard. Vance's handwriting is terrible.[/]")
-    say('[#ffd75f]    "LOCKER 1:  2 + 6 * 30"\n    "LOCKER 3:  (2 + 6) * 3"[/]')
-    say("[dim]Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then add/subtract.[/]")
-    say("[dim](Two more codes are written somewhere else in the room.)[/]")
-
-
-def _desks(state: dict) -> None:
-    say("[#ffd75f]Between the rows of wooden desks, something is carved into desk #3:[/]")
-    say('[#ffd75f]    "LOCKER 4:  50 - 5 * 4"[/]')
-
-
-def _pile(state: dict) -> None:
-    say("[#ffd75f]A pile of broken desks and chairs. A sticker peels off a snapped chair:[/]")
-    say('[#ffd75f]    "LOCKER 5:  2 ** 4 + 3 * 10"[/]')
-    say("[dim]Something shiny is half buried in the pile (try 'look' and 'take').[/]")
-
-
-def _vance(state: dict) -> None:
-    say('[#87ff87]Vance: "Five lockers, five combinations, every number is somewhere in this room.[/]')
-    say('[#87ff87]The USB cable and the keycard for the old Linux room are in there. Earn them."[/]')
-
-
-# Mini game: type a locker number and its BODMAS code. Locker 2 needs the brass key instead of a code.
-# Progress is saved in state["projectroom1_progress"], so opened lockers stay open.
-def locker_game(state: dict) -> bool:
-    """Open the lockers with BODMAS codes. Finished when all five are open."""
-    prog = state.setdefault("projectroom1_progress", {"opened": []})
-    while len(prog["opened"]) < len(LOCKERS):
-        say("\n[bold]Back wall:[/]")
-        for n in LOCKERS:
-            say(f"  Locker {n}: " + ("🔓 open" if n in prog["opened"] else "🔒 shut"))
-        choice = ask("Which locker (1-5)? ('back' to step away) > ").strip().lower()
-        if choice == "back":
-            say('[dim]Vance calls after you: "The lockers will still be here!"[/]')
-            return False
-        if choice not in LOCKERS:
-            say("[#ffaf5f]There are only five lockers, numbered 1 to 5.[/]")
-            continue
-        if choice in prog["opened"]:
-            say("[dim]That one is already open and empty.[/]")
-            continue
-        locker = LOCKERS[choice]
-        if locker["code"] is None:  # locker 2 takes the brass key from the pile
-            if "brass key" not in state["inventory"]:
-                say("[#ffaf5f]Locker 2 has an old brass padlock. The key must be in the pile in the corner.[/]")
-                continue
-            say("[#87ff87]You try the brass key. Click, it turns.[/]")
-        else:
-            code = ask(f"Code for locker {choice} > ").strip()
-            if not code.isdigit() or int(code) != locker["code"]:
-                say("[#ffaf5f]BZZT. The keypad resets. BODMAS: do the multiplication BEFORE adding or subtracting.[/]")
-                continue
-            say(f"[#87ff87]Click. Locker {choice} swings open.[/]")
-        prog["opened"].append(choice)
-        if locker["coins"]:
-            state["coin_balance"] += locker["coins"]
-            say(f"[bold yellow]Cash inside. (+{locker['coins']} coins)[/]")
-        if locker["item"]:
-            state["inventory"].append(locker["item"])
-            say(f"[bold green]You find: {locker['item']}. (Added to your inventory)[/]")
-    say('[bold #87ff87]All five lockers are open. Vance applauds, once. "Now get out of my room."[/]')
-    return True
-
-
-# Entry point called by the dispatcher. Hands this room's description to run_room().
-def enter_project_room1(state: dict) -> str:
-    return run_room(state, {
-        "key": "projectroom1",
-        "title": "Project Room 1",
-        "emoji": "🔐",
-        "color": "#87ff87",
-        "intro": [
-            "[#87ff87]A project room. Professor Vance stands at the front, capping a whiteboard marker.[/]",
-            "[#87ff87]Five lockers line the back wall.[/]",
-        ],
-        "lock": {"items": ENTRY_ITEMS, "text": "INVITATION ONLY. You need a key or staff keycard. (use <item> on door)",
-                 "ok": "The door clicks open."},
-        "objects": {"whiteboard": _board, "desks": _desks, "pile": _pile, "vance": _vance, "lockers": ""},
-        "start_loot": ["brass key"],
-        "game": {"name": "VANCE'S LOCKERS", "object": "lockers", "play": locker_game},
-        "reward": [],
-        "loot_text": "",
-    })
