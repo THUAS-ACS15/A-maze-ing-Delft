@@ -67,7 +67,7 @@ def enter_room(room_name: str, state: dict):
         return "lobby"
 
     if room_name == "equinoxstudentsociety" and not state.get("student_id_obtained"):
-        print("❌ The door doesn't budge. It looks like you need to obtain a student ID " "to enter this room.")
+        print("❌ The door doesn't budge. It looks like you need to obtain a student ID to enter this room.")
         time.sleep(2.0)
         return "lobby"
 
