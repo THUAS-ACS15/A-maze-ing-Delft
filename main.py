@@ -42,20 +42,6 @@ state = {
         "classroomd2031": False,
         "classroomd2035": False,
     },
-    "accessible": {
-        "labd2001": False,
-        "store": False,
-        "projectroom1": False,
-        "projectroom2": False,
-        "teachersroom1": False,
-        "teachersroom2": False,
-        "teachersroom4": False,
-        "frontdesk": False,
-        "equinoxstudentsociety": False,
-        "classroomd2015": False,
-        "classroomd2031": False,
-        "classroomd2035": False,
-    },
     "inventory": [],
 }
 
