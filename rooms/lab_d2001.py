@@ -288,7 +288,7 @@ def enter_lab_d2001(state: dict) -> str:
 
         elif command == "assemble":
             result = handle_assembly_process(state)
-            if result == None:
+            if result is None:
                 clear_screen()
                 print("You have not yet gotten all of the components to assemble A.I.G.I.S. Keep going!")
                 continue
