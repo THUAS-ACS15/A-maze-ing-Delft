@@ -1,3 +1,5 @@
+import sys
+
 from rich.console import Console
 from rich.align import Align
 from rich.live import Live
@@ -7,8 +9,15 @@ import textwrap
 
 from utilities.clear_screen import clear_screen
 from utilities.status_bar import display_top_bar
+from utilities.scoreboard import add_scoreboard_entry
 
 from data.story_dialogue_bank import story_dialogue_bank
+
+GAME_COMPLETE_ART: str = """
+██▀██  ██▀██ ██▀██▀██ ██▀██      ██▀██ ██▀██ ██▀██▀██ ██▀██ ██    ██▀██ ▀██▀ ██▀██  █
+██ ▀▀  ██▄██ ██ ██ ██ ██▄        ██    ██ ██ ██ ██ ██ ██▄█▀ ██    ██▄    ██  ██▄    █
+█▓░██▀ █▓░█▓ █▓░█▓░█▓ █▓░▄▄      █▓░▄▄ █▓░█▓ █▓░█▓░█▓ █▓░   █▓░▄▄ █▓░▄▄  █▓░ █▓░▄▄  ▀
+▀▀▀▀▀  ▀▀ ▀▀ ▀▀    ▀▀ ▀▀▀▀▀      ▀▀▀▀▀ ▀▀▀▀▀ ▀▀    ▀▀ ▀▀    ▀▀▀▀▀ ▀▀▀▀▀  ▀▀  ▀▀▀▀▀  ▀"""
 
 def play_intro() -> None:
     """
@@ -46,5 +55,46 @@ def play_intro() -> None:
     console.print(Align.center("\n\n[bold gray]\\[press enter to continue][/bold gray]"))
     input()
 
-def play_game_complete() -> None:
-    pass
+def play_game_complete(state) -> None:
+    """
+    Plays the game complete cutscene and animatio
+    
+    This function creates a Rich console, clears the screen and prints the story
+    intro text in a typewriter effect. 
+    It waits for the player to press Enter before continuing with completing the game.
+    
+    Inputs: NONE
+    
+    Outputs: NONE
+    """
+    
+    console = Console()
+    clear_screen("", False)
+    display_top_bar(console)
+    print('\n' * 8)
+
+    intro_text = textwrap.fill(story_dialogue_bank["story_important_flags"]["game_complete"], width = 55)
+    delay = 0.025
+
+    displayed_text = ""
+    # streaming this centered text requires a Live context manager
+    # to update the console in real-time, we use 20fps for this
+    # and add the text that was already displayed to the new text, 
+    # so that it appears to be typed out
+    with Live(console = console, refresh_per_second = 20) as terminal:
+        for t in intro_text:
+            displayed_text += t
+            terminal.update(Align.center(displayed_text), refresh=True)
+            sleep(delay)
+
+    sleep(3)
+    console.print(Align.center("\n\n[bold gray]\\[press enter to continue][/bold gray]"))
+    input()
+
+    clear_screen("", False)
+    console.print("\n\n\n\n\n\n\n\n")
+    console.print(Align.center(GAME_COMPLETE_ART))
+    sleep(5)
+
+    add_scoreboard_entry(state["player_name"], state["time_elapsed"])
+    sys.exit()

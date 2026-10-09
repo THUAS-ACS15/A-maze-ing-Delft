@@ -13,69 +13,69 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue, print_current_objective
 
-# The name of this room in the game state (the dispatcher uses the same name).
-ROOM_KEY = "frontdesk"
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 
-# The map of the school floor, shown when the player inspects the map.
-FLOOR_MAP = """
-+--------------------------- NORTH (Julianalaan) ----------------------------+
-|            |            |       | Front Desk | Classroom | Classroom |     |
-|  LAB 2.001 |  LAB 2.003 |       |   Office   |   2.015   |   2.021   | T4  |
-|            |            |       +------------+-----------+-----------+-----|
-|            |            | Lobby        === E-W corridor ===          |     |
-|------------+------------+       +------------------------------------+-----|
-|                         |       | Teachers | T2 | Equinox | Proj | N-S |   |
-|                         |--|--| |  Room 1  |    | Society | Rm 3 | cor.|2.035|
-|                         |P1|P2| +-----------------------------------+-----|
-|                         |--|--|            Exit Passage                    |
-+-- EAST (Rotterdamseweg) ------- SOUTH (Main Stairs) ---- WEST (Leeghwater) -+
-"""
+room_loot: dict[str, str] = {}
+room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
+valid_destinations = ["lobby"]
 
-
-def prepare_state(state):
-    """Make sure the game state has every place this room needs."""
-    if ROOM_KEY not in state["completed"]:
-        state["completed"][ROOM_KEY] = False
-    if "room_loot" not in state:
-        state["room_loot"] = {}
-    if ROOM_KEY not in state["room_loot"]:
-        state["room_loot"][ROOM_KEY] = []
-
-
-def show_help():
+def handle_help():
     """Print the list of commands."""
     print("Available commands:")
     print("- look around         : Describe the room.")
     print("- inspect <object>    : Look closer (try the printer).")
     print("- take <item>         : Pick up an item.")
-    print("- go lobby / back     : Leave the room.")
+    print("- go [room]           : Leave the room.")
     print("- status / save       : Show your status / open the save menu.")
     print("- ?                   : Show this help message.")
     print("- quit                : Quit the game entirely.")
 
 
-def look_around(state):
+def handle_look(state):
     """Describe the room and what the player can do here."""
-    loot = state["room_loot"][ROOM_KEY]
-    print("You take a look around.")
+    loot = room_loot
+    print_dialogue(look_around_dialogue_bank["frontdesk"])
     print("Things you can inspect: counter, printer, logbook, map")
     if len(loot) > 0:
         print("In the printer tray:", ", ".join(loot))
-    if state["completed"][ROOM_KEY]:
+    if state["completed"]["frontdesk"]:
         print("You already have your Student ID card.")
     print("- Possible exits: lobby")
     print("- Your current inventory:", state["inventory"])
 
+def handle_go(destination: str) -> str | None:
+    """
+    Handles movement out of the room.
+
+    This function checks if the player can move to the given destination from this room.
+    If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
+    returns None.
+
+    Inputs:
+        - destination (str): The destination the player wants to go to.
+
+    Outputs:
+        - location (str): The destination if valid, None otherwise.
+    """
+ 
+    if destination in valid_destinations:
+        return destination
+    else:
+        print(f"❌ You can't go to '{destination}' from here.")
+        return ""
 
 def register(state):
     """The small quest: type a name and an 8 digit student number to print the ID card."""
-    print("The staff member looks up over his glasses. \"Why are you walking around without your ID card?\"")
-    print("\"Sit down, I'll print you a new one.\" (type 'cancel' to walk away)")
+    print_dialogue(room_dialogue_bank["register_intro"])
+    print_dialogue(room_dialogue_bank["register_prompt"])
 
     name = input("\"What's your name?\" > ").strip()
+    state["player_name"] = name
     if name.lower() == "cancel":
-        print("\"Fine, fine. Come back when you've got a minute.\"")
+        print_dialogue(room_dialogue_bank["register_cancel_name"])
         return
     if name == "":
         name = "Student"
@@ -85,7 +85,7 @@ def register(state):
     while True:
         number = input("\"And your 8-digit student number?\" > ").strip()
         if number.lower() == "cancel":
-            print("\"Suit yourself. The card will be waiting here.\"")
+            print_dialogue(room_dialogue_bank["register_cancel_number"])
             return
         if len(number) != 8:
             print("\"That's", len(number), "characters. A student number is exactly 8 digits long.\"")
@@ -96,38 +96,38 @@ def register(state):
 
     # The quest is done: remember it and put the card in the printer tray.
     state["student_id_obtained"] = True
-    state["completed"][ROOM_KEY] = True
-    state["room_loot"][ROOM_KEY].append("Student ID card")
-    print("The printer whirs. \"There you go,", state["player_name"] + ". Don't lose this one.\"")
-    print("He taps the lobby terminal: 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED'. \"The professor left it unfinished.")
-    print("Collect every part on this floor and assemble it in Lab D2.001.")
-    print("Doors are locked after hours, so every room needs something.\"")
-    print("\"Your ID opens the Student Society, by the way. Good luck.\"")
-    print("Your new Student ID card is waiting in the printer tray. Use 'take student id card' to pick it up.")
+    state["current_objective_id"] += 1
+    state["completed"]["frontdesk"] = True
+    room_loot.append("Student ID card")
+    print_dialogue(room_dialogue_bank["register_complete"], print_newline_after=False)
+    print_dialogue(state["player_name"] + ". " + room_dialogue_bank["register_story"])
+    print_dialogue(room_dialogue_bank["register_terminal"])
+    print_dialogue(room_dialogue_bank["register_collect"])
+    print_dialogue(room_dialogue_bank["register_doors"])
+    print_dialogue(room_dialogue_bank["register_society"])
+    print_dialogue(room_dialogue_bank["register_pickup"])
 
+    print_current_objective(state)
 
 def inspect_object(state, name):
     """Look closer at one object in the room."""
     if name == "printer":
-        if state["completed"][ROOM_KEY]:
-            print("You have already completed this room. There is nothing else to do here.")
+        if state["completed"]["frontdesk"]:
+            print_dialogue(room_dialogue_bank["inspect_completed"])
         else:
             register(state)
     elif name == "counter":
-        print("A sign: 'Lost your ID? Register here.' Inspect the printer to get a new Student ID card.")
+        print_dialogue(room_dialogue_bank["counter_sign"])
     elif name == "logbook":
-        print("Night guard's logbook: 'The professor left PROJECT A.I.G.I.S. unfinished.")
-        print("Doors lock themselves after hours.'")
-        print("'Every room wants something from another room. Talk to people, read the boards, trust no lock.'")
-    elif name == "map":
-        print(FLOOR_MAP)
+        print_dialogue(room_dialogue_bank["logbook_first"])
+        print_dialogue(room_dialogue_bank["logbook_second"])
+        print_dialogue(room_dialogue_bank["logbook_third"])
     else:
         print("There is no '" + name + "' here.")
 
-
 def take_item(state, item_name):
     """Move an item from the printer tray into the inventory."""
-    loot = state["room_loot"][ROOM_KEY]
+    loot = room_loot
     for thing in loot:
         if item_name != "" and item_name in thing.lower():
             loot.remove(thing)
@@ -136,15 +136,13 @@ def take_item(state, item_name):
             return  # stop right after removing, so the list is not changed while the loop runs
     print("There is no '" + item_name + "' here to take.")
 
-
 def enter_front_desk(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
-    prepare_state(state)
 
     clear_screen()
-    print("You walk up to the Front Desk Office.")
-    print("A staff member is hunched over a laptop behind a wide reception counter.")
-    print("A campus map is pinned to the wall and an old logbook lies open.")
+    print_dialogue(room_dialogue_bank["legacy_header"])
+    print_dialogue(room_dialogue_bank["legacy_enter"])
+    print_dialogue(room_dialogue_bank["legacy_enter_map"])
 
     # The main loop: read a command, do what it says, repeat.
     while True:
@@ -152,23 +150,27 @@ def enter_front_desk(state):
 
         if command == "look around" or command == "look" or command == "ls":
             clear_screen()
-            look_around(state)
+            handle_look(state)
+
         elif command == "?":
             clear_screen()
-            show_help()
+            handle_help()
+
         elif command.startswith("inspect "):
             clear_screen()
             inspect_object(state, command[8:].strip())
+
         elif command.startswith("take "):
             clear_screen()
             take_item(state, command[5:].strip())
+
         elif command.startswith("go "):
             clear_screen()
             destination = command[3:].strip()
-            if destination == "lobby" or destination == "back":
-                print("You nod at the staff member and step back into the lobby.")
-                return "lobby"
-            print("You can't go to '" + destination + "' from here.")
+            result = handle_go(destination)
+            if result:
+                return result
+
         elif command == "status" or command == "check status":
             clear_screen()
             check_status(state, pause=True)
@@ -176,7 +178,7 @@ def enter_front_desk(state):
             display_save_menu(state)
         elif command == "quit":
             clear_screen()
-            print("You leave the Front Desk and exit the maze.")
+            print_dialogue(room_dialogue_bank["quit_game"])
             sys.exit()
         else:
             clear_screen()

@@ -11,14 +11,14 @@
 # Rewards: Sensory Module, USB cable, Teachers Room 4 Keycard and some coins.
 
 import sys
-import time
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue
 
-# The name of this room in the game state (the dispatcher uses the same name).
-ROOM_KEY = "projectroom1"
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 # The five lockers. For each locker: its code, the coins inside and the item inside.
 # A code of 0 means the locker has no code. It opens with the brass key instead.
@@ -31,26 +31,9 @@ LOCKERS = {
     "5": {"code": 46, "coins": 20, "item": ""},
 }
 
-# The items that open the door.
-ENTRY_ITEMS = ["Classroom 2.021 key", "Level-1 Staff Keycard", "Level 1 Staff Keycard", "Teacher Access Keycard"]
-
-
-def prepare_state(state):
-    """Make sure the game state has every place this room needs."""
-    if ROOM_KEY not in state["completed"]:
-        state["completed"][ROOM_KEY] = False
-    if "room_loot" not in state:
-        state["room_loot"] = {}
-    if ROOM_KEY not in state["room_loot"]:
-        state["room_loot"][ROOM_KEY] = ["brass key"]
-    if "room_unlocked" not in state:
-        state["room_unlocked"] = {}
-    if ROOM_KEY not in state["room_unlocked"]:
-        state["room_unlocked"][ROOM_KEY] = False
-    if "projectroom1_progress" not in state:
-        # The list of lockers that are already open.
-        state["projectroom1_progress"] = {"opened": []}
-
+room_loot: dict[str, str] = {}
+valid_destinations = ["studentwing"]
+room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom1"]
 
 def show_help():
     """Print the list of commands."""
@@ -58,26 +41,19 @@ def show_help():
     print("- look around         : Describe the room.")
     print("- inspect <object>    : Look closer (try the lockers).")
     print("- take <item>         : Pick up an item.")
-    print("- use <item> on door  : Unlock the door with an item.")
     print("- go lobby / back     : Leave the room.")
     print("- status / save       : Show your status / open the save menu.")
     print("- ?                   : Show this help message.")
     print("- quit                : Quit the game entirely.")
 
-
 def look_around(state):
     """Describe the room and what the player can do here."""
-    loot = state["room_loot"][ROOM_KEY]
-    print("You take a look around.")
-    if not state["room_unlocked"][ROOM_KEY]:
-        print("The door is shut.")
-    else:
-        print("Things you can inspect: whiteboard, desks, pile, vance, lockers")
-        if len(loot) > 0:
-            print("On the floor:", ", ".join(loot))
+    loot = room_loot
+    print_dialogue(look_around_dialogue_bank["projectroom1"])
+    if len(loot) > 0:
+        print("On the floor:", ", ".join(loot))
     print("- Possible exits: lobby")
     print("- Your current inventory:", state["inventory"])
-
 
 def play_lockers(state):
     """The player opens lockers one by one. Returns True when all five are open."""
@@ -131,39 +107,56 @@ def play_lockers(state):
     print("All five lockers are open. Vance applauds, once. \"Now get out of my room.\"")
     return True
 
-
 def inspect_object(state, name):
     """Look closer at one object in the room."""
-    if not state["room_unlocked"][ROOM_KEY]:
-        print("The door is shut. Try 'use <item> on door'.")
-    elif name == "whiteboard":
-        print("You step up to the whiteboard. Vance's handwriting is terrible.")
+    if name == "whiteboard":
+        print_dialogue(room_dialogue_bank["whiteboard_intro"])
         print('    "LOCKER 1:  2 + 6 * 30"')
         print('    "LOCKER 3:  (2 + 6) * 3"')
-        print("Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then add/subtract.")
-        print("(Two more codes are written somewhere else in the room.)")
+        print_dialogue(room_dialogue_bank["whiteboard_bodmas"])
+        print_dialogue(room_dialogue_bank["whiteboard_more"])
     elif name == "desks":
-        print("Between the rows of wooden desks, something is carved into desk #3:")
+        print_dialogue(room_dialogue_bank["desks_intro"])
         print('    "LOCKER 4:  50 - 5 * 4"')
     elif name == "pile":
-        print("A pile of broken desks and chairs. A sticker peels off a snapped chair:")
+        print_dialogue(room_dialogue_bank["pile_intro"])
         print('    "LOCKER 5:  2 ** 4 + 3 * 10"')
-        print("Something shiny is half buried in the pile (try 'look' and 'take').")
+        print_dialogue(room_dialogue_bank["pile_hint"])
     elif name == "vance":
-        print("Vance: \"Five lockers, five combinations, every number is somewhere in this room.")
-        print("The USB cable and the keycard for the old Linux room are in there. Earn them.\"")
+        print_dialogue(room_dialogue_bank["vance_first"])
+        print_dialogue(room_dialogue_bank["vance_second"])
     elif name == "lockers":
         if play_lockers(state):
-            state["completed"][ROOM_KEY] = True
+            state["completed"]["projectroom1"] = True
         else:
             print("No worries, inspect the lockers again whenever you like to continue.")
     else:
         print("There is no '" + name + "' here.")
 
+def handle_go(destination: str) -> str:
+    """
+    Handles movement out of the room.
+
+    This function checks if the player can move to the given destination from this room.
+    If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
+    returns None.
+
+    Inputs:
+        - destination (str): The destination the player wants to go to.
+    
+    Outputs:
+        - location (str): The destination if valid, None otherwise.
+    """
+
+    if destination in valid_destinations:
+        return destination
+    else:
+        print(f"❌ You can't go to '{destination}' from here.")
+        return ""
 
 def take_item(state, item_name):
     """Move an item from the room into the inventory."""
-    loot = state["room_loot"][ROOM_KEY]
+    loot = room_loot["projectroom1"]
     for thing in loot:
         if item_name != "" and item_name in thing.lower():
             loot.remove(thing)
@@ -172,40 +165,12 @@ def take_item(state, item_name):
             return  # stop right after removing, so the list is not changed while the loop runs
     print("There is no '" + item_name + "' here to take.")
 
-
-def use_item(state, item_name, target):
-    """Use an item from the inventory. Only a key item on the door does something."""
-    owned = None
-    for thing in state["inventory"]:
-        if thing.lower() == item_name:
-            owned = thing
-    if owned is None:
-        print("You don't have '" + item_name + "'.")
-    elif target == "door" and not state["room_unlocked"][ROOM_KEY] and owned in ENTRY_ITEMS:
-        state["room_unlocked"][ROOM_KEY] = True
-        print("Beep! The door clicks open.")
-    else:
-        print("Nothing happens.")
-
-
 def enter_project_room1(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
-    prepare_state(state)
-
-    # Already finished? Then skip the room and say so.
-    if state["completed"][ROOM_KEY]:
-        clear_screen()
-        print("You have already completed this room. There is nothing else to do here.")
-        time.sleep(2)
-        return "lobby"
 
     clear_screen()
-    print("You stand in front of Project Room 1.")
-    if not state["room_unlocked"][ROOM_KEY]:
-        print("INVITATION ONLY. You need a key or staff keycard. (Try: use <item> on door)")
-    else:
-        print("A project room. Professor Vance stands at the front, capping a whiteboard marker.")
-        print("Five lockers line the back wall.")
+    print_dialogue(room_dialogue_bank["enter"])
+    print_dialogue(room_dialogue_bank["lockers"])
 
     # The main loop: read a command, do what it says, repeat.
     while True:
@@ -223,10 +188,6 @@ def enter_project_room1(state):
         elif command.startswith("take "):
             clear_screen()
             take_item(state, command[5:].strip())
-        elif command.startswith("use ") and " on " in command:
-            clear_screen()
-            parts = command[4:].split(" on ")
-            use_item(state, parts[0].strip(), parts[1].strip())
         elif command.startswith("go "):
             clear_screen()
             destination = command[3:].strip()
@@ -241,7 +202,7 @@ def enter_project_room1(state):
             display_save_menu(state)
         elif command == "quit":
             clear_screen()
-            print("You leave Project Room 1 and exit the maze.")
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
         else:
             clear_screen()
