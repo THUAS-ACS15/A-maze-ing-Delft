@@ -18,6 +18,7 @@ from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 from utilities.print_helpers import print_dialogue
 
+valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
 
 def enter_teachers_room1(state: dict) -> str:
@@ -51,6 +52,7 @@ def enter_teachers_room1(state: dict) -> str:
                 print("You already have the keycard in your backpack.")
             else:
                 state["coin_balance"] += 10
+                state["current_objective_id"] += 1
                 clear_screen()
                 print_dialogue(room_dialogue_bank["puzzle_take_keycard"])
                 state["inventory"].append("Staff Keycard")
@@ -58,11 +60,11 @@ def enter_teachers_room1(state: dict) -> str:
             print(f"There is no '{item}' here to take.")
 
     def handle_go(destination):
-        if destination in ["corridor", "back"]:
-            return "lobby"
+        if destination in valid_destinations:
+            return destination
         else:
             print(f"You can't go to '{destination}' from here.")
-            return None
+            return ""
 
     def handle_answer(answer):
         if state["completed"]["teachersroom1"]:

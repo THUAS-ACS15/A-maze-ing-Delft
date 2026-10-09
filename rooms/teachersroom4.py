@@ -272,4 +272,4 @@ def enter_teachers_room4(state: dict) -> str:
             case "look around":
                 show_desk(console, state)
         choice = input("> ")
-    return "lobby"
+    return "eastcorridor"

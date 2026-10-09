@@ -17,6 +17,7 @@ from utilities.print_helpers import print_dialogue, print_assembly_part_obtained
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
 
+valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom2"]
 
 DATABASES = """
@@ -94,11 +95,11 @@ def enter_teachers_room2(state):
             print(f"There is no '{item}' here to take.")
 
     def handle_go(destination):
-        if destination in ["lobby", "back"]:
-            return "lobby"
+        if destination in valid_destinations:
+            return destination
         else:
             print(f"You can't go to '{destination}' from here.")
-            return None
+            return ""
 
     def handle_answer(answer):
         if state["completed"]["teachersroom2"]:

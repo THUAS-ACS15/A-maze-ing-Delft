@@ -27,7 +27,11 @@ room_fancy_names = {
     "frontdesk": "🛎️ Front Desk",
     "equinoxstudentsociety": "📚 Equinox Student Society",
     "classroomd2015": "🤖 Classroom D2.015",
-    "classroomd2035": "📚 Classroom D2.035",
+    "classroomd2031": "🤖 Classroom D2.031",
+    "classroomd2035": "🤖 Classroom D2.035",
+    "eastcorridor": "🚪 East Corridor",
+    "teachingarea": "🚪 Teaching Area",
+    "studentwing": "🚪 Student Wing",
 }
 
 def calculate_time_played(start_time: float, time_elapsed: float, is_pause: bool) -> str:
@@ -124,8 +128,8 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
     time_played = calculate_time_played(state["start_time"], state["time_elapsed"], state["is_gametime_paused"])
     exploration_percent = get_exploration_percent(state)
 
-    # Starting / ending rooms don't have challenges, so display a special message for them
-    if current_room in ["lobby"]:
+    # Lobby and the corridors don't have challenges, so display a special message for them
+    if current_room in ["lobby", "eastcorridor", "teachingarea", "studentwing"]:
         room_completion = "⭐ Special Room"
     # If the room is a challenge room, display whether the room is marked as completed in the state dict
     else:
