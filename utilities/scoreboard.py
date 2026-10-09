@@ -7,13 +7,13 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 import sqlite3
-import msvcrt
 
 from rich.align import Align
 from rich.console import Console, Group
 from rich.table import Table
 
 from utilities.status_bar import display_top_bar
+from utilities.main_menu import read_key
 
 SCOREBOARD_TITLE_ART: str = """
 ██▀██ ██▀██ ██▀██ ██▀██ ██▀██ ██▀█▄ ██▀██ ██▀██ ██▀██ ██▀█▄
@@ -69,7 +69,13 @@ def display_scoreboard() -> None:
     """
     Displays the scoreboard on the screen, in increments of 10 entries.
 
-    The  
+    The scoreboard is displayed in a table format, with the player's name and time elapsed. 
+    The player can navigate through the pages using the arrow keys for prev/next page.
+    Pressing 'enter' will exit and return to main menu.
+    
+    Inputs: NONE
+
+    Outputs: NONE
     """
     recreate_scoreboard_table()
     entries = get_scoreboard_entries()
@@ -77,54 +83,6 @@ def display_scoreboard() -> None:
     console = Console()
     page = 0
     page_count = max(1, (len(entries) + 9) // 10)
-
-    def _read_key() -> str | bytes:
-        '''Read input continuously from keyboard so scroll left-right is possible.'''
-        import os
-        import sys
-
-        # If on windows, msvcrt can continously capture input automatically
-        # so we can just check if the char is a two-byte sequence
-        # the second char K is for < and M is for >
-        if os.name == "nt":
-            win_key = msvcrt.getch() # type: ignore[attr-defined]
-            if win_key in (b"\x00", b"\xe0"):
-                char = msvcrt.getch() # type: ignore[attr-defined]
-                if char == b"K":
-                    return "<"
-                elif char == b"M":
-                    return ">"
-                else:
-                    return ""
-            return win_key.decode(errors = "ignore")
-
-        # MacOS / Linux imports termios to get continuous input
-        # set terminal to one-char-at-a-time mode, read one char
-        # when stopped, restore initial settings of stdin
-        else:
-            import termios
-            import tty
-            stdin = sys.stdin.fileno()
-            get_attributes = termios.tcgetattr  # type: ignore[attr-defined]
-            set_attributes = termios.tcsetattr  # type: ignore[attr-defined]
-            drain = termios.TCSADRAIN  # type: ignore[attr-defined]
-            set_cbreak = tty.setcbreak  # type: ignore[attr-defined]
-            settings = get_attributes(stdin)
-            try:
-                set_cbreak(stdin)
-                posix_key: str = sys.stdin.read(1)
-                # if it starts with an escape char, check last 2 if they're C or D for left/right arrow keys
-                if posix_key == "\x1b":
-                    sequence = sys.stdin.read(2)
-                    if sequence == "[D":
-                        return "<"
-                    elif sequence == "[C":
-                        return ">"
-                    else:
-                        return posix_key
-            finally:
-                set_attributes(stdin, drain, settings)
-        return ""
 
     while True:
         table = Table(title = "ordered by time played (lowest to highest)\n\n\n\n", width = 50)
@@ -151,16 +109,16 @@ def display_scoreboard() -> None:
                     Align.center(SCOREBOARD_TITLE_ART),
                     Align.center(table),
                     "\n\n\n",
-                    Align.center(f"< Back | Page {page + 1}/{page_count}, use q to go back | Next >"),
+                    Align.center(f"^ Previous | Page {page + 1}/{page_count}, use enter to go back | Next v"),
                 ),
                 vertical = "middle",
             )
         )
 
-        key = _read_key().lower()
-        if key == "q":
+        key = read_key().lower()
+        if key == "enter":
             break
-        if key in ("<", "a"):
+        if key == "up":
             page = max(0, page - 1)
-        elif key in (">", "d"):
+        elif key == "down":
             page = min(page_count - 1, page + 1)
