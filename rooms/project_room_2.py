@@ -33,7 +33,7 @@ colors_on_projector = rainbow_colors_correct.copy()
 while colors_on_projector == rainbow_colors_correct:
     random.shuffle(colors_on_projector)
 
-valid_destinations = ["teachersroom2", "back"]
+valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom2"]
 
 def enter_project_room2(state: dict) -> str:

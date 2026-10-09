@@ -18,7 +18,8 @@ from utilities.story_animations import play_intro
 from debug_settings import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
 
 state = {
-    "current_room": "lobby",
+    "player_name": "",
+    "current_room": "labd2001",
     "time_elapsed": 0.0,
     "start_time": time.time(),
     "has_intro_played": False,
