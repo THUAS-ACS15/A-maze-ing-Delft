@@ -13,20 +13,39 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+
+from utilities.story_animations import play_game_complete
 
 # Vars used in puzzle
 available_boxes = [5, 95, 47, 53, 10, 90]
 
 platforms:  list[list[int]]  = [[], [], []]
 
+valid_destinations = ["studentwing"]
+room_dialogue_bank = story_dialogue_bank["rooms"]["labd2001"]
+
 def enter_lab_d2001(state: dict) -> str:
     """Starter function for Lab D2.001."""
 
     clear_screen()
-    print("🧪 You enter Lab D2.001.")
-    print("This room has some tables, filled with electronics equipment and cables on top.")
-    print("You notice a table with some chairs, filled with sandwiches and drinks.")
-    print("The rest of the room is filled with construction tools, unopened boxes and materials.")
+    print_dialogue(room_dialogue_bank["header"])
+    print_dialogue(room_dialogue_bank["enter"])
+    print_dialogue(room_dialogue_bank["enter_food"])
+    print_dialogue(room_dialogue_bank["enter_tools"])
+
+    # +--------------------+
+    # | Workbench handlers |
+    # +--------------------+
+
+    def check_all_assembly_obtained(state: dict):
+        return state["current_objective_id"] >= 8
+
+    def handle_assembly_process(state: dict):
+        if check_all_assembly_obtained(state):
+            return play_game_complete(state)
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -114,12 +133,7 @@ def enter_lab_d2001(state: dict) -> str:
         Outputs: NONE
         """
     
-        print("You take a quick look around, and conclude that this is a work-in-progress construction project.")
-        print("Beside the tables with lab equipment and the one corner with sandwiches and drinks,")
-        print("the rest of the room is filled with construction tools, unopened boxes and materials.")
-        print("Judging by the amount of sandwiches, these contractors were quite clearly Dutch.")
-        print("You are most curious about all the unopened boxes, and wonder what could be inside them.")
-        print("Maybe you could overload the boxes onto the platforms, and see if they open up & reveal their contents.")
+        print_dialogue(look_around_dialogue_bank["labd2001"])
         print("- Possible exits: lobby")
         print(f"- Your current inventory: {state['inventory']}")
 
@@ -140,6 +154,8 @@ def enter_lab_d2001(state: dict) -> str:
         if not state["completed"]["labd2001"]:
             print("- start stacking      : Try stacking the boxes.")
             print("- reset               : Reset the puzzle to its initial state.")
+        if state["current_objective_id"] >= 8:
+            print("- assemble            : Assemble A.I.G.I.S.")
         print("- go lobby / back     : Leave the room and return to the corridor.")
         print("- quit                : Quit the game completely or exit a puzzle if in progress.")
         print("- status              : Show current game status.")
@@ -159,12 +175,11 @@ def enter_lab_d2001(state: dict) -> str:
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
-        valid_destinations = ["projectroom2", "teachersroom1", "teachersroom4"]
         if destination in valid_destinations:
             return destination
         else:
             print(f"❌ You can't go to '{destination}' from here.")
-            return None
+            return ""
 
     def handle_puzzle_start() -> None:
         """
@@ -191,8 +206,8 @@ def enter_lab_d2001(state: dict) -> str:
                 box = input("\nChoose a box > ").strip().lower()
                 if box == "quit":
                     clear_screen()
-                    print("You decide to step away from the platforms and boxes for now.")
-                    print("Maybe you'll come back later.")
+                    print_dialogue(room_dialogue_bank["puzzle_quit"])
+                    print_dialogue(room_dialogue_bank["puzzle_return"])
                     break
                 if box == "reset":
                     box_puzzle_reset()
@@ -210,10 +225,7 @@ def enter_lab_d2001(state: dict) -> str:
                     platform = input("\nChoose a platform > ").strip().lower()
                     if platform == "quit":
                         clear_screen()
-                        print(
-                            "You decide to step away from the platforms and boxes for "
-                            "now. Maybe you'll come back later."
-                        )
+                        print_dialogue(room_dialogue_bank["puzzle_quit"] + " " + room_dialogue_bank["puzzle_return"])
                         break
                     if platform == "reset":
                         box_puzzle_reset()
@@ -240,11 +252,10 @@ def enter_lab_d2001(state: dict) -> str:
         if box_puzzle_check():
             state["completed"]["labd2001"] = True
             state["coin_balance"] += 10
-            state["inventory"].append("Teacher Access Keycard")
             clear_screen()
-            print("Looks like you stacked the boxes correctly, congratulations!")
-            print('You hear a loud "click" sound, and one of the boxes falls open.')
-            print("Inside, you find some coins, which you pick up. (+10 coins)")
+            print_dialogue(room_dialogue_bank["puzzle_complete"])
+            print_dialogue(room_dialogue_bank["puzzle_click"])
+            print_dialogue(room_dialogue_bank["puzzle_coins"])
 
     # +--------------+
     # | Command loop |
@@ -273,7 +284,14 @@ def enter_lab_d2001(state: dict) -> str:
                 handle_puzzle_start()
             else:
                 clear_screen()
-                print("You've already forced the boxes open. There's nothing more to do here.")
+                print_dialogue(room_dialogue_bank["already_complete"])
+
+        elif command == "assemble":
+            result = handle_assembly_process(state)
+            if result == None:
+                clear_screen()
+                print("You have not yet gotten all of the components to assemble A.I.G.I.S. Keep going!")
+                continue
 
         elif command == "reset":
             if not state["completed"]["labd2001"]:
@@ -281,7 +299,7 @@ def enter_lab_d2001(state: dict) -> str:
                 box_puzzle_reset()
             else:
                 clear_screen()
-                print("You've already forced the boxes open. There's nothing more to do here.")
+                print_dialogue(room_dialogue_bank["already_complete"])
 
         elif command in ["status", "check status"]:
             clear_screen()
@@ -292,7 +310,7 @@ def enter_lab_d2001(state: dict) -> str:
 
         elif command == "quit":
             clear_screen()
-            print("👋 You sit on one of the chairs in the Lab and close your eyes. Game over.")
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
 
         else:
