@@ -19,7 +19,13 @@ from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.get_help import get_help
 from utilities.print_helpers import print_line
+from utilities.print_helpers import print_dialogue
 from utilities.save_gui import display_save_menu
+from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+
+valid_destinations = ["studentwing"]
+room_dialogue_bank = story_dialogue_bank["rooms"]["equinoxstudentsociety"]
 
 room_commands = [
     (
@@ -66,9 +72,9 @@ def enter_equinox_student_society(state: dict) -> str:
     """Starter function for the Equinox Student Society room."""
 
     clear_screen()
-    print("📚 You scan your student ID on the doorknob and enter the Equinox Student Society room.")
-    print("The room is well-lit and organized, with a few tables and chairs arranged neatly.")
-    print("A computer is set up on an office table, and a small shelf holds some books and board games.")
+    print_dialogue(room_dialogue_bank["header"])
+    print_dialogue(room_dialogue_bank["enter"])
+    print_dialogue(room_dialogue_bank["enter_computer_desc"])
 
     # +------------------+
     # | Command handlers |
@@ -87,11 +93,7 @@ def enter_equinox_student_society(state: dict) -> str:
         Outputs: NONE
         """
 
-        print("  You look around and can only describe a really organized room. The center has a")
-        print(" table with 3 chairs, and an opened board game box on it.")
-        print("  The left corner has a usual office desk with a computer on it. The office chair")
-        print(" looks very comfortable, like newly bought.")
-        print(" The right corner has a small shelf with some books and a few board game boxes in it.")
+        print_dialogue(look_around_dialogue_bank["equinoxstudentsociety"])
         if not state["completed"]["equinoxstudentsociety"]:
             print("\n You take a close look at the table, and notice")
             print("that there is a small statue of a dragon on it. It seems to be guarding some treasure!")
@@ -124,10 +126,9 @@ def enter_equinox_student_society(state: dict) -> str:
         Outputs:
             - location (str): The destination if valid, None otherwise.
         """
-        valid_destinations = ["lobby", "back"]
 
         if destination in valid_destinations:
-            return "lobby"
+            return destination
         else:
             print(f"❌ You can't go to '{destination}' from here.")
             return None
@@ -150,8 +151,8 @@ def enter_equinox_student_society(state: dict) -> str:
         """
 
         if state["completed"]["equinoxstudentsociety"]:
-            print("The computer has shut down after you finished the quiz.")
-            print("You can't seem to be able to get it to boot up again, so you decide to leave it alone.")
+            print_dialogue(room_dialogue_bank["quiz_shutdown"])
+            print_dialogue(room_dialogue_bank["quiz_no_boot"])
             return
 
         clear_screen("use \"start\" to start or \"quit\" to stop")
@@ -173,7 +174,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         if command == "quit":
             clear_screen()
-            print("You step away from the computer.")
+            print_dialogue(room_dialogue_bank["step_away"])
             return
 
         clear_screen("use \"start\" to start or \"quit\" to stop")
@@ -204,7 +205,7 @@ def enter_equinox_student_society(state: dict) -> str:
             console.print(f"[bold green]Quiz complete. {score}/{len(quiz_questions)} correct.[/]")
             if score == len(quiz_questions):
                 console.print("[bold green]Congratulations! You answered all questions correctly![/]")
-            print("For your efforts, you receive a certificate of completion!")
+            print_dialogue(room_dialogue_bank["certificate"])
             state["completed"]["equinoxstudentsociety"] = True
             state["inventory"].append("Quiz certificate")
 
@@ -241,7 +242,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "quit":
             clear_screen()
-            print("👋 You decide to try your hand at the Dungeons and Dragons game, and lose track of time. Game over.")
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
 
         else:
