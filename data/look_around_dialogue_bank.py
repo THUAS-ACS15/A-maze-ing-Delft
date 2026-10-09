@@ -48,4 +48,25 @@ into a colorful area, where the walls are filled with posters & drawn
 designs, and the chairs of the conference table each have their own style,
 probably based on the student that sat on them. The table has just a projector
 sitting on it, whirring and displaying something.""",
+
+    "equinoxstudentsociety": """  You look around and can only describe a really organized room. The center has a
+ table with 3 chairs, and an opened board game box on it.
+  The left corner has a usual office desk with a computer on it. The office chair
+ looks very comfortable, like newly bought.
+ The right corner has a small shelf with some books and a few board game boxes in it.""",
+
+    "labd2001": """You take a quick look around, and conclude that this is a work-in-progress construction project.
+Beside the tables with lab equipment and the one corner with sandwiches and drinks,
+the rest of the room is filled with construction tools, unopened boxes and materials.
+Judging by the amount of sandwiches, these contractors were quite clearly Dutch.
+You are most curious about all the unopened boxes, and wonder what could be inside them.
+Maybe you could overload the boxes onto the platforms, and see if they open up & reveal their contents.""",
+
+    "classroomd2015": "Things you can inspect: bins, workbench, rover, track",
+    "classroomd2031": "Things you can inspect: board, monitors, keybox",
+    "classroomd2035": "Things you can inspect: desks, lecturer, podium",
+    "projectroom1": "Things you can inspect: whiteboard, desks, pile, vance, lockers",
+    "eastcorridor": "You look around the East Corridor.",
+    "teachingarea": "You look around the Teaching Area.",
+    "studentwing": "You look around the Student Wing.",
 }

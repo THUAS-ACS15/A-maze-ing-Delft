@@ -13,6 +13,10 @@ from random import choice
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.print_helpers import print_dialogue
+from data.story_dialogue_bank import story_dialogue_bank
+
+room_dialogue_bank = story_dialogue_bank["rooms"]["store"]
 
 # This dict matches item name to price, so as not to neeed saving in db
 item_prices = {
@@ -55,16 +59,16 @@ def check_store_completion(state: dict) -> None:
     if len(state["store_available_items"]) == 0 and not state["completed"]["store"]:
         state["completed"]["store"] = True
         clear_screen()
-        print("Looks like you've bought everything in the store. Congratulations!")
+        print_dialogue(room_dialogue_bank["completed"])
 
 
 def enter_store(state: dict) -> str:
     """Starter function for the store."""
 
     clear_screen()
-    print("🏪 You enter the store.")
-    print("You find some interesting items placed randomly around it.")
-    print("Maybe you should check it out.")
+    print_dialogue(room_dialogue_bank["enter"])
+    print_dialogue(room_dialogue_bank["enter_detail"])
+    print_dialogue(room_dialogue_bank["enter_prompt"])
 
     # +------------------+
     # | Command handlers |
@@ -83,13 +87,13 @@ def enter_store(state: dict) -> str:
         Outputs: NONE
         """
         if not state["completed"]["store"]:
-            print("You take a closer look at the items in the store.")
-            print("It seems like there's some interesting items here.")
-            print("You see the following items:")
+            print_dialogue(room_dialogue_bank["look_intro"])
+            print_dialogue(room_dialogue_bank["look_detail"])
+            print_dialogue(room_dialogue_bank["look_items"])
             for item in get_available_items(state):
                 print(f"  - {item[0]} for €{item[1]}")
         else:
-            print("You've already bought everything useful in the store. You should probably explore elsewhere.")
+            print_dialogue(room_dialogue_bank["look_done"])
         print("- Possible exits: lobby")
         print(
             "- Your current inventory:",
@@ -134,7 +138,7 @@ def enter_store(state: dict) -> str:
         valid_destinations = ["lobby", "back"]
 
         if destination in valid_destinations:
-            print("You decide to leave the store and return to the lobby.")
+            print_dialogue(room_dialogue_bank["leave"])
             return "lobby"
         else:
             print(f"❌ You can't go to '{destination}' from here.")
@@ -232,7 +236,7 @@ def enter_store(state: dict) -> str:
         
         elif command == "quit":
             clear_screen()
-            print("👋 You leave the store and close your eyes. Game over.")
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
 
         else:
