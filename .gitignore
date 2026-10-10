@@ -7,3 +7,4 @@
 *.pyc
 saves.db
 scoreboard.db
+debug.py

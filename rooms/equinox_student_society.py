@@ -71,6 +71,8 @@ quiz_questions: list[tuple[str, dict[str, str], str]] = [
 def enter_equinox_student_society(state: dict) -> str:
     """Starter function for the Equinox Student Society room."""
 
+    state["previous_room"] = "equinoxstudentsociety"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])

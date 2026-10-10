@@ -30,6 +30,8 @@ room_dialogue_bank = story_dialogue_bank["rooms"]["labd2001"]
 def enter_lab_d2001(state: dict) -> str:
     """Starter function for Lab D2.001."""
 
+    state["previous_room"] = "labd2001"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
@@ -134,7 +136,7 @@ def enter_lab_d2001(state: dict) -> str:
         """
     
         print_dialogue(look_around_dialogue_bank["labd2001"])
-        print(f"- Possible exits: {", ".join(valid_destinations)}")
+        print(f"- Possible exits: {', '.join(valid_destinations)}")
         print(f"- Your current inventory: {state['inventory']}")
 
     def handle_help() -> None:
