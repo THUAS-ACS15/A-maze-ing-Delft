@@ -65,6 +65,8 @@ def check_store_completion(state: dict) -> None:
 def enter_store(state: dict) -> str:
     """Starter function for the store."""
 
+    state["previous_room"] = "store"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_detail"])

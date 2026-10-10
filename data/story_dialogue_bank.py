@@ -49,8 +49,6 @@ Congratulations! You have completed the game and escaped the school building!"""
                 "tell you that they don't know much, but you could learn more by asking one of the "
                 "teachers. You can find some of their rooms on the E-W corridor."
             ),
-            "legacy_header": "You walk up to the Front Desk Office.",
-            "legacy_enter": "A staff member is hunched over a laptop behind a wide reception counter.",
             "register_intro": "The staff member looks up over his glasses. \"Why are you walking around without your ID card?\"",
             "register_prompt": "\"Sit down, I'll print you a new one.\" (type 'cancel' to walk away)",
             "register_cancel_name": "\"Fine, fine. Come back when you've got a minute.\"",
@@ -82,17 +80,18 @@ Congratulations! You have completed the game and escaped the school building!"""
                 "should use to check that?\""
             ),
             "puzzle_answer_correct": (
-                "The teacher's eyes light up: \"n % 2 — of course! Thank you!\"",
-                "The teacher points to a keycard on the table and tells you take it, as a reward for your help."
+                "The teacher's eyes light up: \"n % 2 — of course! Thank you!\" "
+                "The teacher points to a keycard on the table and tells you to take it, as a reward for your help."
             ),
-            "puzzle_answer_incorrect": "The teacher shakes their head: \"Not quite.\"",
-            "puzzle_already_complete": "The teacher grins: \"That fix worked perfectly, thanks again!\"",
+            "puzzle_answer_incorrect": "The teacher shakes their head: \"Not quite.\" ",
+            "puzzle_already_complete": "The teacher grins: \"That fix worked perfectly, thanks again!\" ",
             "puzzle_take_keycard": (
-                "You pick up the keycard. It looks to be a staff keycard, which will"
+                "You pick up the keycard. It looks to be a staff keycard, which will "
+                "allow you to enter some restricted areas. "
                 "After taking it, you notice something shiny in the corner of your eye. "
                 "You look closer and realize you found some shiny coins, and the teacher "
                 "allows you to take them (+10 coins). "
-                "The teacher also asks you to check out the second teacher's room, as they might have "
+                "The teacher also asks you to check out the second teacher's room, as it might have "
                 "another piece of the code you need to complete A.I.G.I.S."
             ),
             "quit": "👋 You leave the teacher alone and go somewhere else."

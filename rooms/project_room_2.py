@@ -39,6 +39,8 @@ room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom2"]
 def enter_project_room2(state: dict) -> str:
     """Starter function for the Project Room."""
 
+    state["previous_room"] = "projectroom2"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])

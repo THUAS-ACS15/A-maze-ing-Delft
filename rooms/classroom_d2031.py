@@ -23,13 +23,14 @@ from data.look_around_dialogue_bank import look_around_dialogue_bank
 SHIFT = 3
 SECRET_WORD = "sesame"
 
-room_loot: dict[str, str] = {}
+room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2031"]
 
 def enter_classroom_d2031(state):
-
     """Called by the dispatcher. Runs the room until the player leaves."""
+
+    state["previous_room"] = "classroomd2031"
 
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])

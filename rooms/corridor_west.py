@@ -23,6 +23,8 @@ room_dialogue_bank = story_dialogue_bank["rooms"]["studentwing"]
 def enter_student_wing(state: dict) -> str:
     """Starter function for the Student Wing corridor"""
 
+    state["previous_room"] = "studentwing"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])

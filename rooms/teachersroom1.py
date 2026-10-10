@@ -22,6 +22,10 @@ valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
 
 def enter_teachers_room1(state: dict) -> str:
+    """Starter function for Teachers Room 1."""
+
+    state["previous_room"] = "teachersroom1"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"], print_newline_after = False)

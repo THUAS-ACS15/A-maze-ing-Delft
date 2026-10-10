@@ -18,7 +18,7 @@ from utilities.print_helpers import print_dialogue, print_current_objective
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
 
-room_loot: dict[str, str] = {}
+room_loot: list[str] = []
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
 valid_destinations = ["lobby"]
 
@@ -139,10 +139,11 @@ def take_item(state, item_name):
 def enter_front_desk(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
 
+    state["previous_room"] = "frontdesk"
+
     clear_screen()
-    print_dialogue(room_dialogue_bank["legacy_header"])
-    print_dialogue(room_dialogue_bank["legacy_enter"])
-    print_dialogue(room_dialogue_bank["legacy_enter_map"])
+    print_dialogue(room_dialogue_bank["header"])
+    print_dialogue(room_dialogue_bank["enter"])
 
     # The main loop: read a command, do what it says, repeat.
     while True:

@@ -46,6 +46,10 @@ Enrollments table:
 """
 
 def enter_teachers_room2(state):
+    """Starter function for Teachers Room 2."""
+
+    state["previous_room"] = "teachersroom2"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
