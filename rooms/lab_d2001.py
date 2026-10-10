@@ -134,7 +134,7 @@ def enter_lab_d2001(state: dict) -> str:
         """
     
         print_dialogue(look_around_dialogue_bank["labd2001"])
-        print("- Possible exits: lobby")
+        print(f"- Possible exits: {", ".join(valid_destinations)}")
         print(f"- Your current inventory: {state['inventory']}")
 
     def handle_help() -> None:
