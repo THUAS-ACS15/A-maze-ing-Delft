@@ -34,7 +34,7 @@ def enter_teachers_room1(state: dict) -> str:
         print_dialogue(look_around_dialogue_bank["teachersroom1"])
         if not state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_not_complete"])
-        print("- Possible exits: corridor")
+        print(f"- Possible exits: {','.join(valid_destinations)}")
         print("- Your current inventory:", state["inventory"])
 
     def handle_help():
