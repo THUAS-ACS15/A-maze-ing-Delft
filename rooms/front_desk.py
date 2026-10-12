@@ -40,7 +40,7 @@ def handle_look(state):
     print_dialogue(look_around_dialogue_bank["frontdesk"])
     print("Things you can inspect: counter, printer, logbook, map")
     if len(loot) > 0:
-        print("In the printer tray:", ", ".join(loot))
+        print("you already collect this one :", ", ".join(loot))
     if state["completed"]["frontdesk"]:
         print("You already have your Student ID card.")
     print("- Possible exits: lobby")
