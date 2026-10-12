@@ -29,13 +29,16 @@ FINAL_DIGITS = "7 3"
 # The item that opens the door.
 DOOR_ITEM = "D2.015 timetable"
 
-room_loot: dict[str, str] = {}
+room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2015"]
 
 def enter_classroom_d2015(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
 
+    state["previous_room"] = "classroomd2015"
+    
+    clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_bins"])

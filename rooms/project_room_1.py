@@ -31,7 +31,7 @@ LOCKERS = {
     "5": {"code": 46, "coins": 20, "item": ""},
 }
 
-room_loot: dict[str, str] = {}
+room_loot: list[str] = []
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom1"]
 

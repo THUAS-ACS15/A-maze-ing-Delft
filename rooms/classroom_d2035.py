@@ -23,13 +23,15 @@ SEATING_ANSWER = ["ana", "chloe", "dev", "ben"]
 SEQUENCE = [2, 6, 12, 20, 30]
 SEQUENCE_ANSWER = 42
 
-room_loot: dict[str, str] = {}
+room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2035"]
 
 def enter_classroom_d2035(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
-    
+
+    state["previous_room"] = "classroomd2035"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])

@@ -60,7 +60,7 @@ ROOM_REQUIREMENTS = {
 
     # corridors are unlocked when the lowest-level room connected to them is unlocked
     "eastcorridor": (2, "The East Corridor seems to be blocked off for now. You should look elsewhere."),
-    "studentwing": (5, "The East Corridor seems to be blocked off for now. You should look elsewhere."),
+    "studentwing": (5, "The Student Wing seems to be blocked off for now. You should look elsewhere."),
     "teachingarea": (6, "The Teaching Area is currently closed off. You should look elsewhere."),
 
     # individual rooms and their requirements
@@ -111,12 +111,14 @@ def enter_room(room_name: str, state: dict):
             if min_objective is None:
                 print(f"\n{reject_message}")
                 time.sleep(1.5)
-                return state.get("current_room", "lobby")
+                state["current_room"] = state["previous_room"]
+                return state["current_room"]
 
             # check if player's objective ID is too low
             if current_objective_id < min_objective:
                 print(f"\n❌ {reject_message}")
                 time.sleep(1.5)
-                return state.get("current_room", "lobby")
+                state["current_room"] = state["previous_room"]
+                return state["current_room"]
     
     return handler(state)
