@@ -18,10 +18,13 @@ from utilities.save_gui import display_save_menu
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
-available_rooms = ["frontdesk", "teachersroom1"]
+available_rooms = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
 
 def enter_lobby(state):
     """Starter function for the Lobby room."""
+
+    state["previous_room"] = "lobby"
+
     clear_screen()
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
@@ -47,11 +50,12 @@ def enter_lobby(state):
             print_assembly_part_obtained("(+ Robot Chassis Frame)")
             state["current_objective_id"] += 1
             state["inventory"].append("Robot Chassis Frame")
-            print()
-            print_current_objective(state)
+
         
         print(f"- Possible doors: {', '.join(available_rooms)}")
         print(f"- Your inventory: {state['inventory']}")
+        print()
+        print_current_objective(state)
 
     def handle_help():
         """
@@ -85,7 +89,6 @@ def enter_lobby(state):
         clear_screen()
 
         if room_name in available_rooms:
-            state["current_room"] = "lobby"
             return room_name
         else:
             print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")

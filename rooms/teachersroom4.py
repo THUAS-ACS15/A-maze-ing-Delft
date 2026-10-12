@@ -151,6 +151,9 @@ def show_goodbye() -> None:
 
 def enter_teachers_room4(state: dict) -> str:
     """Greet the player in Teachers Room 4 and send them back to the Lobby."""
+
+    state["previous_room"] = "teachersroom4"
+    
     clear_screen()
     console = Console(legacy_windows=False)
 
