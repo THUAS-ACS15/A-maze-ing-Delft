@@ -32,10 +32,14 @@ def clear_screen(
     if main_module is None:
         raise RuntimeError("Error: the __main__ module is unavailable!")
     state: dict = main_module.state
+    try:
+       from rich.console import Console
 
-    if os.getenv("PYCHARM_HOSTED"):
-        print("\n" * 50)  # fallback for PyCharm
-    else:
-        os.system("cls" if os.name == "nt" else "clear")
-    if run_status_bar_update:
-        update_status_bar(state, header_message)
+       Console().clear()
+    except ModuleNotFoundError:
+        if os.getenv("PYCHARM_HOSTED"):
+            print("\n" * 50)  # fallback for PyCharm
+        else:
+            os.system("cls" if os.name == "nt" else "clear")
+        if run_status_bar_update:
+            update_status_bar(state, header_message)

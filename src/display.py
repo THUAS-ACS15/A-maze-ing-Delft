@@ -3,29 +3,10 @@ from typing import Any
 
 from rich.console import Console
 from rich.text import Text
+from .colors import Colors
 
 
-class Colors:
-    BLACK = "\033[30m"
-    RED = "\033[31m"
-    DIM = "\033[2m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    WHITE = "\033[37m"
 
-    # High-Intensity Colors
-    BRIGHT_RED = "\033[91m"
-    BRIGHT_GREEN = "\033[92m"
-    BRIGHT_YELLOW = "\033[93m"
-    BRIGHT_BLUE = "\033[94m"
-    BRIGHT_MAGENTA = "\033[95m"
-    BRIGHT_CYAN = "\033[96m"
-    BRIGHT_WHITE = "\033[97m"
-
-    BOLD = "\033[1m"
 
 class DisplayManager:
     def __init__(self, enable_colors: bool = True, terminal_width: int = 80):
@@ -35,7 +16,8 @@ class DisplayManager:
     def colorize(self, text: str, color_code: str) -> str:
         return f"{color_code}{text}\033[0m" if self.enable_colors else text
 
-    def _safe(self, text: str) -> str:
+    @staticmethod
+    def _safe(text: str) -> str:
         table = str.maketrans({"─": "-", "═": "=", "•": "*", "→": "->", "←": "<-"})
         text = text.translate(table)
         try:
@@ -52,13 +34,14 @@ class DisplayManager:
     def draw_line(self, char: str = "-") -> None:
         self._out(self.colorize(char * self.terminal_width, "\033[2m"))
 
-    def clear(self) -> None:
+    @staticmethod
+    def clear() -> None:
         """Clear the terminal screen (Windows/posix/PyCharm-safe)."""
         try:
             from rich.console import Console
 
             Console().clear()
-        except Exception:
+        except ImportError:
             import os
 
             if os.getenv("PYCHARM_HOSTED"):
