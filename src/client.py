@@ -20,6 +20,10 @@ Your core traits:
 4. Assist the player in completing system diagnostic tasks and securing facility control.
 """
 
+def aiwork(arg1, arg2=0, arg3=0, arg4=0):
+    return arg1, arg2
+
+aiwork(arg1=3000)
 
 class AIClient:
     """Handles connection, prompt management, and streaming response generation."""
@@ -170,7 +174,7 @@ if __name__ == "__main__":
     print("=== MOCK AI CLIENT STREAM TEST ===")
     prompt = "Give me a status report."
     print(f"User: {prompt}")
-    print("A-maze-ing-Delft > ", end="", flush=True)
+    print(">>>", end="", flush=True)
     for token in client.stream_response(prompt):
         print(token, end="", flush=True)
     print("\n")
