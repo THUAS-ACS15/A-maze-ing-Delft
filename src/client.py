@@ -20,11 +20,6 @@ Your core traits:
 4. Assist the player in completing system diagnostic tasks and securing facility control.
 """
 
-def aiwork(arg1, arg2=0, arg3=0, arg4=0):
-    return arg1, arg2
-
-aiwork(arg1=3000)
-
 class AIClient:
     """Handles connection, prompt management, and streaming response generation."""
 
@@ -52,12 +47,12 @@ class AIClient:
             from google import genai  # type: ignore[import-not-found]
             self.client = genai.Client(api_key=self.api_key)
             self.provider = "google"
-        except ImportError:
+        except ModuleNotFoundError:
             try:
                 import openai  # type: ignore[import-not-found]
                 self.client = openai.OpenAI(api_key=self.api_key)
                 self.provider = "openai"
-            except ImportError:
+            except ModuleNotFoundError:
                 print(
                     "[!] Warning: Neither google-genai nor openai Python package installed. Defaulting to mock mode."
                     )
