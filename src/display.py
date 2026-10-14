@@ -17,7 +17,7 @@ class DisplayManager:
         return f"{color_code}{text}\033[0m" if self.enable_colors else text
 
     @staticmethod
-    def _safe(self, text: str) -> str:
+    def _safe(text: str) -> str:
         table = str.maketrans({"─": "-", "═": "=", "•": "*", "→": "->", "←": "<-"})
         text = text.translate(table)
         try:
@@ -35,7 +35,7 @@ class DisplayManager:
         self._out(self.colorize(char * self.terminal_width, "\033[2m"))
 
     @staticmethod
-    def clear(self) -> None:
+    def clear() -> None:
         """Clear the terminal screen (Windows/posix/PyCharm-safe)."""
         try:
             from rich.console import Console
