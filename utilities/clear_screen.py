@@ -36,7 +36,7 @@ def clear_screen(
        from rich.console import Console
 
        Console().clear()
-    except:
+    except ModuleNotFoundError:
         if os.getenv("PYCHARM_HOSTED"):
             print("\n" * 50)  # fallback for PyCharm
         else:
