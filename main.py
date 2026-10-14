@@ -16,6 +16,7 @@ from utilities.credits import display_credits
 from utilities.story_animations import play_intro
 
 from debug import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
+from install_dependencies import check_dependencies
 
 state = {
     "player_name": "",
@@ -61,6 +62,9 @@ def main() -> None:
     Outputs: NONE
     """
     global state
+
+    # check dependencies before start
+    check_dependencies()
 
     while True:
         if SKIP_MAIN_MENU_TO_NEW_GAME:
