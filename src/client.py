@@ -20,6 +20,7 @@ Your core traits:
 4. Assist the player in completing system diagnostic tasks and securing facility control.
 """
 
+
 class AIClient:
     """Handles connection, prompt management, and streaming response generation."""
 
@@ -47,12 +48,12 @@ class AIClient:
             from google import genai  # type: ignore[import-not-found]
             self.client = genai.Client(api_key=self.api_key)
             self.provider = "google"
-        except ModuleNotFoundError:
+        except ImportError:
             try:
                 import openai  # type: ignore[import-not-found]
                 self.client = openai.OpenAI(api_key=self.api_key)
                 self.provider = "openai"
-            except ModuleNotFoundError:
+            except ImportError:
                 print(
                     "[!] Warning: Neither google-genai nor openai Python package installed. Defaulting to mock mode."
                     )
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     print("=== MOCK AI CLIENT STREAM TEST ===")
     prompt = "Give me a status report."
     print(f"User: {prompt}")
-    print(">>>", end="", flush=True)
+    print("A-maze-ing-Delft > ", end="", flush=True)
     for token in client.stream_response(prompt):
         print(token, end="", flush=True)
     print("\n")
