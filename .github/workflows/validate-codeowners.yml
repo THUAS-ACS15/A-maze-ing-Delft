@@ -15,6 +15,8 @@ jobs:
 
       - name: Validate CODEOWNERS
         uses: mszostok/codeowners-validator@v0.7.4
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
         with:
           github_access_token: ${{ secrets.ORG_READ_TOKEN }}
           # Checks that assigned owners and teams actually exist in GitHub
