@@ -26,7 +26,7 @@ The main exit is blocked by a 4-digit combination lock.
 A blinking message on a terminal in the lobby reveals an unfinished robotics project: 'Project A.I.G.I.S.'.
 If you can gather the missing hardware across the school and assemble it, its LLM core might know the exit code.""",
 
-        "game_finish": """You assemble A.I.G.I.S. and it whirs to life. The LLM core starts speaking before you do.
+        "game_complete": """You assemble A.I.G.I.S. and it whirs to life. The LLM core starts speaking before you do.
 "Looks like you need to exit, you look tired. The exit code is 2628. Yes, it is the postal code of the building, maybe
 you should have tried to guess that. Anyway, now you're out!" You punch the code into the lock and it opens. You're finally free!
 Congratulations! You have completed the game and escaped the school building!"""

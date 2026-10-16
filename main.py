@@ -13,7 +13,7 @@ from utilities.save_gui import display_load_menu
 from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
-from utilities.story_animations import play_intro
+from utilities.story_animations import play_intro, play_game_complete
 
 from debug import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
 from install_dependencies import check_dependencies
@@ -86,7 +86,8 @@ def main() -> None:
                     continue
                 if isinstance(loaded_state, dict):
                     state = loaded_state
-
+            play_game_complete(state)
+            
             if state["has_intro_played"] is False and not SKIP_INTRO:
                 state["is_gametime_paused"] = True
                 play_intro()
