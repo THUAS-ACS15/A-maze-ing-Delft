@@ -17,7 +17,17 @@ def check_dependencies():
     import subprocess
     import platform
     from importlib.metadata import PackageNotFoundError, distribution
-    from packaging.requirements import Requirement
+
+    try:
+        from packaging.requirements import Requirement
+    except ModuleNotFoundError:
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'packaging'])
+            from packaging.requirements import Requirement
+        except Exception:
+            print('Error: the "packaging" dependency is missing. please run')
+            print(f'"{sys.executable}" -m pip install packaging')
+            return
 
     # if system packages are frozen, we're running inside a bundled exe and can skip dependency checks
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
