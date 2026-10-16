@@ -29,13 +29,6 @@ CREATE TABLE IF NOT EXISTS room_completed_status (
     PRIMARY KEY (save_slot, room_name)
 );
 
-CREATE TABLE IF NOT EXISTS room_accessible_status (
-    save_slot INTEGER NOT NULL,
-    room_name TEXT NOT NULL,
-    is_accessible INTEGER NOT NULL,
-    PRIMARY KEY (save_slot, room_name)
-);
-
 CREATE TABLE IF NOT EXISTS inventory (
     save_slot INTEGER NOT NULL,
     item TEXT NOT NULL,
@@ -144,6 +137,8 @@ def save_game(state: dict, slot: int) -> None:
     Inputs:
         - slot: The save slot number (1, 2, or 3).
         - state: The current game state dictionary.
+    
+    Outputs: NONE
     """
     if not isinstance(state, dict):
         raise TypeError(
@@ -186,16 +181,6 @@ def save_game(state: dict, slot: int) -> None:
                 (slot, room_name, int(is_complete)),
         )
 
-        # Save room accessible status
-        for room_name, is_accessible in state["accessible"].items():
-            cursor.execute("""
-                INSERT OR REPLACE INTO room_accessible_status 
-                (save_slot, room_name, is_accessible)
-                VALUES (?, ?, ?)
-                """,
-                (slot, room_name, int(is_accessible)),
-        )
-        
         # Save inventory
         for item in state["inventory"]:
             cursor.execute("""
@@ -258,15 +243,6 @@ def load_save(slot: int) -> dict | None:
 
         completed_rooms = {row[0]: bool(row[1]) for row in cursor.fetchall()}
 
-        # Get accessible rooms
-        cursor.execute(
-            "SELECT room_name, is_accessible FROM room_accessible_status "
-            "WHERE save_slot = ?",
-            (slot,),
-        )
-
-        accessible_rooms = {row[0]: bool(row[1]) for row in cursor.fetchall()}
-
         # Get inventory
         cursor.execute(
             "SELECT item FROM inventory WHERE save_slot = ?",
@@ -295,7 +271,6 @@ def load_save(slot: int) -> dict | None:
             "equinox_coins_claimed": bool(general_info[6]),
             "store_available_items": store_items,
             "completed": completed_rooms,
-            "accessible": accessible_rooms,
             "inventory": inventory_items,
         }
 
