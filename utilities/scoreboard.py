@@ -23,7 +23,9 @@ SCOREBOARD_TITLE_ART: str = """
 
 SCOREBOARD_DB_STRUCTURE = """
 CREATE TABLE IF NOT EXISTS scoreboard (
-    player_name TEXT PRIMARY KEY NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_name TEXT NOT NULL,
+    exploration_percent REAL NOT NULL,
     time_elapsed REAL NOT NULL
 );
 """
@@ -51,18 +53,23 @@ def recreate_scoreboard_table() -> None:
 
 def get_scoreboard_entries() -> list[tuple]:
     """
-    Fetches all entries from the scoreboard table, sorted by time elapsed in ascending order.
+    Fetches all entries from the scoreboard table, sorted by exploration percentage
+    descending and time elapsed ascending.
     """
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
-        cursor.execute("SELECT player_name, time_elapsed FROM scoreboard ORDER BY time_elapsed ASC")
+        cursor.execute(
+            "SELECT player_name, exploration_percent, time_elapsed "
+            "FROM scoreboard ORDER BY exploration_percent DESC, time_elapsed ASC"
+        )
         return cursor.fetchall()
 
-def add_scoreboard_entry(player_name: str, time_elapsed: float) -> None:
+def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elapsed: float) -> None:
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
-        cursor.execute("INSERT OR REPLACE INTO scoreboard (player_name, time_elapsed) VALUES (?, ?)", 
-        (player_name, time_elapsed))
+        cursor.execute("INSERT OR REPLACE INTO scoreboard (player_name, exploration_percent, time_elapsed) VALUES \
+                       (?, ?, ?)", 
+        (player_name, exploration_percent, time_elapsed))
         db.commit()
 
 def display_scoreboard() -> None:
@@ -85,19 +92,26 @@ def display_scoreboard() -> None:
     page_count = max(1, (len(entries) + 9) // 10)
 
     while True:
-        table = Table(title = "ordered by time played (lowest to highest)\n\n\n\n", width = 50)
+        table = Table(title = "ordered by exploration percent, then time played\n\n\n\n", width = 80)
 
         # If entries exist display them from start
         if len(entries) > 0:
-            table.add_column("Place", justify="right", width=5)
+            table.add_column(Align.center("Place"), width=5)
             table.add_column(Align.center("Player name"), width=20)
+            table.add_column(Align.center("Explored %"), width=20)
             table.add_column(Align.center("Time elapsed"), width=20)
 
             start = page * 10
             for place, entry in enumerate(entries[start:start + 10], start=start + 1):
                 # Get special style if #1 to #3
                 style = {1: "bold yellow", 2: "bold white", 3: "bold red"}.get(place)
-                table.add_row(str(place), entry[0], _format_time_played(entry[1]), style=style)
+                table.add_row(
+                    str(place),
+                    entry[0],
+                    f"{entry[1]}%",
+                    _format_time_played(entry[2]),
+                    style=style,
+                )
         else:
             table.add_column(Align.center("No entries yet."), width = 20)
 
