@@ -92,11 +92,11 @@ def display_scoreboard() -> None:
     page_count = max(1, (len(entries) + 9) // 10)
 
     while True:
-        table = Table(title = "ordered by exploration percent, then time played\n\n\n\n", width = 50)
+        table = Table(title = "ordered by exploration percent, then time played\n\n\n\n", width = 80)
 
         # If entries exist display them from start
         if len(entries) > 0:
-            table.add_column("Place", justify="right", width=5)
+            table.add_column(Align.center("Place"), width=5)
             table.add_column(Align.center("Player name"), width=20)
             table.add_column(Align.center("Explored %"), width=20)
             table.add_column(Align.center("Time elapsed"), width=20)

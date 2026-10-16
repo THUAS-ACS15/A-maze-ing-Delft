@@ -9,8 +9,9 @@ from time import sleep
 import textwrap
 
 from utilities.clear_screen import clear_screen
-from utilities.status_bar import display_top_bar
+from utilities.status_bar import display_top_bar, get_exploration_percent
 from utilities.main_menu import read_key
+from utilities.scoreboard import add_scoreboard_entry
 
 from data.story_dialogue_bank import story_dialogue_bank
 
@@ -89,7 +90,7 @@ def play_game_complete(state) -> None:
     Outputs: NONE
     """
     # menu options for choosing to save to scoreboard
-    MENU_OPTIONS = ["Yes, save to scoreboard", "No, don't save to scoreboard"]
+    menu_options = ["Yes, save to scoreboard", "No, don't save to scoreboard"]
     
     console = Console()
     clear_screen("", False)
@@ -150,7 +151,7 @@ def play_game_complete(state) -> None:
         console.print(Align.center("\n[italic][use up/down to select][/italic]"))
 
         # render the menu options with the current selection highlighted
-        for index, option in enumerate(MENU_OPTIONS):
+        for index, option in enumerate(menu_options):
             prefix = "> " if index == selected_index else "  "
             suffix = " <" if index == selected_index else "  "
 
@@ -165,10 +166,22 @@ def play_game_complete(state) -> None:
         key = read_key()
 
         if key == "up":
-            selected_index = (selected_index - 1) % len(MENU_OPTIONS)
+            selected_index = (selected_index - 1) % len(menu_options)
             render_menu()
         elif key == "down":
-            selected_index = (selected_index + 1) % len(MENU_OPTIONS)
+            selected_index = (selected_index + 1) % len(menu_options)
             render_menu()
         elif key == "enter":
-            return MENU_OPTIONS[selected_index].lower()
+            if selected_index == 0:
+                add_scoreboard_entry(
+                    state["player_name"],
+                    get_exploration_percent(state),
+                    state["time_elapsed"],
+                )
+                console.print(Align.center("\n\n[bold green]Your completion was saved![/bold green]"))
+                sleep(2)
+                break
+            elif selected_index == 1:
+                console.print(Align.center("\n\n[bold red]Your completion was not saved.[/bold red]"))
+                sleep(2)
+                break
