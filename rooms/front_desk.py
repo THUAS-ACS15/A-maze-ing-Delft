@@ -122,6 +122,28 @@ def inspect_object(state, name):
         print_dialogue(room_dialogue_bank["logbook_first"])
         print_dialogue(room_dialogue_bank["logbook_second"])
         print_dialogue(room_dialogue_bank["logbook_third"])
+    elif name == "map":
+        print("""
+        +----------------------------------------------- NORTH (Julianalaan) ------------------------------------------------+
+        |                 |                 |             |                  |                  |                  |         |
+        |    LAB 2.001    |    LAB 2.003    |             |    Front Desk    |    Classroom     |    Classroom     |         |
+        |                 |                 |             |      Office      |      2.015       |      2.021       |   T4    |
+        |                 |                 |             |                  |                  |                  |         |
+        |                 |                 |             +------------------+------------------+------------------+---------|
+        |                 |                 |                                                                      |         |
+        |                 |                 |    Lobby                 === E-W Corridor ===                        |         |
+        |                 |                 |                                                                      |         |
+        |-----------------+-----------------+             +-------------+------+-------------+----------+----------+---------|
+        |                                   |             |             |      |             |          |          |         |
+        |                                   |----+----+   |  Teachers   |      |   Equinox   | Project  |   N-S    |  Room   |
+        |                                   | P1 | P2 |   |   Room 1    |  T2  |   Society   |  Room 3  | Corridor |  2.035  |
+        |                                   |----+----+   |             |      |             |          |          |         |
+        |                                   |             +-------------+------+-------------+----------+----------+---------|
+        |                                   |                                                                                |
+        |                                   |                              === Exit Passage ===                              |
+        |                                   |                                                                                |
+        +------ EAST (Rotterdamseweg) ----------------- SOUTH (Main Stairs) ----------------- WEST (Leeghwater) -------------+
+        """)
     else:
         print("There is no '" + name + "' here.")
 
