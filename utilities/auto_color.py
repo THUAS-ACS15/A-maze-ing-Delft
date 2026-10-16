@@ -20,9 +20,8 @@ def auto_color_print(*args, **kwargs):
         return
 
     text_str = " ".join(str(arg) for arg in args)
-    lower_text = text_str.lower()
 
-    if any(w in lower_text for w in ["wrong", "locked", "invalid", "error", "danger"]):
+    if any(w in text_str.lower() for w in ["wrong", "locked", "invalid", "error", "danger"]):
         color = "red"
     elif text_str.strip().startswith(("[", "1", "2", "3", "4", "(")) or "?" in text_str:
         color = "green"
