@@ -17,6 +17,7 @@ from utilities.print_helpers import print_dialogue, print_current_objective
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.print_map import print_map
 
 room_loot: list[str] = []
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
@@ -40,7 +41,7 @@ def handle_look(state):
     print_dialogue(look_around_dialogue_bank["frontdesk"])
     print("Things you can inspect: counter, printer, logbook, map")
     if len(loot) > 0:
-        print("In the printer tray:", ", ".join(loot))
+        print("you already collect this one :", ", ".join(loot))
     if state["completed"]["frontdesk"]:
         print("You already have your Student ID card.")
     print("- Possible exits: lobby")
@@ -122,6 +123,8 @@ def inspect_object(state, name):
         print_dialogue(room_dialogue_bank["logbook_first"])
         print_dialogue(room_dialogue_bank["logbook_second"])
         print_dialogue(room_dialogue_bank["logbook_third"])
+    elif name == "map":
+      print_map()
     else:
         print("There is no '" + name + "' here.")
 
