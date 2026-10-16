@@ -17,6 +17,7 @@ from utilities.print_helpers import print_dialogue, print_current_objective
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.print_map import print_map
 
 room_loot: list[str] = []
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
@@ -123,27 +124,7 @@ def inspect_object(state, name):
         print_dialogue(room_dialogue_bank["logbook_second"])
         print_dialogue(room_dialogue_bank["logbook_third"])
     elif name == "map":
-        print("""
-        +----------------------------------------------- NORTH (Julianalaan) ------------------------------------------------+
-        |                 |                 |             |                  |                  |                  |         |
-        |    LAB 2.001    |    LAB 2.003    |             |    Front Desk    |    Classroom     |    Classroom     |         |
-        |                 |                 |             |      Office      |      2.015       |      2.021       |   T4    |
-        |                 |                 |             |                  |                  |                  |         |
-        |                 |                 |             +------------------+------------------+------------------+---------|
-        |                 |                 |                                                                      |         |
-        |                 |                 |    Lobby                 === E-W Corridor ===                        |         |
-        |                 |                 |                                                                      |         |
-        |-----------------+-----------------+             +-------------+------+-------------+----------+----------+---------|
-        |                                   |             |             |      |             |          |          |         |
-        |                                   |----+----+   |  Teachers   |      |   Equinox   | Project  |   N-S    |  Room   |
-        |                                   | P1 | P2 |   |   Room 1    |  T2  |   Society   |  Room 3  | Corridor |  2.035  |
-        |                                   |----+----+   |             |      |             |          |          |         |
-        |                                   |             +-------------+------+-------------+----------+----------+---------|
-        |                                   |                                                                                |
-        |                                   |                              === Exit Passage ===                              |
-        |                                   |                                                                                |
-        +------ EAST (Rotterdamseweg) ----------------- SOUTH (Main Stairs) ----------------- WEST (Leeghwater) -------------+
-        """)
+      print_map()
     else:
         print("There is no '" + name + "' here.")
 

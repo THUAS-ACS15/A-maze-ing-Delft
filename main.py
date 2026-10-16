@@ -5,7 +5,6 @@
 # Location: Delft
 # Date: October 2026
 # -----------------------------------------------------------------------------
-import utilities.auto_color
 import time
 
 
