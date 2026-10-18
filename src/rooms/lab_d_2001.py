@@ -79,7 +79,7 @@ def use_on_workbench(item: str, target: str = "workbench") -> tuple[bool, str]:
 
     if len(installed_parts) >= len(required_parts):
         workbench["is_ready"] = True
-        state.state["game_phase"] = "ASSEMBLY"
+        state["game_phase"] = "ASSEMBLY"
         return True, f"{item} installed. ALL COMPONENTS INSTALLED — type 'activate'."
     return True, f"{item} installed ({len(installed_parts)}/{len(required_parts)})."
 
