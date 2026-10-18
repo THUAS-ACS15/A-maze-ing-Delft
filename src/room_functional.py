@@ -88,11 +88,11 @@ def take(item_id: str, state) -> tuple[bool, str]:
     state.state.setdefault("player", {}).setdefault("inventory", []).append(item_id)
     return True, f"You picked up {item_id}."
 
-def use(item_id: str, target: str | None,  state) -> tuple[bool, str]:
-    inventory = state.get("player", {}).get("inventory", [])
-    if item_id not in inventory:
-        return False, f"You are not carrying '{item_id}'."
-    return False, "Nothing happens."
+def use(item: str, target: str | None) -> tuple[bool, str]:
+    inventory = state["player"]["inventory"]
+    if item not in inventory:
+        return False, f"You are currently do not have '{item}' in your inventory."
+    return False, f"You cannot use that {item} on {target}."
 
 def logout(self, destination: str, state=None) -> str | None:
     """Resolve a direction or adjacent room id/name to a room_id."""

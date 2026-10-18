@@ -4,7 +4,7 @@ from .rooms.lobby import inspect_terminal
 from .display_functional import clear, out
 from .engine_functional import helper, inventory, prompt
 from .parser_functional import parse
-from .room_functional import render, get_room, look, inspect
+from .room_functional import render, get_room, look, inspect, use
 from .rooms.lab_d_2001 import workbench as render_workbench
 from .state_functional import get_current_room_id, get_room_data, get_state, set_state, \
     spawn, load_from_file, save_to_file, move_player, state
@@ -55,19 +55,18 @@ def exploration() -> None:
             _last_room_id = None
         return
     elif verb == "inspect":
+        clear()
         target = details.get("target", "")
         if target == "terminal" and state["player"]["current_room"] == "lobby":
             logo, message = inspect_terminal()
             render(text=message, asset=logo)
         elif target == "desk" and state["player"]["current_room"] == "teachers_room_1":
-            clear()
             ok, message = inspect_desk()
             if not ok:
                 render(text=colorize(message, color_code=RED))
             else:
                 render(text=colorize(message, color_code=GREEN))
         else:
-            clear()
             ok, message = inspect(target)
             if not ok:
                 render(text=colorize(message, color_code=RED))
@@ -77,14 +76,19 @@ def exploration() -> None:
     elif verb == "use":
         clear()
         item = details.get("target", "")
-        indirect = details.get("indirect")
+        target = details.get("indirect")
         if state["player"]["current_room"] == "teachers_room_1":
-            ok, message = use_desk_code(item, indirect)
+            ok, message = use_desk_code(item, target)
             if not ok:
                 render(text=colorize(message, color_code=RED))
             else:
                 render(text=colorize(message, color_code=GREEN))
-        return
+        else:
+            ok, message = use(item, target)
+            if not ok:
+                render(text=colorize(message, color_code=RED))
+            else:
+                render(text=colorize(message, color_code=GREEN))
     elif verb == "go":
         target = details.get("target", "")
         ok, message = move_player(target)
