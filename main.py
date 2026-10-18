@@ -13,7 +13,7 @@ from utilities.save_gui import display_load_menu
 from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
-from utilities.story_animations import play_intro, play_game_complete
+from utilities.story_animations import play_intro
 
 from debug import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
 from install_dependencies import check_dependencies
@@ -31,9 +31,23 @@ state = {
     "student_id_obtained": False,
     "equinox_coins_claimed": False,
     "store_available_items": ["Eeyore plushie", "Delft mug"],
+    "visited": {
+        "labd2001": False,
+        # "store": False,
+        "projectroom1": False,
+        "projectroom2": False,
+        "teachersroom1": False,
+        "teachersroom2": False,
+        "teachersroom4": False,
+        "frontdesk": False,
+        "equinoxstudentsociety": False,
+        "classroomd2015": False,
+        "classroomd2031": False,
+        "classroomd2035": False,
+    },
     "completed": {
         "labd2001": False,
-        "store": False,
+        # "store": False,
         "projectroom1": False,
         "projectroom2": False,
         "teachersroom1": False,
@@ -86,7 +100,6 @@ def main() -> None:
                     continue
                 if isinstance(loaded_state, dict):
                     state = loaded_state
-            play_game_complete(state)
             
             if state["has_intro_played"] is False and not SKIP_INTRO:
                 state["is_gametime_paused"] = True

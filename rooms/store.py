@@ -13,6 +13,7 @@ from random import choice
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue
 from data.story_dialogue_bank import story_dialogue_bank
 
@@ -68,6 +69,7 @@ def enter_store(state: dict) -> str:
     state["previous_room"] = "store"
 
     clear_screen()
+    state["visited"]["store"] = True
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_detail"])
     print_dialogue(room_dialogue_bank["enter_prompt"])
@@ -228,6 +230,9 @@ def enter_store(state: dict) -> str:
             item_to_buy = command[4:].strip()
             item_to_buy = item_to_buy.replace("_", " ")
             handle_buy(item_to_buy)
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["status", "check status"]:
             clear_screen()

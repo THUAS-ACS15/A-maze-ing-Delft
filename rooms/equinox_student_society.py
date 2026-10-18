@@ -21,6 +21,8 @@ from utilities.get_help import get_help
 from utilities.print_helpers import print_line
 from utilities.print_helpers import print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
+
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
 
@@ -74,6 +76,7 @@ def enter_equinox_student_society(state: dict) -> str:
     state["previous_room"] = "equinoxstudentsociety"
 
     clear_screen()
+    state["visited"]["equinoxstudentsociety"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_computer_desc"])
@@ -234,6 +237,9 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "sit down":
             handle_quiz_start()
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["status", "check status"]:
             clear_screen()
