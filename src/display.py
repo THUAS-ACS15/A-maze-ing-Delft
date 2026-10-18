@@ -166,7 +166,7 @@ class DisplayManager:
 
         self._out(
             self.colorize(
-                f"\nAssembly Components Carried: {parts_carried}/7", Colors.BRIGHT_WHITE
+                f"\nAssembly Components Collected: {parts_carried}/7", Colors.BRIGHT_WHITE
                 )
             )
         self._out()

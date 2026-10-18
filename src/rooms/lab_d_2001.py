@@ -1,21 +1,17 @@
 from typing import Any
 
+from pip._internal.distributions import installed
+
 from ..utils.colors import BRIGHT_MAGENTA, BOLD, BRIGHT_GREEN, RED, DIM, BRIGHT_YELLOW
 from ..display_functional import out, draw_line, colorize
-from ..state_functional import set_state, get_state
+from ..state_functional import set_state, get_state, state
 
 
-def workbench(workbench_data: dict[str, Any] | None = None,
-                     items: dict[str, Any] | None = None) -> None:
+def inspect_workbench(text: str | None = None) -> None:
     """Displays workbench assembly status in Lab D 2001."""
-    if workbench_data is None:
-        workbench_data = get_state("workbench")
 
-    if items is None:
-        items = get_state("inventory")
-
-    installed = workbench_data.setdefault("installed_parts", [])
-    required = workbench_data.setdefault("required_parts", [])
+    installed_parts = state["workbench"]["installed_parts"]
+    required_parts = state["workbench"]["required_parts"]
 
     draw_line("═")
     out(
@@ -24,23 +20,22 @@ def workbench(workbench_data: dict[str, Any] | None = None,
         )
     )
     draw_line("═")
-    out(f"Progress: {len(installed)} / {len(required)} components installed.\n")
+    out(f"Progress: {len(installed_parts)} / {len(required_parts)} components installed.\n")
 
-    for part_id in required:
-        item_data = items.get(part_id, {})
-        part_name = item_data.get("name", part_id)
+    for part in required_parts:
+        item_data = state["items"][part]
 
-        if part_id in installed:
+        if part in installed_parts:
             status = colorize(
                 "[ INSTALLED ]", BRIGHT_GREEN + BOLD
             )
         else:
             status = colorize("[ MISSING   ]", RED + DIM)
 
-        out(f" {status} - {part_name}")
+        out(f" {status} - {item_data['name']}")
 
     out()
-    if len(installed) == len(required):
+    if len(installed_parts) == len(required_parts):
         out(
             colorize(
                 ">> ALL CORE COMPONENTS INSTALLED <<",
@@ -54,14 +49,39 @@ def workbench(workbench_data: dict[str, Any] | None = None,
             )
         )
     else:
-        remaining = len(required) - len(installed)
+        remaining = len(required_parts) - len(installed_parts)
+        if text:
+          print(text)
         out(
             colorize(
                 f"Locate remaining {remaining} part(s) to complete assembly.",
                 DIM
             )
         )
-    out()
+    return
+
+def use_on_workbench(item: str, target: str = "workbench") -> tuple[bool, str]:
+    workbench = state["workbench"]
+    if target != "workbench":
+        return False, f"'{target}' is not a workbench component."
+    required_parts = workbench["required_parts"]
+    installed_parts = workbench["installed_parts"]
+    inventory = state["player"]["inventory"]
+
+    if item not in inventory:
+        return False, f"You currently do not have '{item}' in your inventory."
+    if item not in required_parts:
+        return False, f"'{item}' is not a workbench component."
+    if item in installed_parts:
+        return True, f"'{item}' is already installed."
+    inventory.remove(item)
+    installed_parts.append(item)
+
+    if len(installed_parts) >= len(required_parts):
+        workbench["is_ready"] = True
+        state.state["game_phase"] = "ASSEMBLY"
+        return True, f"{item} installed. ALL COMPONENTS INSTALLED — type 'activate'."
+    return True, f"{item} installed ({len(installed_parts)}/{len(required_parts)})."
 
 def use(item_id: str, target: str | None, state) -> tuple[bool, str]:
     if target != "workbench":

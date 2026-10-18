@@ -78,15 +78,15 @@ def inspect(target: str) -> tuple[bool, str]:
 
     return True, str(interactables[target])
 
-def take(item_id: str, state) -> tuple[bool, str]:
-    rooms = get_state("rooms")
-    room_data = rooms.get(ROOM_ID, {})
-    room_items = room_data.get("items", [])
-    if item_id not in room_items:
-        return False, f"There is no '{item_id}' here."
-    room_items.remove(item_id)
-    state.state.setdefault("player", {}).setdefault("inventory", []).append(item_id)
-    return True, f"You picked up {item_id}."
+def take(item: str) -> tuple[bool, str]:
+    current_room = state["player"]["current_room"]
+    room_data = state["rooms"][current_room]
+    if item not in room_data["items"]:
+        return False, f"There is no '{item}' here."
+    room_data["items"].remove(item)
+    state["player"]["inventory"].append(item)
+    item = state["items"][item]
+    return True, f"You picked up {item["name"]}"
 
 def use(item: str, target: str | None) -> tuple[bool, str]:
     inventory = state["player"]["inventory"]

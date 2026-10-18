@@ -15,7 +15,8 @@
             "sensory_module",
             "wifi_credentials",
             "motors_speakers",
-            "api_usb"
+            "api_usb",
+            "mega_phone"
         ],
         "is_ready": false
     },
@@ -37,6 +38,12 @@
             "id": "robot_chasis_frame",
             "name": "Robot Chassis Frame",
             "description": "An aluminum skeleton designed to house microcontrollers and servos.",
+            "is_assembly_part": true
+        },
+        "mega_phone": {
+            "id": "mega_phone",
+            "name": "Mega Phone",
+            "description": "A portable loudspeaker module capable of outputting synthesized voice frequencies.",
             "is_assembly_part": true
         },
         "keycard_lvl1": {

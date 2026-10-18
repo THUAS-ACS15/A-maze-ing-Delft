@@ -232,5 +232,10 @@ ITEM_ALIASES = {
     "DRIVE": "api_usb",
     "usb drive": "api_usb",
     "USB Drive": "api_usb",
-    "USB DRIVE": "api_usb"
+    "USB DRIVE": "api_usb",
+    "mega phone": "mega_phone",
+    "megaphone": "mega_phone",
+    "Mega Phone": "mega_phone",
+    "audio": "mega_phone",
+    "audio device": "mega_phone",
 }

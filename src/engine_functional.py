@@ -6,48 +6,42 @@ from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, B
 from .utils.commands import HELP_COMMANDS
 from .display_functional import draw_line, out, colorize, clear
 from .state_functional import spawn, is_running, get_phase, get_current_room_id, \
-    get_state, set_state, save_to_file, load_from_file
+    get_state, set_state, save_to_file, load_from_file, state
 
 
 def prompt() -> str:
     return input("\n> ")
 
-def inventory(items: list[str] | None = None, items_db: dict[str, str] | None = None) -> None:
+def render_inventory() -> None:
     """Renders carried items and displays total core assembly parts held."""
-    if items is None:
-        items = get_state("player", {}).setdefault("inventory", [])
-
-    if items_db is None:
-        items_db = get_state("items")
 
     draw_line("─")
     out(colorize("INVENTORY", BRIGHT_CYAN + BOLD))
     draw_line("─")
 
-    if not inventory:
-        out(colorize("Your inventory is empty.", DIM))
+    current_inventory = state["player"]["inventory"]
+    if not current_inventory:
+        out(colorize("Your inventory is currently empty.", DIM))
         out()
         return
 
-    parts_carried = 0
-    for item_id in items:
-        item_data = items_db.get(item_id, {})
-        name = item_data.get("name", item_id)
-        desc = item_data.get("description", "")
-        is_part = item_data.get("is_assembly_part", False)
+    assembly_parts_count = 0
+    for item in current_inventory:
+        item_data = state["items"][item]
+        is_part = item_data["is_assembly_part"]
 
-        if is_part:
-            parts_carried += 1
+        if item_data["is_assembly_part"]:
+            assembly_parts_count += 1
             tag = f" {colorize('[ASSEMBLY PART]', BRIGHT_GREEN)}"
         else:
             tag = ""
 
-        out(f" • {colorize(name, BRIGHT_YELLOW)}{tag}")
-        out(f"   {colorize(desc, DIM)}")
+        out(f" • {colorize(item_data["name"], BRIGHT_YELLOW)}{tag}")
+        out(f"   {colorize(item_data["description"], DIM)}")
 
     out(
         colorize(
-            f"\nAssembly Components Carried: {parts_carried}/7", BRIGHT_WHITE
+            f"\nAssembly Components Collected: {assembly_parts_count}/{len(state["workbench"]["required_parts"])}", BRIGHT_WHITE
         )
     )
     out()
@@ -114,9 +108,7 @@ def handle_command(command: str, phase: str = "EXPLORATION") -> None:
         render(room_id=room_id, room_data=data, items=items)
         return
     if verb == "inventory":
-        inventory(
-            get_state("inventory"), get_state("items")
-        )
+        render_inventory()
         return
     if verb == "save":
         save_to_file(details.get("target", "save_slot_1.json"))
