@@ -13,6 +13,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective
 
 from data.story_dialogue_bank import story_dialogue_bank
@@ -142,6 +143,7 @@ def enter_front_desk(state):
     state["previous_room"] = "frontdesk"
 
     clear_screen()
+    state["visited"]["frontdesk"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
 
@@ -172,11 +174,16 @@ def enter_front_desk(state):
             if result:
                 return result
 
+        elif command == "map":
+            display_map(state)
+
         elif command == "status" or command == "check status":
             clear_screen()
-            check_status(state, pause=True)
+            check_status(state, pause = True)
+
         elif command == "pause" or command == "save":
             display_save_menu(state)
+
         elif command == "quit":
             clear_screen()
             print_dialogue(room_dialogue_bank["quit_game"])

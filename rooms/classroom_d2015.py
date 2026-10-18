@@ -14,6 +14,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
 
 from data.story_dialogue_bank import story_dialogue_bank
@@ -39,6 +40,7 @@ def enter_classroom_d2015(state):
     state["previous_room"] = "classroomd2015"
     
     clear_screen()
+    state["visited"]["classroomd2015"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_bins"])
@@ -165,12 +167,15 @@ def enter_classroom_d2015(state):
         if command == "look around" or command == "look" or command == "ls":
             clear_screen()
             handle_look(state)
+            
         elif command == "?":
             clear_screen()
             handle_help()
+
         elif command.startswith("inspect "):
             clear_screen()
             inspect_object(state, command[8:].strip())
+
         elif command.startswith("take "):
             clear_screen()
             take_item(state, command[5:].strip())
@@ -181,15 +186,21 @@ def enter_classroom_d2015(state):
             if result:
                 return result
 
+        elif command == "map":
+            display_map(state)
+
         elif command == "status" or command == "check status":
             clear_screen()
             check_status(state, pause=True)
+
         elif command == "pause" or command == "save":
             display_save_menu(state)
+
         elif command == "quit":
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
+        
         else:
             clear_screen()
             print("Unknown command. Type '?' to see available commands.")

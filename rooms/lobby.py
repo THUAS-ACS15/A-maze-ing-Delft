@@ -15,6 +15,7 @@ from data.look_around_dialogue_bank import look_around_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
@@ -108,6 +109,9 @@ def enter_lobby(state):
             result = handle_go(room)
             if result:
                 return result
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["status", "check status"]:
             clear_screen()
