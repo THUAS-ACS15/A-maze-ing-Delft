@@ -12,11 +12,11 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
+from utilities.print_helpers import print_dialogue
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
-
-from utilities.print_helpers import print_dialogue
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
@@ -27,6 +27,7 @@ def enter_teachers_room1(state: dict) -> str:
     state["previous_room"] = "teachersroom1"
 
     clear_screen()
+    state["visited"]["teachersroom1"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"], print_newline_after = False)
 
@@ -112,6 +113,9 @@ def enter_teachers_room1(state: dict) -> str:
             clear_screen()
             answer = command[7:].strip()
             handle_answer(answer)
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["status", "check status"]:
             clear_screen()

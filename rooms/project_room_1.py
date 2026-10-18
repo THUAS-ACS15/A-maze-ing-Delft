@@ -15,6 +15,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue
 
 from data.story_dialogue_bank import story_dialogue_bank
@@ -169,6 +170,7 @@ def enter_project_room1(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
 
     clear_screen()
+    state["visited"]["projectroom1"] = True
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["lockers"])
 
@@ -179,15 +181,19 @@ def enter_project_room1(state):
         if command == "look around" or command == "look" or command == "ls":
             clear_screen()
             look_around(state)
+
         elif command == "?":
             clear_screen()
             show_help()
+
         elif command.startswith("inspect "):
             clear_screen()
             inspect_object(state, command[8:].strip())
+
         elif command.startswith("take "):
             clear_screen()
             take_item(state, command[5:].strip())
+
         elif command.startswith("go "):
             clear_screen()
             destination = command[3:].strip()
@@ -195,15 +201,22 @@ def enter_project_room1(state):
                 print("You leave Vance to his lockers and step back into the lobby.")
                 return "lobby"
             print("You can't go to '" + destination + "' from here.")
+
+        elif command == "map":
+            display_map(state)
+
         elif command == "status" or command == "check status":
             clear_screen()
             check_status(state, pause=True)
+
         elif command == "pause" or command == "save":
             display_save_menu(state)
+
         elif command == "quit":
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
+
         else:
             clear_screen()
             print("Unknown command. Type '?' to see available commands.")

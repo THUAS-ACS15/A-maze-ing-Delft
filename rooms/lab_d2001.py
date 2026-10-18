@@ -13,6 +13,7 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -33,6 +34,7 @@ def enter_lab_d2001(state: dict) -> str:
     state["previous_room"] = "labd2001"
 
     clear_screen()
+    state["visited"]["labd2001"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     print_dialogue(room_dialogue_bank["enter_food"])
@@ -302,6 +304,9 @@ def enter_lab_d2001(state: dict) -> str:
             else:
                 clear_screen()
                 print_dialogue(room_dialogue_bank["already_complete"])
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["status", "check status"]:
             clear_screen()

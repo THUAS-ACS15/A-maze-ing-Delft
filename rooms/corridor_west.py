@@ -12,6 +12,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective
 
 from data.story_dialogue_bank import story_dialogue_bank
@@ -116,6 +117,9 @@ def enter_student_wing(state: dict) -> str:
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
+
+        elif command == "map":
+            display_map(state)
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
