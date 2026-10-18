@@ -1,3 +1,4 @@
+from .rooms.teachers_room_1 import inspect_desk, use_desk_code
 from .display_functional import colorize
 from .rooms.lobby import inspect_terminal
 from .display_functional import clear, out
@@ -7,7 +8,7 @@ from .room_functional import render, get_room, look, inspect
 from .rooms.lab_d_2001 import workbench as render_workbench
 from .state_functional import get_current_room_id, get_room_data, get_state, set_state, \
     spawn, load_from_file, save_to_file, move_player, state
-from .utils.colors import BRIGHT_GREEN, BOLD, RED
+from .utils.colors import BRIGHT_GREEN, BOLD, RED, GREEN
 
 LAST_ROOM_ID: str | None = None
 
@@ -43,9 +44,8 @@ def exploration() -> None:
         render()
         return
     elif verb == "inventory":
-        inventory(
-            get_state("inventory"), get_state("items")
-        )
+        clear()
+        inventory()
         return
     elif verb == "save":
         save_to_file(details.get("target", "save_slot_1.json"))
@@ -56,9 +56,34 @@ def exploration() -> None:
         return
     elif verb == "inspect":
         target = details.get("target", "")
-        if target == "terminal" and get_state("player").get("current_room") == "lobby":
+        if target == "terminal" and state["player"]["current_room"] == "lobby":
             logo, message = inspect_terminal()
             render(text=message, asset=logo)
+        elif target == "desk" and state["player"]["current_room"] == "teachers_room_1":
+            clear()
+            ok, message = inspect_desk()
+            if not ok:
+                render(text=colorize(message, color_code=RED))
+            else:
+                render(text=colorize(message, color_code=GREEN))
+        else:
+            clear()
+            ok, message = inspect(target)
+            if not ok:
+                render(text=colorize(message, color_code=RED))
+            else:
+                render(text=colorize(message, color_code=GREEN))
+        return
+    elif verb == "use":
+        clear()
+        item = details.get("target", "")
+        indirect = details.get("indirect")
+        if state["player"]["current_room"] == "teachers_room_1":
+            ok, message = use_desk_code(item, indirect)
+            if not ok:
+                render(text=colorize(message, color_code=RED))
+            else:
+                render(text=colorize(message, color_code=GREEN))
         return
     elif verb == "go":
         target = details.get("target", "")
@@ -69,8 +94,8 @@ def exploration() -> None:
             return
         render()
     else:
-        render()
-        print("Unknown command. Type 'help' for actions.")
+        clear()
+        render(text=colorize("Unknown command. Type 'help' for actions.", RED))
 
 def assembly() -> None:
     state = get_state()

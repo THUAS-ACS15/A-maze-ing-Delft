@@ -95,7 +95,7 @@
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
             }
         },
-        "classroom_d2015": {
+        "classroom_d_2015": {
             "id": "classroom_d_2015",
             "name": "Classroom D 2015",
             "description": "A standard lecture hall littered with loose papers.",
@@ -117,12 +117,12 @@
                 "desk": {
                     "restricted": true,
                     "code": "2015",
-                    "reward_item": "keycard_lvl1",
+                    "reward": "keycard_lvl1",
                     "hint": "Keypad hint: 'Room number where CS101 was held.'"
                 }
             }
         },
-        "classroom_d2035": {
+        "classroom_d_2035": {
             "id": "classroom_d_2035",
             "name": "Classroom D 2035",
             "description": "A lab room with multiple presentation workstations.",
@@ -169,7 +169,7 @@
             "name": "Teacher Room 4",
             "description": "The senior faculty office. Papers cover the desk.",
             "restricted": true,
-            "required_item": "keycard_lvl1",
+            "requires": "keycard_lvl1",
             "exits": {"north": "project_room_2", "west": "lab_d_2001"},
             "items": ["api_usb"],
             "interactable": {}
@@ -179,7 +179,7 @@
             "name": "Lab D 2001",
             "description": "The final assembly lab equipped with an industrial workbench.",
             "restricted": false,
-            "required_item": null,
+            "requires": null,
             "exits": {"east": "teacher_room_4"},
             "items": [],
             "interactable": {

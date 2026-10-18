@@ -105,37 +105,37 @@ def load_from_file(filename: str = "save_slot_1.json") -> bool:
     return True
 
 def move_player(destination: str) -> tuple[bool, str]:
-
     """Move by direction ('north'/'n') or adjacent room id/name.
 
     Adjacent-only: a room name is accepted only if it appears in the
     current room's exits values. Returns (ok, next_room_id or message).
     """
     from .parser_functional import ROOM_ALIASES, resolve_room_target
-    from .room_functional import is_restricted
 
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
     exits = room_data["exits"]
 
-    if destination not in ROOM_ALIASES:
-        return False, f"Room {destination} does not exist. try either {" or ".join(sorted(set(exits.values())))}."
-
     target = resolve_room_target(destination)
     if target in ROOM_ALIASES.values():
-        direction = ROOM_ALIASES.get(target, target)
-        target_id = exits[direction]
+        target_id = exits.get(target)
     else:
         target_id = target if target in exits.values() else None
+
     if not target_id:
         adjacent = ", ".join(sorted(set(exits.values()))) or "nowhere"
         return False, f"You cannot go to {destination} from here. Adjacent: {adjacent}."
-    target_data = state["rooms"][target_id]
+
+    target_data = state["rooms"].get(target_id)
     if not target_data:
         return False, f"Unknown destination '{target_id}'."
-    ok, reason = is_restricted()
-    if not ok:
-        return False, reason
+
+    requires = target_data.get("requires")
+    if requires and requires not in get_inventory():
+        return False, f"The door is locked. Access requires: {requires}."
+    if target_data.get("restricted") and not requires:
+        return False, "The door is locked."
+
     state["player"]["current_room"] = target_id
     state["player"]["move"].append(current_room)
     return True, target_id

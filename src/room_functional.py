@@ -65,13 +65,18 @@ def enter() -> str | None:
 def look() -> None:
     get_description()
 
-def inspect(target: str,) -> str:
-    data = get_state("interactables", {}).get(target, {})
-    if data is None:
-        return f"There is no '{target}' here."
-    if isinstance(data, dict):
-        return str(data.get("hint", data.get("description", f"You inspect the {target}.")))
-    return str(data)
+def inspect(target: str) -> tuple[bool, str]:
+    current_room = state["player"]["current_room"]
+    room = state["rooms"].get(current_room, {})
+    interactables = room.get("interactables", room.get("interactable", {}))
+
+    if not isinstance(interactables, dict):
+        return False, f"{target.title()} cannot be inspected."
+
+    if target not in interactables:
+        return False, f"There is no '{target}' here."
+
+    return True, str(interactables[target])
 
 def take(item_id: str, state) -> tuple[bool, str]:
     rooms = get_state("rooms")
