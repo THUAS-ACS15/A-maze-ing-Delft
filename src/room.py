@@ -77,7 +77,7 @@ class Room:
             return False, "The door is locked."
         return True, ""
 
-    def on_enter(self, state) -> str:
+    def on_enter(self) -> str:
         return self.description
 
     def on_look(self, state=None) -> str:
@@ -130,3 +130,5 @@ def room_for(room_id: str, data: dict[str, Any]) -> Room:
         cls = getattr(module, class_name)
         return cls.from_data(room_id, data)
     return Room.from_data(room_id, data)
+
+

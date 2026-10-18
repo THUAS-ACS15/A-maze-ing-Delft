@@ -2,7 +2,7 @@ from .state import StateManager
 from .parser import CommandParser
 from .client import AIClient
 from .display import DisplayManager, Colors
-from .a_maze_ing_delft import print_logo
+from assets.logo import print_logo
 
 
 class Engine:

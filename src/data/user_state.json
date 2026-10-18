@@ -5,6 +5,7 @@
       "blueprint",
       "keycard_lvl1"
     ],
+    "move": [],
     "flags": {
       "visited_lab_d_2001": false,
       "visited_storage_closet": false,

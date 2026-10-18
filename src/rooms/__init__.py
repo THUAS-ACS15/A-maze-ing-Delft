@@ -1,5 +1,3 @@
-from .labd2001 import LabD2001
-from .teachersroom1 import TeachersRoom1
-from .teachersroom2 import TeachersRoom2
-
-__all__ = ["LabD2001", "TeachersRoom1", "TeachersRoom2"]
+# The functional refactor imports room modules directly (e.g.
+# `from rooms.lab_d_2001 import workbench`) rather than through this package's
+# re-exports. Keep this file empty so that flat imports resolve correctly.
