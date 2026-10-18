@@ -132,15 +132,16 @@ def render(room_id: str | None = None, room_data: dict[str, Any] | None = None,
     if room_id is None:
         room_id = state["player"]["current_room"]
     if room_data is None:
-        room_data = state["rooms"][room_id]
-    if items is None:
-        items = get_state("interactables", {}).setdefault(room_id, {})
+        try:
+            room_data = state["rooms"][room_id]
+        except KeyError:
+            current_room = state["player"]["current_room"]
+            room_data = state["rooms"][current_room]
     if text is None:
-        text = room_data["description"]
+       text = room_data["description"]
     draw_line("═")
-    room_name = room_data.get("name", room_id).upper()
     out(
-        colorize(f"LOCATION: {room_name}", BRIGHT_YELLOW + BOLD)
+        colorize(f"LOCATION: {room_data["name"]}", BRIGHT_YELLOW + BOLD)
         )
     draw_line("═")
 
@@ -164,7 +165,7 @@ def render(room_id: str | None = None, room_data: dict[str, Any] | None = None,
     if room_items:
         out(colorize("\nItems in area:", BRIGHT_WHITE + BOLD))
         for item_id in room_items:
-            item_data = items.get(item_id, {})
+            item_data = state["items"][item_id]
             display_name = item_data.get("name", item_id)
             component_tag = (
                 f" {colorize('[ASSEMBLY PART]', BRIGHT_GREEN)}"

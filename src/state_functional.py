@@ -5,8 +5,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-from .display_functional import colorize
-from .utils.colors import RED
 
 _BASE_DIR = Path(__file__).resolve().parent
 GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
@@ -107,31 +105,34 @@ def load_from_file(filename: str = "save_slot_1.json") -> bool:
     return True
 
 def move_player(destination: str) -> tuple[bool, str]:
-    from .room_functional import is_restricted
+
     """Move by direction ('north'/'n') or adjacent room id/name.
 
     Adjacent-only: a room name is accepted only if it appears in the
     current room's exits values. Returns (ok, next_room_id or message).
     """
     from .parser_functional import ROOM_ALIASES, resolve_room_target
-    from .room_functional import room_for
+    from .room_functional import is_restricted
 
-    current_room = get_state("player", {}).get("current_room")
-    room_data = state.get("rooms", {}).get(current_room, {})
-    exits = room_data.get("exits", {})
+    current_room = state["player"]["current_room"]
+    room_data = state["rooms"][current_room]
+    exits = room_data["exits"]
+
+    if destination not in ROOM_ALIASES:
+        return False, f"Room {destination} does not exist. try either {" or ".join(sorted(set(exits.values())))}."
+
     target = resolve_room_target(destination)
     if target in ROOM_ALIASES.values():
         direction = ROOM_ALIASES.get(target, target)
-        target_id = exits.get(direction)
+        target_id = exits[direction]
     else:
         target_id = target if target in exits.values() else None
     if not target_id:
         adjacent = ", ".join(sorted(set(exits.values()))) or "nowhere"
-        return False, colorize(text=f"You cannot go {destination} from here. Adjacent: {adjacent}.", color_code=RED)
-    target_data = get_room_data(target_id)
+        return False, f"You cannot go to {destination} from here. Adjacent: {adjacent}."
+    target_data = state["rooms"][target_id]
     if not target_data:
         return False, f"Unknown destination '{target_id}'."
-    room = room_for(target_id, target_data)
     ok, reason = is_restricted()
     if not ok:
         return False, reason

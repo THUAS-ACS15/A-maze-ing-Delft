@@ -89,7 +89,7 @@
             "description": "The main floor lobby. A flickering terminal sits near the entrance.",
             "restricted": false,
             "requires": null,
-            "exits": {"north": "classroom_d2015", "east": "teachers_room_1"},
+            "exits": {"north": "classroom_d_2015", "east": "teachers_room_1"},
             "items": ["blueprint", "chassis_frame"],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
@@ -101,7 +101,7 @@
             "description": "A standard lecture hall littered with loose papers.",
             "restricted": false,
             "requires": null,
-            "exits": {"south": "lobby", "east": "classroom_d2035"},
+            "exits": {"south": "lobby", "east": "classroom_d_2035"},
             "items": ["battery_pack"],
             "interactables": {}
         },
@@ -111,7 +111,7 @@
             "description": "An office filled with filing cabinets and a locked desk.",
             "restricted": false,
             "requires": null,
-            "exits": {"west": "lobby", "north": "classroom_d2035"},
+            "exits": {"west": "lobby", "north": "classroom_d_2035"},
             "items": [],
             "interactables": {
                 "desk": {
@@ -128,7 +128,7 @@
             "description": "A lab room with multiple presentation workstations.",
             "restricted": false,
             "requires": null,
-            "exits": {"west": "classroom_d2015", "south": "teachers_room_1", "east": "project_room_1"},
+            "exits": {"west": "classroom_d_2015", "south": "teachers_room_1", "east": "project_room_1"},
             "items": ["mainboard"],
             "interactable": {}
         },
@@ -138,7 +138,7 @@
             "description": "A high-tech hardware testing bay.",
             "restricted": null,
             "requires": "keycard_lvl1",
-            "exits": {"west": "classroom_d2035", "south": "teachers_room_2"},
+            "exits": {"west": "classroom_d_2035", "south": "teachers_room_2"},
             "items": ["sensory_module"],
             "interactable": {}
         },
@@ -170,7 +170,7 @@
             "description": "The senior faculty office. Papers cover the desk.",
             "restricted": true,
             "required_item": "keycard_lvl1",
-            "exits": {"north": "project_room_2", "west": "lab_d2001"},
+            "exits": {"north": "project_room_2", "west": "lab_d_2001"},
             "items": ["api_usb"],
             "interactable": {}
         },

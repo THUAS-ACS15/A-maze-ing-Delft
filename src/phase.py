@@ -1,3 +1,4 @@
+from .display_functional import colorize
 from .rooms.lobby import inspect_terminal
 from .display_functional import clear, out
 from .engine_functional import helper, inventory, prompt
@@ -6,7 +7,7 @@ from .room_functional import render, get_room, look, inspect
 from .rooms.lab_d_2001 import workbench as render_workbench
 from .state_functional import get_current_room_id, get_room_data, get_state, set_state, \
     spawn, load_from_file, save_to_file, move_player, state
-from .utils.colors import BRIGHT_GREEN, BOLD
+from .utils.colors import BRIGHT_GREEN, BOLD, RED
 
 LAST_ROOM_ID: str | None = None
 
@@ -17,26 +18,30 @@ def exploration() -> None:
     verb, details = parse(raw)
 
     if verb == "UNKNOWN":
-        render()
-        print("I don't understand that command. Type 'help' for actions.")
-        render()
-    elif verb == "UNKNOWN":
-        print("I don't understand that command. Type 'help' for actions.")
+        clear()
+        text = colorize("I don't understand that command. Type 'help' for actions.", color_code=RED)
+        render(text=text)
+        return
     elif verb == "INVALID":
-        render()
-        print(details.get("message", "Invalid command."))
+        clear()
+        text = colorize(details.get("message", "Invalid command."), color_code=RED)
+        render(text=text)
+        return
     elif verb == "quit":
         set_state("running", False)
         print("Goodbye.")
         return
     elif verb == "help":
+        clear()
         helper(get_state("phase"))
         return
     elif verb == "clear":
         clear()
         render()
     elif verb == "look":
+        clear()
         render()
+        return
     elif verb == "inventory":
         inventory(
             get_state("inventory"), get_state("items")
@@ -56,11 +61,13 @@ def exploration() -> None:
             render(text=message, asset=logo)
         return
     elif verb == "go":
-        render()
         target = details.get("target", "")
-        ok, result = move_player(target)
+        ok, message = move_player(target)
+        clear()
         if not ok:
-            print(result)
+            render(text=colorize(text=message, color_code=RED))
+            return
+        render()
     else:
         render()
         print("Unknown command. Type 'help' for actions.")
