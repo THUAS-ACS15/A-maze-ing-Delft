@@ -18,6 +18,7 @@ from utilities.display_menu import display_menu
 from utilities.loader import loader
 from utilities.print_helpers import print_dialogue, print_line, print_current_objective, print_assembly_part_obtained
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -155,6 +156,7 @@ def enter_teachers_room4(state: dict) -> str:
     state["previous_room"] = "teachersroom4"
     
     clear_screen()
+    state["visited"]["teachersroom4"] = True
     console = Console(legacy_windows=False)
 
     # Display loading state
@@ -274,5 +276,7 @@ def enter_teachers_room4(state: dict) -> str:
                             break
             case "look around":
                 show_desk(console, state)
+            case "map":
+                display_map(state)
         choice = input("> ")
     return "eastcorridor"

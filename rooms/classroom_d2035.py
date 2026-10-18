@@ -11,6 +11,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
 
 from data.story_dialogue_bank import story_dialogue_bank
@@ -33,6 +34,7 @@ def enter_classroom_d2035(state):
     state["previous_room"] = "classroomd2035"
 
     clear_screen()
+    state["visited"]["classroomd2035"] = True
     print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
 
@@ -188,6 +190,9 @@ def enter_classroom_d2035(state):
             if result:
                 return result
 
+        elif command == "map":
+            display_map(state)
+        
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
