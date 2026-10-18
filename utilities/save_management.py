@@ -22,6 +22,13 @@ CREATE TABLE IF NOT EXISTS general (
     equinox_coins_claimed INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS room_visited_status (
+    save_slot INTEGER NOT NULL,
+    room_name TEXT NOT NULL,
+    is_visited INTEGER NOT NULL,
+    PRIMARY KEY (save_slot, room_name)
+);
+
 CREATE TABLE IF NOT EXISTS room_completed_status (
     save_slot INTEGER NOT NULL,
     room_name TEXT NOT NULL,
@@ -101,7 +108,16 @@ def get_save_info(slot: int) -> dict | None:
         # Guard against no save data in slot
         if info is None:
             return None
-    
+        
+        # Get visited rooms
+        cursor.execute(
+            "SELECT room_name, is_visited FROM room_visited_status "
+            "WHERE save_slot = ?",
+            (slot,),
+        )
+
+        room_visited_data = cursor.fetchall()
+
         # Get completed rooms
         cursor.execute(
             "SELECT room_name, is_complete FROM room_completed_status "
@@ -110,13 +126,26 @@ def get_save_info(slot: int) -> dict | None:
         )
 
         room_completion_data = cursor.fetchall()
-        # Get explored %
+
+        # Get completed %
         completed_count = 0
-        for _room_name, is_completed in room_completion_data:
+        for _, is_completed in room_completion_data:
             if is_completed:
                 completed_count += 1
 
-        exploration_percent = (
+        # Get visited %
+        visited_count = 0
+        for _, is_visited in room_visited_data:
+            if is_visited:
+                visited_count += 1
+
+        visited_percent = (
+            (visited_count / len(room_visited_data)) * 100
+            if room_visited_data
+            else 0
+        )
+
+        completion_percent = (
             (completed_count / len(room_completion_data)) * 100
             if room_completion_data
             else 0
@@ -127,7 +156,8 @@ def get_save_info(slot: int) -> dict | None:
             "current_room": info[0],
             "time_elapsed": info[1],
             "coin_balance": info[2],
-            "exploration_percent": round(exploration_percent, 2),
+            "visited_percent": round(visited_percent, 2),
+            "completion_percent": round(completion_percent, 2)
         }
 
 def save_game(state: dict, slot: int) -> None:
@@ -171,6 +201,16 @@ def save_game(state: dict, slot: int) -> None:
             ),
         )
 
+        # Save room visited status
+        for room_name, is_visited in state["visited"].items():
+            cursor.execute("""
+                INSERT OR REPLACE INTO room_visited_status 
+                (save_slot, room_name, is_visited)
+                VALUES (?, ?, ?)
+                """,
+                (slot, room_name, int(is_visited)),
+        )
+            
         # Save room completion status
         for room_name, is_complete in state["completed"].items():
             cursor.execute("""
@@ -233,6 +273,15 @@ def load_save(slot: int) -> dict | None:
 
         if general_info is None:
             return None
+        
+        # Get visited rooms
+        cursor.execute(
+            "SELECT room_name, is_visited FROM room_visited_status "
+            "WHERE save_slot = ?",
+            (slot,),
+        )
+
+        visited_rooms = {row[0]: bool(row[1]) for row in cursor.fetchall()}
 
         # Get completed rooms
         cursor.execute(
@@ -270,6 +319,7 @@ def load_save(slot: int) -> dict | None:
             "student_id_obtained": bool(general_info[5]),
             "equinox_coins_claimed": bool(general_info[6]),
             "store_available_items": store_items,
+            "visited": visited_rooms,
             "completed": completed_rooms,
             "inventory": inventory_items,
         }
