@@ -8,3 +8,4 @@
 saves.db
 scoreboard.db
 debug.py
+.env

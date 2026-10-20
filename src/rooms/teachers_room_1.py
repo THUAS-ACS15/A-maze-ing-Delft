@@ -29,7 +29,7 @@ def use_desk_code(item: str, target: str | None = None) -> tuple[bool, str]:
         reward = desk["reward"]
         if reward not in inventory:
             inventory.append(reward)
-            return True, "Keypad clicks green. You obtain the Level-1 Staff Keycard."
+            return True, "Keypad clicks green. You've obtained the Level-1 Staff Keycard."
         return True, "You already have a Level-1 Staff keycard."
 
     return False, "Keypad buzzes red: Incorrect code entered."

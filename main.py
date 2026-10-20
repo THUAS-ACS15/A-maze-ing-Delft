@@ -1,4 +1,5 @@
 import sys
+import src.config  # noqa: F401  (loads .env)
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 

@@ -1,8 +1,9 @@
-from ..room_functional import inspect as global_inspect
-from ..state_functional import get_state
+from ..room_functional import inspect
+from ..state_functional import state
 
-def inspect(target: str) -> str:
-    text = global_inspect(target)
+
+def inspect_whiteboard(target: str) -> tuple[bool, str]:
+    ok, message = inspect(target)
     if target == "whiteboard":
-        get_state("flags", {}).set("tr2_whiteboard_inspected", True)
-    return text
+        state["flags"]["tr2_whiteboard_inspected"] = True
+    return ok, message

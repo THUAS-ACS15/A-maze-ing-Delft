@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import timezone, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,79 +18,26 @@ with open(GAME_STATE_PATH, "r") as f:
 with open(USER_STATE_PATH, "r") as u:
     user = json.load(u)
 
-def get_state(key: str | None = None, default: Any = None) -> Any:
-    if key is None:
-        return state
-    return state.setdefault(key, default)
-
-def set_state(key: str, value: Any = None) -> Any:
-    if value is None:
-        return get_state(key)
-    state[key] = value
-    return value
-
-
-def get_default_state(field: str) -> Any:
-    with open(GAME_STATE_PATH, "r") as s:
-        return json.load(s).get(field, [])
-
-def load_default_state() -> None:
-        """Loads a fresh instance from the master game_state.json data template."""
-        global state
-        with open(GAME_STATE_PATH, encoding="utf-8") as s:
-            state = json.load(s)
-
-def load_user_state() -> None:
-    """Loads a fresh instance from the master user_state.json data template."""
-    global user
-    with open(USER_STATE_PATH, encoding="utf-8") as u:
-        user = json.load(u)
-
-def is_running() -> bool:
-    return bool(get_state('running', True))
-
-def get_phase() -> str:
-    phase = state.get('phase', state.get('game_phase', 'EXPLORATION'))
-    return phase if isinstance(phase, str) else 'EXPLORATION'
-
-def get_current_room_id() -> str:
-    room = state.get("player", {}).get("current_room", "lobby")
-    if isinstance(room, str) and room in state.get("rooms", {}):
-        return room
-    return "lobby"
-
-def save_to_file(filename: str = "save_slot_1.json") -> None:
+def save_to_file(filename: str = "save_slot_1.json") -> tuple[bool, str]:
     """Persists current runtime state to disk."""
     os.makedirs(SAVE_DIR, exist_ok=True)
     save_path = os.path.join(SAVE_DIR, filename)
 
-    with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=4)
-    print(f"[System] Game saved to {save_path}")
+    with open(save_path, "w", encoding="utf-8") as s:
+        json.dump(state, s, indent=4)
+    return True, f"[System] Game saved to {save_path}"
 
 def spawn( room_id: str = "lobby") -> str:
     """Guarantee a valid spawn point (default lobby)."""
-    rooms = state.get("rooms", {})
-    player = state.setdefault("player", {})
-    current = player.get("current_room")
-    if not isinstance(current, str) or current not in rooms:
-        player["current_room"] = room_id if room_id in rooms else next(iter(rooms), "lobby")
-    return player["current_room"]
+    if not state["timestamp"]:
+        state["timestamp"] = datetime.now(timezone.utc).isoformat()
+    rooms = state["rooms"]
+    player = state["player"]
+    current_room = player["current_room"]
+    if not isinstance(current_room, str) or current_room not in rooms:
+        current_room = room_id if room_id in rooms else next(iter(rooms), "lobby")
+    return current_room
 
-def get_room_data(room_id: str) -> dict[str, Any]:
-    rooms = state.get("rooms", {})
-    if isinstance(rooms, dict):
-        data = rooms.get(room_id, {})
-        if isinstance(data, dict):
-            return data
-    return {}
-
-def get_inventory() -> list[str]:
-    player = state.setdefault("player", {})
-    if not isinstance(player, dict):
-        state["player"] = player = {}
-    inv = player.setdefault("inventory", [])
-    return inv if isinstance(inv, list) else []
 
 def load_from_file(filename: str = "save_slot_1.json") -> bool:
     """Loads a saved game file into active memory."""
@@ -131,7 +79,7 @@ def move_player(destination: str) -> tuple[bool, str]:
         return False, f"Unknown destination '{target_id}'."
 
     requires = target_data.get("requires")
-    if requires and requires not in get_inventory():
+    if requires and requires not in state["player"]["inventory"]:
         return False, f"The door is locked. Access requires: {requires}."
     if target_data.get("restricted") and not requires:
         return False, "The door is locked."

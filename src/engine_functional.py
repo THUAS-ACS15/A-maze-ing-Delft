@@ -1,16 +1,16 @@
-from typing import Any
-
 from .parser_functional import parse
-from .room_functional import get_room, LAST_ROOM_ID, render
+from .room_functional import  render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, BRIGHT_WHITE
 from .utils.commands import HELP_COMMANDS
 from .display_functional import draw_line, out, colorize, clear
-from .state_functional import spawn, is_running, get_phase, get_current_room_id, \
-    get_state, set_state, save_to_file, load_from_file, state
+from .state_functional import spawn,  \
+    save_to_file, load_from_file, state
 
 
-def prompt() -> str:
-    return input("\n> ")
+def prompt(message: str | None = None) -> str:
+    if message is None:
+        return input("\n> ").strip()
+    return input(f"\n{message} >").strip()
 
 def render_inventory() -> None:
     """Renders carried items and displays total core assembly parts held."""
@@ -46,7 +46,9 @@ def render_inventory() -> None:
     )
     out()
 
-def helper(phase: str = "EXPLORATION") -> None:
+def helper(phase: str | None = None) -> None:
+    if phase is None:
+        phase = state["game_phase"]
     if phase == "ASSEMBLY":
         HELP_COMMANDS.append(("Assembly", [
             ("activate", "Boot unit (power on, start)", "activate"),
@@ -76,11 +78,11 @@ def helper(phase: str = "EXPLORATION") -> None:
                 out(f"  {cmd:<24} {desc}  e.g. {ex}")
 
 def handle_command(command: str, phase: str = "EXPLORATION") -> None:
-    data = get_room()
-    room_id = get_current_room_id()
-    items = get_state("items")
-    if LAST_ROOM_ID != room_id:
-        render(room_id=room_id, room_data=data, items=items)
+    rooms = state["rooms"]
+    current_room = state["player"]["current_room"]
+    items = state["items"]
+    if state["player"]["move"][-1] != current_room:
+        render()
 
     raw = prompt()
     verb, details = parse(raw)
@@ -94,18 +96,18 @@ def handle_command(command: str, phase: str = "EXPLORATION") -> None:
         print(details.get("message", "Invalid command."))
         return
     if verb == "quit":
-        set_state("running", False)
+        state["running"] = False
         print("Goodbye.")
         return
     if verb == "help":
-        helper(get_state("phase"))
+        helper(state["phase"])
         return
     if verb == "clear":
         clear()
-        render(room_id=room_id, room_data=data, items=items)
+        render()
         return
     if verb == "look":
-        render(room_id=room_id, room_data=data, items=items)
+        render()
         return
     if verb == "inventory":
         render_inventory()
@@ -123,15 +125,13 @@ def handle_command(command: str, phase: str = "EXPLORATION") -> None:
 def run() -> None:
     # Imported lazily to break the engine_functional <-> phase circular import.
     from .phase import exploration, assembly, chat
-    spawn("lobby")
-    while is_running():
-        phase = get_phase()
-
-        if phase == "EXPLORATION":
+    spawn()
+    while state["running"]:
+        if state["game_phase"] == "EXPLORATION":
             exploration()
-        elif phase == "ASSEMBLY":
+        elif state["game_phase"] == "ASSEMBLY":
             assembly()
-        elif phase == "CHAT_MODE":
+        elif state["game_phase"] == "CHAT":
             chat()
         else:
             exploration()

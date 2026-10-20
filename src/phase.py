@@ -1,17 +1,17 @@
-
-from .rooms.lab_d_2001 import inspect_workbench, use_on_workbench
+from .room_functional import render_chat
+from .rooms.lab_d_2001 import use_on_workbench, render_workbench, workbench_ready, verify_wifi_password, finish_activation
 from .rooms.teachers_room_1 import inspect_desk, use_desk_code
 from .display_functional import colorize
 from .rooms.lobby import inspect_terminal
 from .display_functional import clear, out
 from .engine_functional import helper, render_inventory, prompt
 from .parser_functional import parse
-from .room_functional import render, get_room, look, inspect, use, take
-from .state_functional import get_current_room_id, get_room_data, get_state, set_state, \
-    spawn, load_from_file, save_to_file, move_player, state
-from .utils.colors import BRIGHT_GREEN, BOLD, RED, GREEN
+from .room_functional import render,  inspect, use, take
+from .state_functional import spawn, load_from_file, save_to_file, move_player, state
+from .utils.colors import BRIGHT_GREEN, BOLD, RED, GREEN, BRIGHT_MAGENTA
 
 LAST_ROOM_ID: str | None = None
+CHAT_FIRST_TIME: bool = True
 
 
 def exploration() -> None:
@@ -30,16 +30,13 @@ def exploration() -> None:
         render(text=text)
         return
     elif verb == "quit":
-        set_state("running", False)
+        state["running"] = False
         print("Goodbye.")
         return
     elif verb == "help":
         clear()
-        helper(get_state("phase"))
+        helper(state["phase"])
         return
-    elif verb == "clear":
-        clear()
-        render()
     elif verb == "look":
         clear()
         render()
@@ -69,7 +66,7 @@ def exploration() -> None:
                 render(text=colorize(message, color_code=GREEN))
         elif target == "workbench" and state["player"]["current_room"] == "lab_d_2001":
            clear()
-           inspect_workbench()
+           render_workbench()
         else:
             ok, message = inspect(target)
             if not ok:
@@ -91,9 +88,9 @@ def exploration() -> None:
         if state["player"]["current_room"] == "lab_d_2001":
            ok, message =  use_on_workbench(item)
            if not ok:
-               inspect_workbench(text=colorize(message, color_code=RED))
+               render_workbench(text=colorize(message, color_code=RED))
            else:
-               inspect_workbench(text=colorize(message, color_code=GREEN))
+               render_workbench(text=colorize(message, color_code=GREEN))
            return
         else:
             ok, message = use(item, target)
@@ -124,96 +121,114 @@ def exploration() -> None:
         render(text=colorize("Unknown command. Type 'help' for actions.", RED))
 
 def assembly() -> None:
-    state = get_state()
-    """Locked in lab_d2001 until 'activate'. Single prompt cycle."""
-    if state.get("current_room") != "lab_d2001":
-        state.get("player", {}).get("current_room").set("lab_d2001")
-        last_room_id = state.get("move")[-1]
-    if last_room_id != "lab_d_2001":
-        render()
-        inspect_workbench()
-
+    """Locked in lab_d2_001 until 'activate'. Single prompt cycle."""
+    if state["player"]["current_room"] != "lab_d_2001":
+        state["player"]["current_room"] = state["player"]["move"][-1]
+        state["player"]["move"].pop()
+        state["game_phase"] = "EXPLORATION"
+    clear()
+    render_workbench()
     raw = prompt()
     verb, details = parse(raw)
 
     if verb == "EMPTY":
+        clear()
+        render()
         return
-    if verb == "UNKNOWN":
-        print("Assembly locked. Type 'activate' (or 'inspect workbench', 'help').")
+    elif verb == "UNKNOWN":
+        clear()
+        render(colorize("Assembly locked. Type 'activate' (or 'inspect workbench', 'help').", RED))
         return
-    if verb == "INVALID":
-        print(details.get("message", "Invalid command."))
+    elif verb == "INVALID":
+        clear()
+        render(colorize(details.get("message", "Invalid command."), RED))
         return
-    if verb == "quit":
-        set_state("running", False)
+    elif verb == "quit":
+        state["running"] = False
         print("Goodbye.")
         return
-    if verb == "help":
+    elif verb == "help":
+        clear()
         helper("ASSEMBLY")
         return
-    if verb == "clear":
+    elif verb == "clear":
         clear()
         return
-    if verb == "look":
-        look()
+    elif verb == "look":
+        clear()
+        render()
         return
-    if verb == "inventory":
-        inventory()
+    elif verb == "inventory":
+        clear()
+        render_inventory()
         return
-    if verb == "save":
+    elif verb == "save":
+        clear()
         save_to_file(details.get("target", "save_slot_1.json"))
+        render()
         return
-    if verb == "load":
+    elif verb == "load":
         if load_from_file(details.get("target", "save_slot_1.json")):
             spawn("lobby")
-            get_state("move").set([])
+            state["player"]["move"] = []
         return
-    if verb == "go":
+    elif verb == "go":
         print("Navigation disabled during assembly. Type 'activate' to boot the unit.")
         return
-    if verb == "take":
+    elif verb == "take":
         print("Assembly locked. All components are on the workbench. Type 'activate'.")
         return
-    if verb == "use":
+    elif verb == "use":
         print("Assembly locked. Type 'activate' to boot the unit.")
         return
-    if verb == "inspect":
+    elif verb == "inspect":
         target = details.get("target", "")
         if target not in ("workbench", ""):
             render_workbench()
             return
         description = inspect(target)
-        out(description)
+        print(description)
         return
-    if verb == "activate":
-        current = get_state("current_room")
-        handler = getattr(current, "on_activate", None)
-        if handler is None:
-            print("Nothing to activate here.")
+    elif verb == "activate":
+        ok, msg = workbench_ready()
+        if not ok:
+            clear()
+            render(text=colorize(msg, color_code=RED))
             return
-        ok, msg = handler(state)
-        print(msg)
-        state.get("move").set([])
+        clear()
+        render_workbench(text="Enter wifi password to continue.")
+        password = prompt()
+        if not verify_wifi_password(password):
+            clear()
+            render_workbench(text="Incorrect wifi password.")
+            return
+        clear()
+        render_workbench(text=f"Give your robot a name. Default name is {state["phases"]["chat"]["robot"]["name"]}.")
+        name = prompt()
+        clear()
+        render_workbench(text=colorize(finish_activation(name), color_code=BRIGHT_MAGENTA))
+    else:
+        clear()
+        render_workbench(text=colorize("Unknown command. Type 'help' for actions.", RED))
         return
-    print("Assembly locked. Type 'activate'.")
 
 def chat() -> None:
     """Finale: freeform chat via AIClient. Single prompt cycle."""
-    if not getattr("_chat_booted", False):
+    global CHAT_FIRST_TIME
+    if CHAT_FIRST_TIME:
         clear()
-        out_boot_banner()
-        chat_booted = True
-
+        render_chat("Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.")
+        CHAT_FIRST_TIME = False
     raw = prompt().strip()
     if not raw:
         return
     lowered = raw.lower()
     if lowered in ("quit", "exit", "q"):
-        set_state("running", False)
+        state["running"] = False
         print("Connection closed. Goodbye.")
         return
     if lowered in ("help", "?", "h", "commands"):
-        helper("CHAT")
+        helper()
         return
     if lowered in ("clear", "cls"):
         clear()
@@ -221,17 +236,11 @@ def chat() -> None:
     if lowered == "save":
         save_to_file("save_slot_1.json")
         return
-
-    print("A-maze-ing-delft> ", end="", flush=True)
-    try:
-        for token in stream_response(raw):
-            print(token, end="", flush=True)
-        print()
-    except Exception as exc:
-        print(f"\n[Comms error: {exc}]")
+    clear()
+    render_chat(raw)
 
 
-def _out_boot_banner(self) -> None:
+def out_boot_banner(self) -> None:
     out(
         self.display.colorize(
             "A-maze-ing-Delft IS ONLINE.", BRIGHT_GREEN + BOLD

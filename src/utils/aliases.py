@@ -72,6 +72,10 @@ VERB_ALIASES = {
     "l": "look",
     "ls": "look",
     "around": "look",
+    "clear": "look",
+    "clr": "look",
+    "cl": "look",
+    "cls": "look",
 
     # Inspection
     "inspect": "inspect",
@@ -110,8 +114,6 @@ VERB_ALIASES = {
     "commands": "help",
     "save": "save",
     "load": "load",
-    "clear": "clear",
-    "cls": "clear",
     "quit": "quit",
     "exit": "quit",
     "q": "quit",
@@ -211,6 +213,7 @@ ITEM_ALIASES = {
     "Passkey": "wifi_credentials",
     "PASSKEY": "wifi_credentials",
     "motors_speakers": "motors_speakers",
+    "servo": "motors_speakers",
     "motors and speakers": "motors_speakers",
     "Motors and Speakers": "motors_speakers",
     "servo motors": "motors_speakers",

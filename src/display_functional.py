@@ -1,15 +1,9 @@
 from subprocess import run
 
-ENABLE_COLORS: bool = True
-TERMINAL_WIDTH: int = 80
-
-def init():
-    global ENABLE_COLORS, TERMINAL_WIDTH
-    ENABLE_COLORS = ENABLE_COLORS
-    TERMINAL_WIDTH = TERMINAL_WIDTH
+from .state_functional import state
 
 def colorize(text: str, color_code: str) -> str:
-    return f"{color_code}{text}\033[0m" if ENABLE_COLORS else text
+    return f"{color_code}{text}\033[0m" if state["enable_colors"] else text
 
 def out(text: str = "") -> None:
     import builtins
@@ -17,7 +11,7 @@ def out(text: str = "") -> None:
     builtins.print(safe(text))
 
 def draw_line(char: str = "-") -> None:
-    out(colorize(char * TERMINAL_WIDTH, "\033[2m"))
+    out(colorize(char * state["terminal_width"], "\033[2m"))
 
 def safe(text: str) -> str:
     table = str.maketrans({"─": "-", "═": "=", "•": "*", "→": "->", "←": "<-"})

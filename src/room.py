@@ -118,17 +118,7 @@ class Room:
             return target
         return None
 
-    
-def room_for(room_id: str, data: dict[str, Any]) -> Room:
-    """Factory: return specialised subclass if registered, else plain Room."""
-    import importlib
 
-    path = ROOM_CLASSES.get(room_id)
-    if path:
-        module_name, _, class_name = path.rpartition(".")
-        module = importlib.import_module(module_name)
-        cls = getattr(module, class_name)
-        return cls.from_data(room_id, data)
-    return Room.from_data(room_id, data)
+
 
 

@@ -1,7 +1,7 @@
 import os
 
 from .display_functional import out
-from .state_functional import get_state
+from .state_functional import state
 
 client = ""
 provider = "google"
@@ -25,4 +25,3 @@ def init(mock: bool = False) -> None:
             out(
                 "[!] Warning: Neither google-genai nor openai Python package installed. Defaulting to mock mode."
             )
-            get_state("phases").get("chat").set("mock", True)

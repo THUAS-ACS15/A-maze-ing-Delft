@@ -1,6 +1,9 @@
 {
+    "timestamp": null,
     "game_phase": "EXPLORATION",
     "running": true,
+    "enable_colors": true,
+    "terminal_width":  80,
     "player": {
         "current_room": "lobby",
         "inventory": [],
@@ -26,12 +29,11 @@
         "tr4_drawer_decrypted": false,
         "lab_power_on": false
     },
-
     "items": {
         "blueprint": {
             "id": "robot_assembly_blueprint",
             "name": "Robot Assembly Blueprint",
-            "description": "Diagram listing all 7 components needed to construct A-maze-ing-Delft",
+            "description": "Diagram listing all 8 components needed to construct A-maze-ing-Delft",
             "is_assembly_part": false
         },
         "chassis_frame": {
@@ -56,7 +58,7 @@
             "id": "keycard_lvl1",
             "name": "High-Capacity Battery Pack",
             "description": "A heavy 24V lithium-ion battery unit with high discharge current.",
-            "is_assembly_part": false
+            "is_assembly_part": true
         },
         "mainboard": {
             "id": "microcontroller_mainboard",
@@ -137,7 +139,7 @@
             "requires": null,
             "exits": {"west": "classroom_d_2015", "south": "teachers_room_1", "east": "project_room_1"},
             "items": ["mainboard"],
-            "interactable": {}
+            "interactables": {}
         },
         "project_room_1": {
             "id": "project_room_1",
@@ -147,7 +149,7 @@
             "requires": "keycard_lvl1",
             "exits": {"west": "classroom_d_2035", "south": "teachers_room_2"},
             "items": ["sensory_module"],
-            "interactable": {}
+            "interactables": {}
         },
         "teachers_room_2": {
             "id": "teachers_room_2",
@@ -157,7 +159,7 @@
             "requires": null,
             "exits": {"north": "project_room_1", "east": "project_room_2"},
             "items": ["wifi_credentials", "mega_phone"],
-            "interactable": {
+            "interactables": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
         },
@@ -169,7 +171,7 @@
             "requires": null,
             "exits": {"west": "teachers_room_2", "south": "teacher_room_4"},
             "items": ["motors_speakers"],
-            "interactable": {}
+            "interactables": {}
         },
         "teacher_room_4": {
             "id": "teachers_room_4",
@@ -179,7 +181,7 @@
             "requires": "keycard_lvl1",
             "exits": {"north": "project_room_2", "west": "lab_d_2001"},
             "items": ["api_usb"],
-            "interactable": {}
+            "interactables": {}
         },
         "lab_d_2001": {
             "id": "lab_d_2001",
@@ -189,16 +191,21 @@
             "requires": null,
             "exits": {"east": "teacher_room_4"},
             "items": [],
-            "interactable": {
+            "interactables": {
                 "workbench": "A heavy metal table connected to a main server terminal."
             }
         }
     },
     "phases": {
         "exploration": {},
-        "assembly": {},
+        "assembly": {
+            "wifi_password": "Tr0janH0rse!"
+        },
         "chat": {
-            "mock": false
+            "mock": false,
+            "robot": {
+                "name": "Jarvis"
+            }
         }
     }
 }
