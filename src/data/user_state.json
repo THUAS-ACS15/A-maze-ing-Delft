@@ -263,7 +263,7 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": "2026-10-05T22:10:00Z",
+        "timestamp": null,
         "game_phase": "EXPLORATION"
     }
 }
