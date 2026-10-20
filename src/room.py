@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
+from .utils.duration import calculate_duration
 from .utils.chat import respond
 from .utils.colors import BRIGHT_YELLOW, BOLD, CYAN, RED, BRIGHT_WHITE, BRIGHT_GREEN, DIM, \
     WHITE
@@ -56,6 +58,7 @@ def render(room_id: str | None = None, room_data: dict[str, Any] | None = None,
     out(
         colorize(f"LOCATION: {room_data["name"]}", BRIGHT_YELLOW + BOLD)
         )
+    out(colorize(f"{state["game_state"]["duration"]}", DIM + BOLD))
     draw_line("═")
 
     # Asset

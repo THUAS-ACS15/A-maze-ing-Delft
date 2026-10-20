@@ -5,6 +5,8 @@ import os
 from datetime import timezone, datetime
 from pathlib import Path
 
+from .utils.duration import calculate_duration
+
 _BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
 USER_STATE_PATH = _BASE_DIR / "data" / "user_state.json"
@@ -22,6 +24,8 @@ with open(USER_STATE_PATH, "w") as f:
     json.dump(state, f, indent=4)
 
 def auto_save() -> None:
+    duration = calculate_duration(state["game_state"]["timestamp"], datetime.now(timezone.utc).isoformat())
+    state["game_state"]["duration"] = str(duration) or "00:00:00"
     with open(USER_STATE_PATH, "w") as a:
         json.dump(state, a, indent=4)
 

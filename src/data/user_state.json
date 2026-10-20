@@ -3,13 +3,36 @@
     "enable_colors": true,
     "terminal_width": 80,
     "player": {
-        "current_room": "lobby",
+        "current_room": "teacher_room_4",
         "inventory": [
             "blueprint",
             "keycard_lvl1",
-            "blueprint"
+            "blueprint",
+            "mainboard",
+            "sensory_module"
         ],
-        "move": [],
+        "move": [
+            "lobby",
+            "teachers_room_1",
+            "lobby",
+            "teachers_room_1",
+            "classroom_d_2035",
+            "project_room_1",
+            "teachers_room_2",
+            "project_room_2",
+            "teacher_room_4",
+            "project_room_2",
+            "teachers_room_2",
+            "project_room_2",
+            "teacher_room_4",
+            "lab_d_2001",
+            "teacher_room_4",
+            "lab_d_2001",
+            "teacher_room_4",
+            "lab_d_2001",
+            "teacher_room_4",
+            "lab_d_2001"
+        ],
         "flags": {
             "visited_lab_d_2001": false,
             "visited_storage_closet": false,
@@ -35,7 +58,7 @@
         "is_complete": false
     },
     "flags": {
-        "tr1_desk_unlocked": false,
+        "tr1_desk_unlocked": true,
         "tr2_whiteboard_inspected": false,
         "tr4_drawer_decrypted": false,
         "lab_power_on": false
@@ -166,9 +189,7 @@
                 "south": "teachers_room_1",
                 "east": "project_room_1"
             },
-            "items": [
-                "mainboard"
-            ],
+            "items": [],
             "interactables": {}
         },
         "project_room_1": {
@@ -181,9 +202,7 @@
                 "west": "classroom_d_2035",
                 "south": "teachers_room_2"
             },
-            "items": [
-                "sensory_module"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_2": {
@@ -263,7 +282,8 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": null,
+        "timestamp": "2026-10-20T09:03:52.116140+00:00",
+        "duration": "0:31:03",
         "game_phase": "EXPLORATION"
     }
 }
