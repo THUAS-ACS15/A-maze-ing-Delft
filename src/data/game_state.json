@@ -1,6 +1,4 @@
 {
-    "timestamp": null,
-    "game_phase": "EXPLORATION",
     "running": true,
     "enable_colors": true,
     "terminal_width":  80,

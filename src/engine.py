@@ -1,3 +1,4 @@
+from .state import auto_save
 from .parser import parse
 from .room import  render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, BRIGHT_WHITE
@@ -48,7 +49,7 @@ def render_inventory() -> None:
 
 def helper(phase: str | None = None) -> None:
     if phase is None:
-        phase = state["game_phase"]
+        phase = state["game_state"]["game_phase"]
     if phase == "ASSEMBLY":
         HELP_COMMANDS.append(("Assembly", [
             ("activate", "Boot unit (power on, start)", "activate"),
@@ -127,11 +128,12 @@ def run() -> None:
     from .phase import exploration, assembly, chat
     spawn()
     while state["running"]:
-        if state["game_phase"] == "EXPLORATION":
+        auto_save()
+        if state["game_state"]["game_phase"] == "EXPLORATION":
             exploration()
-        elif state["game_phase"] == "ASSEMBLY":
+        elif state["game_state"]["game_phase"] == "ASSEMBLY":
             assembly()
-        elif state["game_phase"] == "CHAT":
+        elif state["game_state"]["game_phase"] == "CHAT":
             chat()
         else:
             exploration()

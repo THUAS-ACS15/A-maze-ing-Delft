@@ -1,38 +1,269 @@
 {
-  "player": {
-    "current_room": "lobby",
-    "inventory": [
-      "blueprint",
-      "keycard_lvl1"
-    ],
-    "move": [],
+    "running": true,
+    "enable_colors": true,
+    "terminal_width": 80,
+    "player": {
+        "current_room": "lobby",
+        "inventory": [
+            "blueprint",
+            "keycard_lvl1",
+            "blueprint"
+        ],
+        "move": [],
+        "flags": {
+            "visited_lab_d_2001": false,
+            "visited_storage_closet": false,
+            "visited_server_room": false,
+            "has_inspected_blueprint": true,
+            "assembly_unlocked": false,
+            "aigis_activated": false,
+            "phase": 1
+        }
+    },
+    "workbench": {
+        "location": "lab_d_2001",
+        "required_parts": [
+            "chassis_frame",
+            "battery_pack",
+            "mainboard",
+            "sensory_module",
+            "motors_speakers",
+            "wifi_credentials",
+            "api_usb"
+        ],
+        "installed_parts": [],
+        "is_complete": false
+    },
     "flags": {
-      "visited_lab_d_2001": false,
-      "visited_storage_closet": false,
-      "visited_server_room": false,
-      "has_inspected_blueprint": true,
-      "assembly_unlocked": false,
-      "aigis_activated": false,
-      "phase": 1
+        "tr1_desk_unlocked": false,
+        "tr2_whiteboard_inspected": false,
+        "tr4_drawer_decrypted": false,
+        "lab_power_on": false
+    },
+    "items": {
+        "blueprint": {
+            "id": "robot_assembly_blueprint",
+            "name": "Robot Assembly Blueprint",
+            "description": "Diagram listing all 8 components needed to construct A-maze-ing-Delft",
+            "is_assembly_part": false
+        },
+        "chassis_frame": {
+            "id": "robot_chasis_frame",
+            "name": "Robot Chassis Frame",
+            "description": "An aluminum skeleton designed to house microcontrollers and servos.",
+            "is_assembly_part": true
+        },
+        "mega_phone": {
+            "id": "mega_phone",
+            "name": "Mega Phone",
+            "description": "A portable loudspeaker module capable of outputting synthesized voice frequencies.",
+            "is_assembly_part": true
+        },
+        "keycard_lvl1": {
+            "id": "keycard_lvl1",
+            "name": "Level-1 Staff Keycard",
+            "description": "A magnetic keycard. Opens restricted project and staff rooms.",
+            "is_assembly_part": false
+        },
+        "battery_pack": {
+            "id": "keycard_lvl1",
+            "name": "High-Capacity Battery Pack",
+            "description": "A heavy 24V lithium-ion battery unit with high discharge current.",
+            "is_assembly_part": true
+        },
+        "mainboard": {
+            "id": "microcontroller_mainboard",
+            "name": "Microcontroller / Mainboard",
+            "description": "A high-performance computing board equipped with custom neural processors.",
+            "is_assembly_part": true
+        },
+        "sensory_module": {
+            "id": "sensory_module",
+            "name": "Sensory Module",
+            "description": "A integrated unit containing a high-res camera and dual-microphone array.",
+            "is_assembly_part": true
+        },
+        "wifi_credentials": {
+            "id": "wifi_credentials",
+            "name": "Wi-Fi Credentials Note",
+            "description": "A slip of paper with network ID 'CS_LAB_NET' and its WPA2 passkey.",
+            "is_assembly_part": true
+        },
+        "motors_speakers": {
+            "id": "motors_speakers",
+            "name": "Servo Motors & Speaker Assembly",
+            "description": "Actuators for physical joint rotation along with an audio driver.",
+            "is_assembly_part": true
+        },
+        "api_usb": {
+            "id": "api_usb",
+            "name": "Encrypted API & Prompt USB Drive",
+            "description": "Contains OpenAI API auth keys and system instructions for the robot.",
+            "is_assembly_part": true
+        }
+    },
+    "rooms": {
+        "lobby": {
+            "id": "lobby",
+            "name": "Lobby",
+            "description": "The main floor lobby. A flickering terminal sits near the entrance.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "north": "classroom_d_2015",
+                "east": "teachers_room_1"
+            },
+            "items": [
+                "chassis_frame"
+            ],
+            "interactables": {
+                "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
+            }
+        },
+        "classroom_d_2015": {
+            "id": "classroom_d_2015",
+            "name": "Classroom D 2015",
+            "description": "A standard lecture hall littered with loose papers.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "south": "lobby",
+                "east": "classroom_d_2035"
+            },
+            "items": [
+                "battery_pack"
+            ],
+            "interactables": {}
+        },
+        "teachers_room_1": {
+            "id": "teachers_room_1",
+            "name": "Teachers Room 1",
+            "description": "An office filled with filing cabinets and a locked desk.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "west": "lobby",
+                "north": "classroom_d_2035"
+            },
+            "items": [],
+            "interactables": {
+                "desk": {
+                    "restricted": true,
+                    "code": "2015",
+                    "reward": "keycard_lvl1",
+                    "hint": "Keypad hint: 'Room number where CS101 was held.'"
+                }
+            }
+        },
+        "classroom_d_2035": {
+            "id": "classroom_d_2035",
+            "name": "Classroom D 2035",
+            "description": "A lab room with multiple presentation workstations.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "west": "classroom_d_2015",
+                "south": "teachers_room_1",
+                "east": "project_room_1"
+            },
+            "items": [
+                "mainboard"
+            ],
+            "interactables": {}
+        },
+        "project_room_1": {
+            "id": "project_room_1",
+            "name": "Project Room 1",
+            "description": "A high-tech hardware testing bay.",
+            "restricted": null,
+            "requires": "keycard_lvl1",
+            "exits": {
+                "west": "classroom_d_2035",
+                "south": "teachers_room_2"
+            },
+            "items": [
+                "sensory_module"
+            ],
+            "interactables": {}
+        },
+        "teachers_room_2": {
+            "id": "teachers_room_2",
+            "name": "Teachers Room 2",
+            "description": "An administrative room featuring a massive whiteboard.",
+            "restricted": null,
+            "requires": null,
+            "exits": {
+                "north": "project_room_1",
+                "east": "project_room_2"
+            },
+            "items": [
+                "wifi_credentials",
+                "mega_phone"
+            ],
+            "interactables": {
+                "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
+            }
+        },
+        "project_room_2": {
+            "id": "project_room_3",
+            "name": "Project Room 2",
+            "description": "A robotics testing arena containing component crates.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "west": "teachers_room_2",
+                "south": "teacher_room_4"
+            },
+            "items": [
+                "motors_speakers"
+            ],
+            "interactables": {}
+        },
+        "teacher_room_4": {
+            "id": "teachers_room_4",
+            "name": "Teacher Room 4",
+            "description": "The senior faculty office. Papers cover the desk.",
+            "restricted": true,
+            "requires": "keycard_lvl1",
+            "exits": {
+                "north": "project_room_2",
+                "west": "lab_d_2001"
+            },
+            "items": [
+                "api_usb"
+            ],
+            "interactables": {}
+        },
+        "lab_d_2001": {
+            "id": "lab_d_2001",
+            "name": "Lab D 2001",
+            "description": "The final assembly lab equipped with an industrial workbench.",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "east": "teacher_room_4"
+            },
+            "items": [],
+            "interactables": {
+                "workbench": "A heavy metal table connected to a main server terminal."
+            }
+        }
+    },
+    "phases": {
+        "exploration": {},
+        "assembly": {
+            "wifi_password": "Tr0janH0rse!"
+        },
+        "chat": {
+            "mock": false,
+            "robot": {
+                "name": "Jarvis"
+            }
+        }
+    },
+    "game_state": {
+        "save_version": "1.0.0",
+        "timestamp": "2026-10-05T22:10:00Z",
+        "game_phase": "EXPLORATION"
     }
-  },
-  "workbench": {
-    "location": "lab_d_2001",
-    "required_parts": [
-      "chassis_frame",
-      "battery_pack",
-      "mainboard",
-      "sensory_module",
-      "motors_speakers",
-      "wifi_credentials",
-      "api_usb"
-    ],
-    "installed_parts": [],
-    "is_complete": false
-  },
-  "game_state": {
-    "save_version": "1.0.0",
-    "timestamp": "2026-10-05T22:10:00Z",
-    "game_phase": 1
-  }
 }

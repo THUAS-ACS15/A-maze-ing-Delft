@@ -103,9 +103,6 @@ def render(room_id: str | None = None, room_data: dict[str, Any] | None = None,
 def render_chat(text: str | None = None) -> None:
     """Displays workbench assembly status in Lab D 2001."""
 
-    installed_parts = state["workbench"]["installed_parts"]
-    required_parts = state["workbench"]["required_parts"]
-
     draw_line("═")
     out(
         colorize(
@@ -113,46 +110,9 @@ def render_chat(text: str | None = None) -> None:
         )
     )
     draw_line("═")
-    # out(f"Progress: {len(installed_parts)} / {len(required_parts)} components installed.\n")
-
-    # for part in required_parts:
-    #     item_data = state["items"][part]
-    #
-    #     if part in installed_parts:
-    #         status = colorize(
-    #             "[ INSTALLED ]", BRIGHT_GREEN + BOLD
-    #         )
-    #     else:
-    #         status = colorize("[ MISSING   ]", RED + DIM)
-    #
-    #     out(f" {status} - {item_data['name']}")
     if text is None:
         return
     out()
     respond(text)
     out()
-    # if len(installed_parts) == len(required_parts):
-    #     command = text if text else "Type 'activate' or 'power on' to start the neural link."
-    #     out(
-    #         colorize(
-    #             ">> ALL CORE COMPONENTS INSTALLED <<",
-    #             BRIGHT_GREEN + BOLD
-    #         )
-    #     )
-    #     out(
-    #         colorize(
-    #             command,
-    #             BRIGHT_YELLOW
-    #         )
-    #     )
-    # else:
-    #     remaining = len(required_parts) - len(installed_parts)
-    #     if text:
-    #       print(text)
-    #     out(
-    #         colorize(
-    #             f"Locate remaining {remaining} part(s) to complete assembly.",
-    #             DIM
-    #         )
-    #     )
     return

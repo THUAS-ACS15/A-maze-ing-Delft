@@ -4,19 +4,26 @@ import json
 import os
 from datetime import timezone, datetime
 from pathlib import Path
-from typing import Any
-
 
 _BASE_DIR = Path(__file__).resolve().parent
-GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
+DEFAULT_GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
 USER_STATE_PATH = _BASE_DIR / "data" / "user_state.json"
 SAVE_DIR = _BASE_DIR / "saves"
 
-with open(GAME_STATE_PATH, "r") as f:
-    state = json.load(f)
-
 with open(USER_STATE_PATH, "r") as u:
     user = json.load(u)
+
+with open(DEFAULT_GAME_STATE_PATH, "r") as f:
+    state = json.load(f)
+
+state.update(user)
+
+with open(USER_STATE_PATH, "w") as f:
+    json.dump(state, f, indent=4)
+
+def auto_save() -> None:
+    with open(USER_STATE_PATH, "w") as a:
+        json.dump(state, a, indent=4)
 
 def save_to_file(filename: str = "save_slot_1.json") -> tuple[bool, str]:
     """Persists current runtime state to disk."""
@@ -29,8 +36,8 @@ def save_to_file(filename: str = "save_slot_1.json") -> tuple[bool, str]:
 
 def spawn( room_id: str = "lobby") -> str:
     """Guarantee a valid spawn point (default lobby)."""
-    if not state["timestamp"]:
-        state["timestamp"] = datetime.now(timezone.utc).isoformat()
+    if not state["game_state"]["timestamp"]:
+        state["game_state"]["timestamp"] = datetime.now(timezone.utc).isoformat()
     rooms = state["rooms"]
     player = state["player"]
     current_room = player["current_room"]

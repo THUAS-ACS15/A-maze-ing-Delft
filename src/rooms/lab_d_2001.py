@@ -81,7 +81,7 @@ def use_on_workbench(item: str, target: str = "workbench") -> tuple[bool, str]:
 
     if len(installed_parts) >= len(required_parts):
         workbench["is_ready"] = True
-        state["game_phase"] = "ASSEMBLY"
+        state["games_state"]["game_phase"] = "ASSEMBLY"
         return True, f"{item_data["name"]} installed. ALL COMPONENTS INSTALLED — type 'activate'."
     return True, f"{item_data["name"]} installed ({len(installed_parts)}/{len(required_parts)})."
 
@@ -100,7 +100,7 @@ def finish_activation(name: str = "") -> str:
     robot = state["phases"]["chat"]["robot"]
     if name:
         robot["name"] = name
-    state["game_phase"] = "CHAT"
+    state["games_state"]["game_phase"] = "CHAT"
     state["player"]["move"] = []
     return f"{robot['name'].upper()} INITIALIZED"
 

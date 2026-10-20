@@ -45,56 +45,56 @@ def parse(raw_input: str) -> tuple[str, dict]:
     if len(tokens) == 1 and (
         first_token in ROOM_ALIASES or first_token in ROOM_NAME_ALIASES
     ):
-        return ("go", {"target": resolve_room_target(cleaned), "raw": cleaned})
+        return "go", {"target": resolve_room_target(cleaned), "raw": cleaned}
 
     # Resolve primary verb
     verb = VERB_ALIASES.get(first_token)
     if not verb:
-        return ("UNKNOWN", {"raw": raw_input})
+        return "UNKNOWN", {"raw": raw_input}
 
     # Argument processing
     args = tokens[1:]
     arg_str = " ".join(args)
 
     if verb == "look":
-        return ("look", {"raw": arg_str})
+        return "look", {"raw": arg_str}
 
     if verb == "inventory":
-        return ("inventory", {"raw": arg_str})
+        return "inventory", {"raw": arg_str}
 
     if verb == "help":
-        return ("help", {"raw": arg_str})
+        return "help", {"raw": arg_str}
 
     if verb == "clear":
-        return ("clear", {"raw": arg_str})
+        return "clear", {"raw": arg_str}
 
     if verb == "save":
         slot = args[0] if args else "save_slot_1.json"
-        return ("save", {"target": slot, "raw": arg_str})
+        return "save", {"target": slot, "raw": arg_str}
 
     if verb == "load":
         slot = args[0] if args else "save_slot_1.json"
-        return ("load", {"target": slot, "raw": arg_str})
+        return "load", {"target": slot, "raw": arg_str}
 
     if verb == "quit":
-        return ("quit", {"raw": arg_str})
+        return "quit", {"raw": arg_str}
 
     if verb == "activate":
-        return ("activate", {"raw": arg_str})
+        return "activate", {"raw": arg_str}
 
     if verb == "go":
         if not args:
             return ("INVALID", {
                 "message": "Go where? Specify a direction (north, south, east, west) or room name."})
         target = resolve_room_target(arg_str)
-        return ("go", {"target": target, "raw": arg_str})
+        return "go", {"target": target, "raw": arg_str}
 
     if verb == "inspect":
         if not args:
             return ("INVALID", {
                 "message": "Inspect what? Specify an item or object (e.g., 'inspect desk')."})
         target_id = ITEM_ALIASES.get(arg_str, arg_str)
-        return ("inspect", {"target": target_id, "raw": arg_str})
+        return "inspect", {"target": target_id, "raw": arg_str}
 
     if verb == "take":
         if not args:
@@ -105,7 +105,7 @@ def parse(raw_input: str) -> tuple[str, dict]:
             item_tokens = args[1:]
             arg_str = " ".join(item_tokens)
         target_id = ITEM_ALIASES.get(arg_str, arg_str)
-        return ("take", {"target": target_id, "raw": arg_str})
+        return "take", {"target": target_id, "raw": arg_str}
 
     if verb == "use":
         if not args:
@@ -122,6 +122,6 @@ def parse(raw_input: str) -> tuple[str, dict]:
                     {"target": item_id, "indirect": indirect_raw, "raw": arg_str})
         else:
             item_id = ITEM_ALIASES.get(arg_str, arg_str)
-            return ("use", {"target": item_id, "indirect": None, "raw": arg_str})
+            return "use", {"target": item_id, "indirect": None, "raw": arg_str}
 
-    return ("UNKNOWN", {"raw": raw_input})
+    return "UNKNOWN", {"raw": raw_input}

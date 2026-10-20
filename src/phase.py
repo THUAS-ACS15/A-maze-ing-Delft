@@ -125,7 +125,7 @@ def assembly() -> None:
     if state["player"]["current_room"] != "lab_d_2001":
         state["player"]["current_room"] = state["player"]["move"][-1]
         state["player"]["move"].pop()
-        state["game_phase"] = "EXPLORATION"
+        state["game_phase"]["game_phase"] = "EXPLORATION"
     clear()
     render_workbench()
     raw = prompt()
@@ -238,15 +238,3 @@ def chat() -> None:
         return
     clear()
     render_chat(raw)
-
-
-def out_boot_banner(self) -> None:
-    out(
-        self.display.colorize(
-            "A-maze-ing-Delft IS ONLINE.", BRIGHT_GREEN + BOLD
-        )
-    )
-    out(
-        "You are now connected to the A-maze-ing-Delft super intelligence in Lab D 2001. Speak freely."
-    )
-    out("Type 'quit' to disconnect.")
