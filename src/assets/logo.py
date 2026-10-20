@@ -1,5 +1,5 @@
 # ruff: noqa: E501 -- ANSI-colored ASCII-art rows are intentionally long.
-from ..display_functional import colorize
+from ..display import colorize
 
 LOGO = """
 [0;32m█▄       [0;37m      [0;32m█▄       ▄█[0;37m [0;32m█▄       [0;37m [0;32m███▀▀▀██▄[0;37m [0;32m▄██▀▀▀██▄[0;37m      [0;32m▀███▀[0;37m [0;32m█▄     ▄█[0;37m [0;32m▄██▀▀▀██▄[0;37m      [0;32m███▀▀▀██▄[0;37m [0;32m▄██▀▀▀██▄[0;37m [0;32m███      [0;37m [0;32m▄██▀▀▀██▄[0;37m [0;32m▀▀███▀▀▀[0m

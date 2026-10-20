@@ -1,4 +1,4 @@
-from ..state_functional import state
+from ..state import state
 
 DESK_CODE = "2015"
 REWARD = "keycard_lvl1"

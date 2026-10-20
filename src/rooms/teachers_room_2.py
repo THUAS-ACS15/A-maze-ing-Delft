@@ -1,5 +1,5 @@
-from ..room_functional import inspect
-from ..state_functional import state
+from ..room import inspect
+from ..state import state
 
 
 def inspect_whiteboard(target: str) -> tuple[bool, str]:

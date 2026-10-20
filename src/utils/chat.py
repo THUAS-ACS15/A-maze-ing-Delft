@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from ..langchain import langchain
-from ..state_functional import state
+from ..state import state
 
 NAME = state["phases"]["chat"]["robot"]["name"]
 SYSTEM_PROMPT = f"""

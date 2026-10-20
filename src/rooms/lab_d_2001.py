@@ -1,6 +1,6 @@
 from ..utils.colors import BRIGHT_MAGENTA, BOLD, BRIGHT_GREEN, RED, DIM, BRIGHT_YELLOW
-from ..display_functional import out, draw_line, colorize
-from ..state_functional import state
+from ..display import out, draw_line, colorize
+from ..state import state
 
 
 def render_workbench(text: str | None = None) -> None:

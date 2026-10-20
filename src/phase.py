@@ -1,13 +1,13 @@
-from .room_functional import render_chat
+from .room import render_chat
 from .rooms.lab_d_2001 import use_on_workbench, render_workbench, workbench_ready, verify_wifi_password, finish_activation
 from .rooms.teachers_room_1 import inspect_desk, use_desk_code
-from .display_functional import colorize
+from .display import colorize
 from .rooms.lobby import inspect_terminal
-from .display_functional import clear, out
-from .engine_functional import helper, render_inventory, prompt
-from .parser_functional import parse
-from .room_functional import render,  inspect, use, take
-from .state_functional import spawn, load_from_file, save_to_file, move_player, state
+from .display import clear, out
+from .engine import helper, render_inventory, prompt
+from .parser import parse
+from .room import render,  inspect, use, take
+from .state import spawn, load_from_file, save_to_file, move_player, state
 from .utils.colors import BRIGHT_GREEN, BOLD, RED, GREEN, BRIGHT_MAGENTA
 
 LAST_ROOM_ID: str | None = None

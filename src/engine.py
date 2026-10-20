@@ -1,254 +1,137 @@
-from .state import StateManager
-from .parser import CommandParser
-from .client import AIClient
-from .display import DisplayManager, Colors
-from assets.logo import print_logo
+from .parser import parse
+from .room import  render
+from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, BRIGHT_WHITE
+from .utils.commands import HELP_COMMANDS
+from .display import draw_line, out, colorize, clear
+from .state import spawn,  \
+    save_to_file, load_from_file, state
 
 
-class Engine:
-    def __init__(self, state_manager: StateManager):
-        self.state = state_manager
-        self.parser = CommandParser()
-        self.ai_client = AIClient()
-        self.display = DisplayManager()
-        self._last_room_id: str | None = None
+def prompt(message: str | None = None) -> str:
+    if message is None:
+        return input("\n> ").strip()
+    return input(f"\n{message} >").strip()
 
-    def run(self) -> None:
-        self.state.ensure_spawn("lobby")
-        while self.state.is_running():
-            phase = self.state.get_phase()
+def render_inventory() -> None:
+    """Renders carried items and displays total core assembly parts held."""
 
-            if phase == "EXPLORATION":
-                self.handle_exploration_turn()
-            elif phase == "ASSEMBLY":
-                self.handle_assembly_turn()
-            elif phase == "CHAT_MODE":
-                self.handle_chat_turn()
-            else:
-                self.handle_exploration_turn()
+    draw_line("─")
+    out(colorize("INVENTORY", BRIGHT_CYAN + BOLD))
+    draw_line("─")
 
-    def get_input(self) -> str:
-        return input("\n> ")
+    current_inventory = state["player"]["inventory"]
+    if not current_inventory:
+        out(colorize("Your inventory is currently empty.", DIM))
+        out()
+        return
 
-    def _render_current_room(self) -> None:
-        room_id = self.state.get_current_room_id()
-        room_data = self.state.get_room_data(room_id)
-        items_db = self.state.state.get("items", {})
-        self.display.render_room(room_id, room_data, items_db)
-        self._last_room_id = room_id
+    assembly_parts_count = 0
+    for item in current_inventory:
+        item_data = state["items"][item]
+        is_part = item_data["is_assembly_part"]
 
-    def handle_exploration_turn(self) -> None:
-        """Single prompt cycle; run() owns the while loop (lobby spawn)."""
-        room_id = self.state.get_current_room_id()
-        if self._last_room_id != room_id:
-            self._render_current_room()
+        if item_data["is_assembly_part"]:
+            assembly_parts_count += 1
+            tag = f" {colorize('[ASSEMBLY PART]', BRIGHT_GREEN)}"
+        else:
+            tag = ""
 
-        raw = self.get_input()
-        verb, details = self.parser.parse(raw)
+        out(f" • {colorize(item_data["name"], BRIGHT_YELLOW)}{tag}")
+        out(f"   {colorize(item_data["description"], DIM)}")
 
-        if verb == "EMPTY":
-            return
-        if verb == "UNKNOWN":
-            print("I don't understand that command. Type 'help' for actions.")
-            return
-        if verb == "INVALID":
-            print(details.get("message", "Invalid command."))
-            return
-        if verb == "quit":
-            self.state.state["running"] = False
-            print("Goodbye.")
-            return
-        if verb == "help":
-            self.display.render_help(self.state.get_phase())
-            return
-        if verb == "clear":
-            self.display.clear()
-            self._render_current_room()
-            return
-        if verb == "look":
-            self._render_current_room()
-            return
-        if verb == "inventory":
-            self.display.render_inventory(
-                self.state.get_inventory(), self.state.state.get("items", {}))
-            return
-        if verb == "save":
-            self.state.save_to_file(details.get("target", "save_slot_1.json"))
-            return
-        if verb == "load":
-            if self.state.load_from_file(details.get("target", "save_slot_1.json")):
-                self.state.ensure_spawn("lobby")
-                self._last_room_id = None
-            return
-
-        room = self.state.current_room()
-
-        if verb == "go":
-            target = details.get("target", "")
-            ok, result = self.state.move_player(target)
-            if not ok:
-                print(result)
-                return
-            self._render_current_room()
-            return
-        if verb == "inspect":
-            target = details.get("target", "")
-            if target == "workbench" and self.state.get_current_room_id() == "lab_d2001":
-                self.display.render_workbench(
-                    self.state.state.get("workbench", {}),
-                    self.state.state.get("items", {}))
-                return
-            if target == "terminal" and self.state.get_current_room_id() == "lobby":
-                raw_text = room.interactables.get("terminal", "A maze ing Delft")
-                full_msg = raw_text if isinstance(raw_text, str) else str(raw_text)
-                print_logo()
-                print(full_msg)
-                return
-            print(room.on_inspect(target, self.state))
-            return
-        if verb == "take":
-            ok, msg = room.on_take(details.get("target", ""), self.state)
-            print(msg)
-            return
-        if verb == "use":
-            item = details.get("target", "")
-            indirect = details.get("indirect")
-            ok, msg = room.on_use(item, indirect, self.state)
-            print(msg)
-            if self.state.get_phase() != "EXPLORATION":
-                self._last_room_id = None
-            return
-        if verb == "activate":
-            current = self.state.current_room()
-            handler = getattr(current, "on_activate", None)
-            if handler is None:
-                print("Nothing to activate here.")
-                return
-            ok, msg = handler(self.state)
-            print(msg)
-            if ok:
-                self._last_room_id = None
-            return
-        print(f"Unhandled command '{verb}'.")
-
-    def handle_assembly_turn(self) -> None:
-        """Locked in lab_d2001 until 'activate'. Single prompt cycle."""
-        if self.state.get_current_room_id() != "lab_d2001":
-            self.state.state["player"]["current_room"] = "lab_d2001"
-            self._last_room_id = None
-        if self._last_room_id != "lab_d2001":
-            self._render_current_room()
-            self.display.render_workbench(
-                self.state.state.get("workbench", {}),
-                self.state.state.get("items", {}))
-
-        raw = self.get_input()
-        verb, details = self.parser.parse(raw)
-
-        if verb == "EMPTY":
-            return
-        if verb == "UNKNOWN":
-            print("Assembly locked. Type 'activate' (or 'inspect workbench', 'help').")
-            return
-        if verb == "INVALID":
-            print(details.get("message", "Invalid command."))
-            return
-        if verb == "quit":
-            self.state.state["running"] = False
-            print("Goodbye.")
-            return
-        if verb == "help":
-            self.display.render_help("ASSEMBLY")
-            return
-        if verb == "clear":
-            self.display.clear()
-            self._last_room_id = None
-            return
-        if verb == "look":
-            self._last_room_id = None
-            return
-        if verb == "inventory":
-            self.display.render_inventory(
-                self.state.get_inventory(), self.state.state.get("items", {}))
-            return
-        if verb == "save":
-            self.state.save_to_file(details.get("target", "save_slot_1.json"))
-            return
-        if verb == "load":
-            if self.state.load_from_file(details.get("target", "save_slot_1.json")):
-                self.state.ensure_spawn("lobby")
-                self._last_room_id = None
-            return
-        if verb == "go":
-            print("Navigation disabled during assembly. Type 'activate' to boot the unit.")
-            return
-        if verb == "take":
-            print("Assembly locked. All components are on the workbench. Type 'activate'.")
-            return
-        if verb == "use":
-            print("Assembly locked. Type 'activate' to boot the unit.")
-            return
-        if verb == "inspect":
-            target = details.get("target", "")
-            if target in ("workbench", ""):
-                self.display.render_workbench(
-                    self.state.state.get("workbench", {}),
-                    self.state.state.get("items", {}))
-                return
-            print(self.state.current_room().on_inspect(target, self.state))
-            return
-        if verb == "activate":
-            current = self.state.current_room()
-            handler = getattr(current, "on_activate", None)
-            if handler is None:
-                print("Nothing to activate here.")
-                return
-            ok, msg = handler(self.state)
-            print(msg)
-            self._last_room_id = None
-            return
-        print("Assembly locked. Type 'activate'.")
-
-    def handle_chat_turn(self) -> None:
-        """Finale: freeform chat via AIClient. Single prompt cycle."""
-        if not getattr(self, "_chat_booted", False):
-            self.display.clear()
-            self._out_boot_banner()
-            self._chat_booted = True
-
-        raw = self.get_input().strip()
-        if not raw:
-            return
-        lowered = raw.lower()
-        if lowered in ("quit", "exit", "q"):
-            self.state.state["running"] = False
-            print("Connection closed. Goodbye.")
-            return
-        if lowered in ("help", "?", "h", "commands"):
-            self.display.render_help("CHAT_MODE")
-            return
-        if lowered in ("clear", "cls"):
-            self.display.clear()
-            return
-        if lowered == "save":
-            self.state.save_to_file("save_slot_1.json")
-            return
-
-        print("A-maze-ing-delft > ", end="", flush=True)
-        try:
-            for token in self.ai_client.stream_response(raw):
-                print(token, end="", flush=True)
-            print()
-        except Exception as exc:
-            print(f"\n[Comms error: {exc}]")
-
-    def _out_boot_banner(self) -> None:
-        self.display._out(
-            self.display.colorize(
-                "A-maze-ing-Delft IS ONLINE.", Colors.BRIGHT_GREEN + Colors.BOLD
-                )
+    out(
+        colorize(
+            f"\nAssembly Components Collected: {assembly_parts_count}/{len(state["workbench"]["required_parts"])}", BRIGHT_WHITE
         )
-        self.display._out(
-            "You are now connected to the A-maze-ing-Delft super intelligence in Lab D 2001. Speak freely."
-        )
-        self.display._out("Type 'quit' to disconnect.")
+    )
+    out()
+
+def helper(phase: str | None = None) -> None:
+    if phase is None:
+        phase = state["game_phase"]
+    if phase == "ASSEMBLY":
+        HELP_COMMANDS.append(("Assembly", [
+            ("activate", "Boot unit (power on, start)", "activate"),
+            ("inspect workbench", "Show installed vs missing parts", "inspect workbench"),
+        ]))
+
+    try:
+        import os
+
+        from rich.console import Console
+        from rich.table import Table
+
+        console = Console(highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True)
+        for title, rows in HELP_COMMANDS:
+            table = Table(title=title, show_header=True, header_style="bold")
+            table.add_column("Command", style="cyan", no_wrap=True)
+            table.add_column("Description")
+            table.add_column("Example", style="dim")
+            for cmd, desc, ex in rows:
+                table.add_row(cmd, desc, ex)
+            console.print(table)
+    except ModuleNotFoundError:
+        out("Available Commands:")
+        for title, rows in HELP_COMMANDS:
+            out(f"[{title}]")
+            for cmd, desc, ex in rows:
+                out(f"  {cmd:<24} {desc}  e.g. {ex}")
+
+def handle_command(command: str, phase: str = "EXPLORATION") -> None:
+    rooms = state["rooms"]
+    current_room = state["player"]["current_room"]
+    items = state["items"]
+    if state["player"]["move"][-1] != current_room:
+        render()
+
+    raw = prompt()
+    verb, details = parse(raw)
+
+    if verb == "EMPTY":
+        return
+    if verb == "UNKNOWN":
+        print("I don't understand that command. Type 'help' for actions.")
+        return
+    if verb == "INVALID":
+        print(details.get("message", "Invalid command."))
+        return
+    if verb == "quit":
+        state["running"] = False
+        print("Goodbye.")
+        return
+    if verb == "help":
+        helper(state["phase"])
+        return
+    if verb == "clear":
+        clear()
+        render()
+        return
+    if verb == "look":
+        render()
+        return
+    if verb == "inventory":
+        render_inventory()
+        return
+    if verb == "save":
+        save_to_file(details.get("target", "save_slot_1.json"))
+        return
+    if verb == "load":
+        if load_from_file(details.get("target", "save_slot_1.json")):
+            spawn("lobby")
+            _last_room_id = None
+        return
+
+
+def run() -> None:
+    # Imported lazily to break the engine_functional <-> phase circular import.
+    from .phase import exploration, assembly, chat
+    spawn()
+    while state["running"]:
+        if state["game_phase"] == "EXPLORATION":
+            exploration()
+        elif state["game_phase"] == "ASSEMBLY":
+            assembly()
+        elif state["game_phase"] == "CHAT":
+            chat()
+        else:
+            exploration()

@@ -5,6 +5,8 @@
     "enable_colors": true,
     "terminal_width":  80,
     "player": {
+        "username": null,
+        "fullname": null,
         "current_room": "lobby",
         "inventory": [],
         "move": []

@@ -1,7 +1,7 @@
 from typing import Any
 
 from ..assets.logo import LOGO
-from ..state_functional import state
+from ..state import state
 
 
 def inspect_terminal() -> tuple[Any, str]:
