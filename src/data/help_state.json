@@ -1,0 +1,87 @@
+[
+  {
+    "title": "Movement",
+    "commands": [
+      {
+        "command": "go <direction|room>",
+        "description": "Move (n/s/e/w or adjacent room name)",
+        "example": "go north, go lab"
+      },
+      {
+        "command": "look",
+        "description": "Re-render current room",
+        "example": "look"
+      }
+    ]
+  },
+  {
+    "title": "Inspect & Items",
+    "commands": [
+      {
+        "command": "inspect <target>",
+        "description": "Examine object or item",
+        "example": "inspect desk"
+      },
+      {
+        "command": "take <item>",
+        "description": "Pick up item",
+        "example": "take battery_pack"
+      },
+      {
+        "command": "use <item> on <target>",
+        "description": "Use item / solve puzzle",
+        "example": "use 2015 on desk"
+      },
+      {
+        "command": "inventory",
+        "description": "Show carried items (inv, i)",
+        "example": "inventory"
+      }
+    ]
+  },
+  {
+    "title": "System",
+    "commands": [
+      {
+        "command": "save \\[slot]",
+        "description": "Save game",
+        "example": "save"
+      },
+      {
+        "command": "load \\[slot]",
+        "description": "Load game",
+        "example": "load"
+      },
+      {
+        "command": "clear (cls)",
+        "description": "Clear screen",
+        "example": "clear"
+      },
+      {
+        "command": "help (?, h)",
+        "description": "Show this help",
+        "example": "help"
+      },
+      {
+        "command": "quit (q, exit)",
+        "description": "Quit game",
+        "example": "quit"
+      }
+    ]
+  },
+  {
+    "title": "Assembly",
+    "commands": [
+      {
+        "command": "activate",
+        "description": "Boot unit (power on, start)",
+        "example": "activate"
+      },
+      {
+        "command": "inspect workbench",
+        "description": "Show installed vs missing parts",
+        "example": "inspect workbench"
+      }
+    ]
+  }
+]

@@ -84,7 +84,7 @@ def stream(user_input: str) -> Iterator[str]:
                 yield token
 
     except Exception as e:
-        yield f"\n[{NAME} Core Error]: Connection failure ({e})"
+        yield f"\n[{name()} Core Error]: Connection failure ({e})"
 
     # Persist context history upon successful completion
     _history.append(HumanMessage(content=user_input))

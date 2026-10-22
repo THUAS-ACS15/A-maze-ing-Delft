@@ -30,7 +30,7 @@ def assembly() -> None:
         clear()
         workbench(
             colorize(
-                f"Build your dream robot. type 'activate' to begin activation",
+                "Build your dream robot. type 'activate' to begin activation",
                 BRIGHT_GREEN
                 )
         )

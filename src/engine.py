@@ -2,11 +2,10 @@ from typing import Any
 
 from .rooms.lab_d2_001 import use_on_workbench, workbench
 from .rooms.teachers_room_1 import use_desk_code
-from .state import auto
+from .state import auto, help_commands
 from .room import render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
     BRIGHT_WHITE, BRIGHT_MAGENTA, RED
-from .utils.commands import HELP_COMMANDS
 from .display import draw_line, out, colorize
 from .state import spawn,  \
     save, move, state
@@ -53,16 +52,10 @@ def inventory() -> None:
     out()
 
 def helper() -> None:
-    assembly_help = ("Assembly", [
-            ("activate", "Boot unit (power on, start)", "activate"),
-            ("inspect workbench", "Show installed vs missing parts", "inspect workbench"),
-        ])
-
-    if state["game_state"]["phase"] == "ASSEMBLY":
-        HELP_COMMANDS.append(assembly_help)
-    else:
-        if assembly_help in HELP_COMMANDS:
-            HELP_COMMANDS.remove(assembly_help)
+    groups = [
+        group for group in help_commands
+        if group["title"] != "Assembly" or state["game_state"]["phase"] == "ASSEMBLY"
+    ]
 
     try:
         import os
@@ -71,20 +64,20 @@ def helper() -> None:
         from rich.table import Table
 
         console = Console(highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True)
-        for title, rows in HELP_COMMANDS:
-            table = Table(title=title, show_header=True, header_style="bold")
+        for group in groups:
+            table = Table(title=group["title"], show_header=True, header_style="bold")
             table.add_column("Command", style="cyan", no_wrap=True)
             table.add_column("Description")
             table.add_column("Example", style="dim")
-            for cmd, desc, ex in rows:
-                table.add_row(cmd, desc, ex)
+            for cmd in group["commands"]:
+                table.add_row(cmd["command"], cmd["description"], cmd["example"])
             console.print(table)
     except ModuleNotFoundError:
         out("Available Commands:")
-        for title, rows in HELP_COMMANDS:
-            out(f"[{title}]")
-            for cmd, desc, ex in rows:
-                out(f"  {cmd:<24} {desc}  e.g. {ex}")
+        for group in groups:
+            out(f"[{group['title']}]")
+            for cmd in group["commands"]:
+                out(f"  {cmd['command']:<24} {cmd['description']}  e.g. {cmd['example']}")
 
 def inspect(details) -> None:
     target = details["target"]

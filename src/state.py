@@ -13,11 +13,13 @@ from .utils.duration import calculate_duration
 _BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
 USER_STATE_PATH = _BASE_DIR / "data" / "user_state.json"
+HELP_COMMANDS_PATH = _BASE_DIR / "data" / "help_state.json"
 SAVE_DIR = _BASE_DIR / "saves"
 
 # Ensure target folder exists
 USER_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 state: dict = {}
+help_commands: list = []
 
 def initialize() -> None:
     global state
@@ -30,6 +32,10 @@ def initialize() -> None:
     # 2. Load actual active state into memory
     if not state:
         state = json.loads(USER_STATE_PATH.read_text())
+
+    if not help_commands:
+        help_commands[:] = json.loads(HELP_COMMANDS_PATH.read_text(encoding="utf-8"))
+    return None
     return None
 
 def auto() -> None:
