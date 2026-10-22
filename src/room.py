@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-
+from .display import header
 from .utils.colors import BRIGHT_YELLOW, BOLD, CYAN, RED, BRIGHT_WHITE, BRIGHT_GREEN, \
     DIM, \
     WHITE, BRIGHT_MAGENTA
@@ -16,15 +16,7 @@ def render(text: str | None = None, asset: str | None = None) -> None:
 
     if text is None:
        text = room_data["description"]
-    draw_line("═")
-    out(
-        colorize(f"[{state['game_state']['phase']}]", BRIGHT_MAGENTA)
-    )
-    out(
-        colorize(f"LOCATION: {room_data['name']}", BRIGHT_YELLOW + BOLD)
-        )
-    out(colorize(f"{state['game_state']['duration']}", DIM + BOLD))
-    draw_line("═")
+    header()
 
     # Asset
     if asset:
