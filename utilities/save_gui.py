@@ -6,6 +6,7 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+from typing import Any
 
 from utilities.save_management import get_save_info, load_save, save_game
 from utilities.status_bar import display_top_bar
@@ -123,7 +124,7 @@ def display_save_menu(state: dict):
         sleep(2)
         return
 
-def display_load_menu():
+def display_load_menu() -> Any:
     """
     Displays the save menu, allowing the player to choose a save slot to LOAD their progress.
     

@@ -42,19 +42,19 @@ def langchain(provider: Provider, model_name: str | None = None) -> BaseChatMode
                 return ChatOllama(
                     model=model_name or "llama3.2:3b",
                 )
-            except Exception as e:
+            except Exception:
                 try:
                     return ChatGoogleGenerativeAI(
                         model=model_name or "models/gemini-3.5-flash-lite",
                         streaming=True
                     )
-                except Exception as e:
+                except Exception:
                     try:
                         return ChatOpenAI(
                             model=model_name or "gpt-4o-mini",
                             streaming=True
                         )
-                    except Exception as e:
+                    except Exception:
                         return ChatGroq(
                             model=model_name or "openai/gpt-oss-120b",
                             streaming=True,

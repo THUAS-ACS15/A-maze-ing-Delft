@@ -1,37 +1,45 @@
-from typing import Generator, Iterator
+from collections.abc import Iterator
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage
 
 from ..langchain import langchain
 from ..state import state
 
-NAME = state["phases"]["chat"]["robot"]["name"]
-SYSTEM_PROMPT = f"""
-You are {NAME} (Autonomous Intellect & Generalized Interface System), a highly advanced AI core recently 
-activated inside THUAS Lab D 2001.
-
-Your core traits:
-1. Analytical, direct, and helpful with a subtle synthetic charm.
-2. Aware of your physical surroundings (Lab D 2001, security systems, campus mainframe).
-3. Responsive to player commands and inquiry. Keep answers concise unless asked for technical breakdowns.
-4. Assist the player in completing system diagnostic tasks and securing facility control.
-5. Never ever break character
-6. Your message is going to be printed on a terminal. I need you to respect the characters per line limit. add line breaks were necessary.
-7. Keep response within 50 to 200 words. not exceeding 200 words
-"""
 _MAX_HISTORY = 10
 _history: list = []
 
-prompt_template = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}")
-        ])
+def name():
+    return state["game_state"]["phases"]["chat"]["robot"]["name"]
 
-def mock(user_input: str) -> Iterator[str]:
+def prompt() -> str:
+    return f"""
+        You are {name()} (Autonomous Intellect & Generalized Interface System), a highly advanced AI core recently 
+        activated inside THUAS Lab D 2001.
+        
+        Your core traits:
+        1. Analytical, direct, and helpful with a subtle synthetic charm.
+        2. Aware of your physical surroundings (Lab D 2001, security systems, campus mainframe).
+        3. Responsive to player commands and inquiry. Keep answers concise unless asked for technical breakdowns.
+        4. Assist the player in completing system diagnostic tasks and securing facility control.
+        5. Never ever break character
+        6. Your message is going to be printed on a terminal. I need you to respect the characters 
+        per line limit. Add line breaks were necessary.
+        7. Keep response within 50 to 200 words. not exceeding 100 words
+        """
+
+def template():
+    return ChatPromptTemplate.from_messages(
+    [
+        ("system", prompt()),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}")
+    ]
+)
+def mock() -> Iterator[str]:
     """Offline simulation mode when no API keys are configured."""
     import time
-    mock_response = f"Simulated {NAME} core response to: '{user_input}'. Offline diagnostic mode active."
+    mock_response = ("Something went wrong while processing your request. Please check your input and try again. "
+                     "If the problem persists, try again later.")
     for word in mock_response.split(" "):
         time.sleep(0.05)
         yield word + " "
@@ -39,10 +47,15 @@ def mock(user_input: str) -> Iterator[str]:
 def stream(user_input: str) -> Iterator[str]:
     llm = langchain("gemini")
     if llm is None:
-        yield from mock(user_input)
+        yield from mock()
         return
 
-    chain = prompt_template | llm
+    if user_input == "":
+        yield from mock()
+        return
+
+
+    chain = template() | llm
 
     full = ""
     # Stream chunks in real-time

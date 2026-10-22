@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def calculate_duration(start_time: str, end_time: str):
+def calculate_duration(start_time: str, end_time: str) -> timedelta:
     dt_start = datetime.fromisoformat(start_time)
     dt_end = datetime.fromisoformat(end_time)
 

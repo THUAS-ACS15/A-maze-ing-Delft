@@ -125,9 +125,9 @@
             "interactables": {
                 "desk": {
                     "restricted": true,
-                    "code": "2015",
+                    "code": "D2084",
                     "reward": "keycard_lvl1",
-                    "hint": "Keypad hint: 'Room number where CS101 was held.'"
+                    "hint": "Keypad hint: 'Room number where intercultural collaboration class was help was held.\nhint: D2084'"
                 }
             }
         },
@@ -179,12 +179,12 @@
             "description": "The senior faculty office. Papers cover the desk.",
             "restricted": true,
             "requires": "keycard_lvl1",
-            "exits": {"north": "project_room_2", "west": "lab_d_2001"},
+            "exits": {"north": "project_room_2", "west": "lab_d2_001"},
             "items": ["api_usb"],
             "interactables": {}
         },
-        "lab_d_2001": {
-            "id": "lab_d_2001",
+        "lab_d2_001": {
+            "id": "lab_d2_001",
             "name": "Lab D 2001",
             "description": "The final assembly lab equipped with an industrial workbench.",
             "restricted": false,
@@ -196,15 +196,30 @@
             }
         }
     },
-    "phases": {
-        "exploration": {},
-        "assembly": {
-            "wifi_password": "Tr0janH0rse!"
-        },
-        "chat": {
-            "mock": false,
-            "robot": {
-                "name": "Jarvis"
+    "errors": {
+        "unknown": "\"Unknown or invalid command. Type 'help' to get valid commands.\""
+    },
+    "game_state": {
+        "save_version": "1.0.0",
+        "timestamp": null,
+        "duration": "00:00:00",
+        "phase": "EXPLORATION",
+        "phases": {
+            "exploration": {
+                "activated": false
+            },
+            "assembly": {
+                "activated": false,
+                "wifi_password": "Tr0janH0rse!"
+            },
+            "chat": {
+                "activated": false,
+                "mock": false,
+                "robot": {
+                    "name": "Jarvis",
+                    "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
+                    "history": []
+                }
             }
         }
     }

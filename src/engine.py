@@ -1,11 +1,15 @@
-from .state import auto_save
-from .parser import parse
-from .room import  render
-from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, BRIGHT_WHITE
+from typing import Any
+
+from .rooms.lab_d2_001 import use_on_workbench, workbench
+from .rooms.teachers_room_1 import use_desk_code
+from .state import auto
+from .room import render
+from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
+    BRIGHT_WHITE, BRIGHT_MAGENTA, RED
 from .utils.commands import HELP_COMMANDS
-from .display import draw_line, out, colorize, clear
+from .display import draw_line, out, colorize
 from .state import spawn,  \
-    save_to_file, load_from_file, state
+    save, move, state
 
 
 def prompt(message: str | None = None) -> str:
@@ -13,23 +17,23 @@ def prompt(message: str | None = None) -> str:
         return input("\n> ").strip()
     return input(f"\n{message} >").strip()
 
-def render_inventory() -> None:
+def inventory() -> None:
     """Renders carried items and displays total core assembly parts held."""
 
-    draw_line("─")
+    draw_line("=")
+    out(colorize(f"[{state['game_state']['phase']}]", BRIGHT_MAGENTA))
     out(colorize("INVENTORY", BRIGHT_CYAN + BOLD))
-    draw_line("─")
+    out(colorize(f"{state['game_state']['duration']}", DIM))
+    draw_line("=")
 
-    current_inventory = state["player"]["inventory"]
-    if not current_inventory:
+    if not state["player"]["inventory"]:
         out(colorize("Your inventory is currently empty.", DIM))
         out()
         return
 
     assembly_parts_count = 0
-    for item in current_inventory:
+    for item in state["player"]["inventory"]:
         item_data = state["items"][item]
-        is_part = item_data["is_assembly_part"]
 
         if item_data["is_assembly_part"]:
             assembly_parts_count += 1
@@ -37,24 +41,28 @@ def render_inventory() -> None:
         else:
             tag = ""
 
-        out(f" • {colorize(item_data["name"], BRIGHT_YELLOW)}{tag}")
-        out(f"   {colorize(item_data["description"], DIM)}")
+        out(f" • {colorize(item_data['name'], BRIGHT_YELLOW)}{tag}")
+        out(f"   {colorize(item_data['description'], DIM)}")
 
     out(
         colorize(
-            f"\nAssembly Components Collected: {assembly_parts_count}/{len(state["workbench"]["required_parts"])}", BRIGHT_WHITE
+            f"\nAssembly Components in Inventory: {assembly_parts_count}/{len(state['workbench']['required_parts'])}",
+            BRIGHT_WHITE
         )
     )
     out()
 
-def helper(phase: str | None = None) -> None:
-    if phase is None:
-        phase = state["game_state"]["game_phase"]
-    if phase == "ASSEMBLY":
-        HELP_COMMANDS.append(("Assembly", [
+def helper() -> None:
+    assembly_help = ("Assembly", [
             ("activate", "Boot unit (power on, start)", "activate"),
             ("inspect workbench", "Show installed vs missing parts", "inspect workbench"),
-        ]))
+        ])
+
+    if state["game_state"]["phase"] == "ASSEMBLY":
+        HELP_COMMANDS.append(assembly_help)
+    else:
+        if assembly_help in HELP_COMMANDS:
+            HELP_COMMANDS.remove(assembly_help)
 
     try:
         import os
@@ -78,49 +86,102 @@ def helper(phase: str | None = None) -> None:
             for cmd, desc, ex in rows:
                 out(f"  {cmd:<24} {desc}  e.g. {ex}")
 
-def handle_command(command: str, phase: str = "EXPLORATION") -> None:
-    rooms = state["rooms"]
+def inspect(details) -> None:
+    target = details["target"]
+    if target == "terminal" and state["player"]["current_room"] == "lobby":
+        from .assets.logo import logo
+        render(text=state["rooms"]["lobby"]["interactables"]["terminal"], asset=logo)
+        return None
+    elif target == "desk" and state["player"]["current_room"] == "teachers_room_1":
+
+        if not state["flags"]["tr1_desk_unlocked"]:
+
+            render(
+                text=state["rooms"]["teachers_room_1"]["interactables"]["desk"]["hint"]
+                )
+            return None
+        render(
+            text=colorize("The desk drawer is open. You already took the keycard.", BRIGHT_GREEN)
+        )
+        return None
+    elif target == "workbench" and state["player"]["current_room"] == "lab_d2_001":
+        workbench()
+        return None
+    elif target == "whiteboard" and state["player"]["current_room"] == "teachers_room_2":
+        state["flags"]["tr2_whiteboard_inspected"] = True
+        whiteboard = state["rooms"]["teachers_room_2"]["interactables"]["whiteboard"]
+        render(text=whiteboard)
+        return None
+    else:
+        render(text=colorize("The item you're trying to inspect is unavailable", color_code=RED))
+        return None
+
+def use(details: Any) -> None:
+    item = details["target"]
+    target = details["indirect"]
+    if state["player"]["current_room"] == "teachers_room_1":
+        use_desk_code(item, target)
+        return None
+    if state["player"]["current_room"] == "lab_d2_001":
+        use_on_workbench(item)
+        return None
+    else:
+        pi = state["player"]["inventory"]
+        if item not in pi:
+            render(
+                text=colorize(
+                    f"You are currently do not have '{item}' in your inventory.",
+                    color_code=RED
+                    )
+                )
+            return None
+        render(
+            text=colorize(
+                f"You cannot use that {item} on {target}.", color_code=RED
+            )
+        )
+        return None
+
+def take(item: str) -> None:
     current_room = state["player"]["current_room"]
-    items = state["items"]
-    if state["player"]["move"][-1] != current_room:
-        render()
+    room_data = state["rooms"][current_room]
+    if item not in room_data["items"]:
+        render(text=colorize(f"There is no '{item}' here.", color_code=RED))
+        return None
+    room_data["items"].remove(item)
+    state["player"]["inventory"].append(item)
+    i = state["items"][item]
+    render(colorize(f"You picked up {i['name']}", BRIGHT_GREEN))
+    return None
 
-    raw = prompt()
-    verb, details = parse(raw)
-
-    if verb == "EMPTY":
-        return
-    if verb == "UNKNOWN":
-        print("I don't understand that command. Type 'help' for actions.")
-        return
-    if verb == "INVALID":
-        print(details.get("message", "Invalid command."))
-        return
+def command(verb, details) -> None:
     if verb == "quit":
         state["running"] = False
-        print("Goodbye.")
+        render("Goodbye. see you again soon")
         return
-    if verb == "help":
-        helper(state["phase"])
+    elif verb == "help":
+        helper()
         return
-    if verb == "clear":
-        clear()
+    elif verb == "inventory":
+        inventory()
+        return
+    elif verb == "use":
+        use(details)
+    elif verb == "save":
+        save(details.get("target", "save_slot_1.json"))
+    elif verb == "inspect":
+        inspect(details)
+        return
+    elif verb == "look":
         render()
         return
-    if verb == "look":
-        render()
+    elif verb == "take":
+        item = details.get("target", "")
+        take(item)
         return
-    if verb == "inventory":
-        render_inventory()
-        return
-    if verb == "save":
-        save_to_file(details.get("target", "save_slot_1.json"))
-        return
-    if verb == "load":
-        if load_from_file(details.get("target", "save_slot_1.json")):
-            spawn("lobby")
-            _last_room_id = None
-        return
+    elif verb == "go":
+        target = details.get("target", "")
+        move(target)
 
 
 def run() -> None:
@@ -128,12 +189,12 @@ def run() -> None:
     from .phase import exploration, assembly, chat
     spawn()
     while state["running"]:
-        auto_save()
-        if state["game_state"]["game_phase"] == "EXPLORATION":
+        auto()
+        if state["game_state"]["phase"] == "EXPLORATION":
             exploration()
-        elif state["game_state"]["game_phase"] == "ASSEMBLY":
+        elif state["game_state"]["phase"] == "ASSEMBLY":
             assembly()
-        elif state["game_state"]["game_phase"] == "CHAT":
+        elif state["game_state"]["phase"] == "CHAT":
             chat()
         else:
             exploration()

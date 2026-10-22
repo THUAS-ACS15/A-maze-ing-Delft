@@ -43,11 +43,11 @@ ROOM_NAME_ALIASES = {
     "teacher room 4": "teacher_room_4",
     "teachers room 4": "teacher_room_4",
     "tr4": "teacher_room_4",
-    "lab_d_2001": "lab_d_2001",
-    "lab d2001": "lab_d_2001",
-    "lab d 2001": "lab_d_2001",
-    "lab": "lab_d_2001",
-    "d2001": "lab_d_2001",
+    "lab_d2_001": "lab_d2_001",
+    "lab d2001": "lab_d2_001",
+    "lab d 2001": "lab_d2_001",
+    "lab": "lab_d2_001",
+    "d2001": "lab_d2_001",
 }
 
 # Verb alias mappings
@@ -66,6 +66,13 @@ VERB_ALIASES = {
     "south": "go",
     "east": "go",
     "west": "go",
+    "back": "back",
+    "backward": "back",
+    "bck": "back",
+    "behind": "back",
+    "forward": "forward",
+    "front": "forward",
+    "frt": "forward",
 
     # Looking / Environment
     "look": "look",
@@ -101,6 +108,15 @@ VERB_ALIASES = {
     "install": "use",
     "insert": "use",
     "mount": "use",
+
+# Item Discard / Assembly
+    "drop": "drop",
+    "leave": "drop",
+    "remove": "drop",
+    "shed": "drop",
+    "discard": "drop",
+    "dismiss": "drop",
+    "release": "drop",
 
     # Inventory
     "inventory": "inventory",
@@ -241,4 +257,9 @@ ITEM_ALIASES = {
     "Mega Phone": "mega_phone",
     "audio": "mega_phone",
     "audio device": "mega_phone",
+    "desk": "desk",
+    "table": "workbench",
+    "bench": "workbench",
+    "work_bench": "workbench",
+    "work bench": "work_bench",
 }

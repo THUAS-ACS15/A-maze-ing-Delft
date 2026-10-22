@@ -1,8 +1,10 @@
 from subprocess import run
 
-from .state import state
+from .utils.colors import BOLD, BRIGHT_MAGENTA, BRIGHT_YELLOW, DIM
+
 
 def colorize(text: str, color_code: str) -> str:
+    from .state import state
     return f"{color_code}{text}\033[0m" if state["enable_colors"] else text
 
 def out(text: str = "") -> None:
@@ -11,6 +13,8 @@ def out(text: str = "") -> None:
     builtins.print(safe(text))
 
 def draw_line(char: str = "-") -> None:
+    from .state import state
+
     out(colorize(char * state["terminal_width"], "\033[2m"))
 
 def safe(text: str) -> str:
@@ -37,3 +41,21 @@ def clear() -> None:
             builtins.print("\n" * 50)
         else:
             run(["cls" if os.name == "nt" else "clear"], shell=True)
+
+def header() -> None:
+    from .state import state
+
+    current_room = state["player"]["current_room"]
+    room_data = state["rooms"][current_room]
+
+    draw_line("═")
+
+    out(
+        colorize(f"[{state['game_state']['phase']}]", BRIGHT_MAGENTA)
+    )
+    out(
+        colorize(f"LOCATION: {room_data['name']}", BRIGHT_YELLOW + BOLD)
+    )
+    out(colorize(f"{state['game_state']['duration']}", DIM + BOLD))
+
+    draw_line("═")

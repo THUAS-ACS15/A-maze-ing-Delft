@@ -5,6 +5,9 @@ import os
 from datetime import timezone, datetime
 from pathlib import Path
 
+from .display import colorize
+from .utils.colors import RED
+
 from .utils.duration import calculate_duration
 
 _BASE_DIR = Path(__file__).resolve().parent
@@ -12,24 +15,34 @@ DEFAULT_GAME_STATE_PATH = _BASE_DIR / "data" / "game_state.json"
 USER_STATE_PATH = _BASE_DIR / "data" / "user_state.json"
 SAVE_DIR = _BASE_DIR / "saves"
 
-with open(USER_STATE_PATH, "r") as u:
-    user = json.load(u)
+# Ensure target folder exists
+USER_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+state: dict = {}
 
-with open(DEFAULT_GAME_STATE_PATH, "r") as f:
-    state = json.load(f)
+def initialize() -> None:
+    global state
+    # 1. Initialize USER_STATE_PATH from default template if missing or 0-byte
+    if not USER_STATE_PATH.exists() or USER_STATE_PATH.stat().st_size == 0:
+        with open(DEFAULT_GAME_STATE_PATH) as df:
+            default_state = json.load(df)
+        USER_STATE_PATH.write_text(json.dumps(default_state, indent=2))
 
-state.update(user)
+    # 2. Load actual active state into memory
+    if not state:
+        state = json.loads(USER_STATE_PATH.read_text())
+    return None
 
-with open(USER_STATE_PATH, "w") as f:
-    json.dump(state, f, indent=4)
-
-def auto_save() -> None:
+def auto() -> None:
     duration = calculate_duration(state["game_state"]["timestamp"], datetime.now(timezone.utc).isoformat())
     state["game_state"]["duration"] = str(duration) or "00:00:00"
     with open(USER_STATE_PATH, "w") as a:
         json.dump(state, a, indent=4)
 
-def save_to_file(filename: str = "save_slot_1.json") -> tuple[bool, str]:
+    if state["workbench"]["is_ready"] and state["game_state"]["phase"] == "EXPLORATION":
+        state["game_state"]["phase"] = "ASSEMBLY"
+        state["game_state"]["phases"]["assembly"]["activated"] = True
+
+def save(filename: str = "save_slot_1.json") -> tuple[bool, str]:
     """Persists current runtime state to disk."""
     os.makedirs(SAVE_DIR, exist_ok=True)
     save_path = os.path.join(SAVE_DIR, filename)
@@ -38,8 +51,9 @@ def save_to_file(filename: str = "save_slot_1.json") -> tuple[bool, str]:
         json.dump(state, s, indent=4)
     return True, f"[System] Game saved to {save_path}"
 
-def spawn( room_id: str = "lobby") -> str:
+def spawn() -> str:
     """Guarantee a valid spawn point (default lobby)."""
+    room_id = state["player"]["current_room"]
     if not state["game_state"]["timestamp"]:
         state["game_state"]["timestamp"] = datetime.now(timezone.utc).isoformat()
     rooms = state["rooms"]
@@ -50,7 +64,7 @@ def spawn( room_id: str = "lobby") -> str:
     return current_room
 
 
-def load_from_file(filename: str = "save_slot_1.json") -> bool:
+def load(filename: str = "save_slot_1.json") -> bool:
     """Loads a saved game file into active memory."""
     global state
     save_path = os.path.join(SAVE_DIR, filename)
@@ -63,13 +77,14 @@ def load_from_file(filename: str = "save_slot_1.json") -> bool:
     print(f"[System] Loaded saved file from {save_path}")
     return True
 
-def move_player(destination: str) -> tuple[bool, str]:
+def move(destination: str) -> None:
     """Move by direction ('north'/'n') or adjacent room id/name.
 
     Adjacent-only: a room name is accepted only if it appears in the
     current room's exits values. Returns (ok, next_room_id or message).
     """
     from .parser import ROOM_ALIASES, resolve_room_target
+    from .room import render
 
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
@@ -83,18 +98,38 @@ def move_player(destination: str) -> tuple[bool, str]:
 
     if not target_id:
         adjacent = ", ".join(sorted(set(exits.values()))) or "nowhere"
-        return False, f"You cannot go to {destination} from here. Adjacent: {adjacent}."
+        render(text=colorize(text=f"You cannot go to {destination} from here. Adjacent: {adjacent}.", color_code=RED))
+        return None
 
     target_data = state["rooms"].get(target_id)
     if not target_data:
-        return False, f"Unknown destination '{target_id}'."
+        render(
+            text=colorize(
+                text=f"Unknown destination '{target_id}'.",
+                color_code=RED
+                )
+            )
+        return None
 
     requires = target_data.get("requires")
     if requires and requires not in state["player"]["inventory"]:
-        return False, f"The door is locked. Access requires: {requires}."
+        render(
+            text=colorize(
+                text=f"The door is locked. Access requires: {requires}.",
+                color_code=RED
+            )
+        )
+        return None
     if target_data.get("restricted") and not requires:
-        return False, "The door is locked."
+        render(
+            text=colorize(
+                text="The door is locked.",
+                color_code=RED
+            )
+        )
+        return None
 
     state["player"]["current_room"] = target_id
     state["player"]["move"].append(current_room)
-    return True, target_id
+    render()
+    return None

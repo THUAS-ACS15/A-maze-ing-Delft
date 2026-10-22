@@ -3,63 +3,51 @@
     "enable_colors": true,
     "terminal_width": 80,
     "player": {
-        "current_room": "teacher_room_4",
+        "username": null,
+        "fullname": null,
+        "current_room": "lab_d2_001",
         "inventory": [
             "blueprint",
-            "keycard_lvl1",
-            "blueprint",
-            "mainboard",
-            "sensory_module"
+            "keycard_lvl1"
         ],
         "move": [
             "lobby",
-            "teachers_room_1",
-            "lobby",
+            "classroom_d_2015",
+            "classroom_d_2035",
             "teachers_room_1",
             "classroom_d_2035",
             "project_room_1",
             "teachers_room_2",
             "project_room_2",
-            "teacher_room_4",
-            "project_room_2",
-            "teachers_room_2",
-            "project_room_2",
-            "teacher_room_4",
-            "lab_d_2001",
-            "teacher_room_4",
-            "lab_d_2001",
-            "teacher_room_4",
-            "lab_d_2001",
-            "teacher_room_4",
-            "lab_d_2001"
-        ],
-        "flags": {
-            "visited_lab_d_2001": false,
-            "visited_storage_closet": false,
-            "visited_server_room": false,
-            "has_inspected_blueprint": true,
-            "assembly_unlocked": false,
-            "aigis_activated": false,
-            "phase": 1
-        }
+            "teacher_room_4"
+        ]
     },
     "workbench": {
-        "location": "lab_d_2001",
+        "installed_parts": [
+            "chassis_frame",
+            "battery_pack",
+            "mainboard",
+            "sensory_module",
+            "wifi_credentials",
+            "motors_speakers",
+            "api_usb",
+            "mega_phone"
+        ],
         "required_parts": [
             "chassis_frame",
             "battery_pack",
             "mainboard",
             "sensory_module",
-            "motors_speakers",
             "wifi_credentials",
-            "api_usb"
+            "motors_speakers",
+            "api_usb",
+            "mega_phone"
         ],
-        "installed_parts": [],
-        "is_complete": false
+        "is_ready": true
     },
     "flags": {
         "tr1_desk_unlocked": true,
-        "tr2_whiteboard_inspected": false,
+        "tr2_whiteboard_inspected": true,
         "tr4_drawer_decrypted": false,
         "lab_power_on": false
     },
@@ -136,9 +124,7 @@
                 "north": "classroom_d_2015",
                 "east": "teachers_room_1"
             },
-            "items": [
-                "chassis_frame"
-            ],
+            "items": [],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
             }
@@ -153,9 +139,7 @@
                 "south": "lobby",
                 "east": "classroom_d_2035"
             },
-            "items": [
-                "battery_pack"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_1": {
@@ -172,9 +156,9 @@
             "interactables": {
                 "desk": {
                     "restricted": true,
-                    "code": "2015",
+                    "code": "D2084",
                     "reward": "keycard_lvl1",
-                    "hint": "Keypad hint: 'Room number where CS101 was held.'"
+                    "hint": "Keypad hint: 'Room number where intercultural collaboration class was help was held.\nhint: D2084'"
                 }
             }
         },
@@ -215,10 +199,7 @@
                 "north": "project_room_1",
                 "east": "project_room_2"
             },
-            "items": [
-                "wifi_credentials",
-                "mega_phone"
-            ],
+            "items": [],
             "interactables": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
@@ -233,9 +214,7 @@
                 "west": "teachers_room_2",
                 "south": "teacher_room_4"
             },
-            "items": [
-                "motors_speakers"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teacher_room_4": {
@@ -246,15 +225,13 @@
             "requires": "keycard_lvl1",
             "exits": {
                 "north": "project_room_2",
-                "west": "lab_d_2001"
+                "west": "lab_d2_001"
             },
-            "items": [
-                "api_usb"
-            ],
+            "items": [],
             "interactables": {}
         },
-        "lab_d_2001": {
-            "id": "lab_d_2001",
+        "lab_d2_001": {
+            "id": "lab_d2_001",
             "name": "Lab D 2001",
             "description": "The final assembly lab equipped with an industrial workbench.",
             "restricted": false,
@@ -268,22 +245,30 @@
             }
         }
     },
-    "phases": {
-        "exploration": {},
-        "assembly": {
-            "wifi_password": "Tr0janH0rse!"
-        },
-        "chat": {
-            "mock": false,
-            "robot": {
-                "name": "Jarvis"
-            }
-        }
+    "errors": {
+        "unknown": "\"Unknown or invalid command. Type 'help' to get valid commands.\""
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": "2026-10-20T09:03:52.116140+00:00",
-        "duration": "0:31:03",
-        "game_phase": "EXPLORATION"
+        "timestamp": "2026-10-22T06:21:03.500627+00:00",
+        "duration": "0:16:14",
+        "phase": "CHAT",
+        "phases": {
+            "exploration": {
+                "activated": false
+            },
+            "assembly": {
+                "activated": true,
+                "wifi_password": "Tr0janH0rse!"
+            },
+            "chat": {
+                "activated": true,
+                "mock": false,
+                "robot": {
+                    "name": "Leon",
+                    "history": []
+                }
+            }
+        }
     }
 }
