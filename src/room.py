@@ -3,8 +3,8 @@ from __future__ import annotations
 from .display import header
 from .utils.colors import BRIGHT_YELLOW, BOLD, CYAN, RED, BRIGHT_WHITE, BRIGHT_GREEN, \
     DIM, \
-    WHITE, BRIGHT_MAGENTA
-from .display import draw_line, out, colorize
+    WHITE
+from .display import out, colorize
 from .state import state
 
 def render(text: str | None = None, asset: str | None = None) -> None:
