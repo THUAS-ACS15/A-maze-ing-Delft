@@ -46,6 +46,6 @@ Before submitting a PR for review, ensure you have completed the following steps
 * [] All link check return true when `ruff check .` 
 * [] All checks return true when `mypy .`
 * [] No hardcoded absolute paths exist (use `os.path.join `for file paths).
-* [] Any new state attributes added to `data/game_state.json `are documented in the State Architecture documentation.
+* [] Any new state attributes added to `data/default_state.json`are documented in the State Architecture documentation.
 * [] Environment secrets (like `OPENAI_API_KEY`) are loaded via `.env` and never committed to Git.
 * [] All new functions include standard Python docstrings.

@@ -10,7 +10,7 @@ The `game_state` object is the single source of truth for the game runtime. It t
 
 - **Strict JSON Serialization:** Only primitive types (`string`, `number`, `boolean`), arrays (`list`), and key-value objects (`dict`) are permitted. Custom class instances, function pointers, or lambda expressions are strictly forbidden.
 - **Canonical Identifiers:** All lookups for rooms, items, and flags must use canonical snake_case keys (e.g., `teachers_room_1`, `battery_pack`). Never use human-readable display names in conditional logic or state lookups.
-- **Template Immutability:** `data/game_state.json` serves as the read-only initial world state. Runtime mutations must occur solely on the in-memory state dictionary and be saved to `saves/save_slot_1.json`.
+- **Template Immutability:** `../data/default_state.json` serves as the read-only initial world state. Runtime mutations must occur solely on the in-memory state dictionary and be saved to `saves/save_slot_1.json`.
 
 ## 2. Root Structure & Key Specifications
 
@@ -82,9 +82,9 @@ Dictionary mapping unique room_id strings to room definition objects.
 }
 ```
 
-## 4. Master Template JSON (`data/game_state.json`)
+## 4. Master Template JSON (`../data/default_state.json`)
 
-Below is the baseline `game_state.json` template file:
+Below is the baseline `default_state.json` template file:
 
 ```json
 {

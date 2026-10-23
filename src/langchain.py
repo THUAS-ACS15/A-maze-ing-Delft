@@ -62,5 +62,3 @@ def langchain(provider: Provider, model_name: str | None = None) -> BaseChatMode
     except Exception as e:
         print(f"\n[Warning] Failed to load provider '{provider}': {e}")
         return None
-
-    return None  # Fallback to simulated offline mock
