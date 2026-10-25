@@ -10,7 +10,7 @@ from src import room
 BASE_STATE = {
     "enable_colors": False,
     "terminal_width": 20,
-    "player": {"current_room": "lab"},
+    "player": {"current_room": "lab", "name": "guest"},
     "game_state": {"phase": "EXPLORATION", "duration": "00:00:00"},
     "rooms": {
         "lab": {
@@ -58,7 +58,7 @@ def test_render_basic(room_state, capsys):
     assert "Items in area:" in output
     assert "Battery Pack" in output
     assert "[ASSEMBLY PART]" in output
-    assert "Interactive Objects:" in output
+    assert "Interactables:" in output
     assert "workbench" in output
 
 
@@ -163,7 +163,7 @@ def test_render_interactables(
     room.render()
 
     output = capsys.readouterr().out
-    assert ("Interactive Objects:" in output) is expect_section
+    assert ("Interactables:" in output) is expect_section
     if expected_key is not None:
         assert expected_key in output
 

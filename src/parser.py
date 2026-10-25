@@ -1,6 +1,7 @@
 import re
 
 from .utils.aliases import ROOM_ALIASES, ROOM_NAME_ALIASES, VERB_ALIASES, ITEM_ALIASES
+from .utils.username_generator import generate_random_username as random_name_generator
 
 
 def normalize_room_key(raw: str) -> str:
@@ -68,13 +69,33 @@ def parse(raw_input: str) -> tuple[str, dict]:
     if verb == "clear":
         return "clear", {"raw": arg_str}
 
+    if verb == "register":
+        username = args[0] if args else random_name_generator()
+        return "register", {"target": username, "raw": arg_str}
+
+    if verb == "login":
+        if not args:
+            return ("INVALID", {
+                "message": "You have to enter a valid username (e.g., 'login user1')."})
+        username = args[0]
+        return "login", {"target": username, "raw": arg_str}
+
     if verb == "save":
-        slot = args[0] if args else "save_slot_1.json"
+        slot = args[0] if args else None
         return "save", {"target": slot, "raw": arg_str}
 
+    if verb == "saves":
+        return "saves", {"raw": arg_str}
+
     if verb == "load":
-        slot = args[0] if args else "save_slot_1.json"
+        if not args:
+            return ("INVALID", {
+                "message": "Enter a valid slot to load (e.g., 'load user_slot_1')."})
+        slot = args[0]
         return "load", {"target": slot, "raw": arg_str}
+
+    if verb == "restart":
+        return "restart", {"raw": arg_str}
 
     if verb == "quit":
         return "quit", {"raw": arg_str}

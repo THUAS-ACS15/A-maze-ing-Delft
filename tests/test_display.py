@@ -137,7 +137,7 @@ def test_header_reads_state_and_draws(monkeypatch):
         {
             "enable_colors": False,
             "terminal_width": 10,
-            "player": {"current_room": "lab"},
+            "player": {"current_room": "lab", "name": "guest"},
             "rooms": {"lab": {"name": "Lab D 2001"}},
             "game_state": {"phase": "EXPLORATION", "duration": "00:05:00"},
         },
@@ -152,9 +152,36 @@ def test_header_reads_state_and_draws(monkeypatch):
 
     assert draw_mock.call_count == 2
     assert [call.args[0] for call in draw_mock.call_args_list] == ["═", "═"]
-    assert out_mock.call_count == 3
+    assert out_mock.call_count == 4
     assert [call.args[0] for call in out_mock.call_args_list] == [
         "[EXPLORATION]",
         "LOCATION: Lab D 2001",
+        "GUEST",
         "00:05:00",
     ]
+
+
+def test_header_with_content(monkeypatch, capsys):
+    monkeypatch.setattr(
+        state_module,
+        "state",
+        {
+            "enable_colors": False,
+            "terminal_width": 40,
+            "player": {"current_room": "lab", "name": "polaris"},
+            "rooms": {"lab": {"name": "Lab D 2001"}},
+            "game_state": {"phase": "EXPLORATION", "duration": "00:05:00"},
+        },
+    )
+    monkeypatch.setattr(display, "colorize", lambda text, color_code: text)
+    out_mock = Mock()
+    monkeypatch.setattr(display, "out", out_mock)
+    monkeypatch.setattr(display, "draw_line", Mock())
+
+    display.header("SAVED CHECKPOINTS")
+
+    assert capsys.readouterr().out == "SAVED CHECKPOINTS" + " " * (
+        40 - len("SAVED CHECKPOINTS") - len("polaris")
+    )
+    assert out_mock.call_args_list[1].args[0] == "POLARIS".rjust(15)
+    assert out_mock.call_args_list[2].args[0] == "00:05:00"

@@ -12,7 +12,7 @@ def mocks(monkeypatch):
     """Replace every dependency phase.py resolves at module level."""
     prompt = Mock(return_value="raw input")
     parse = Mock(return_value=("GO", {}))
-    command = Mock()
+    commands = Mock()
     clear = Mock()
     render = Mock()
     header = Mock()
@@ -23,7 +23,7 @@ def mocks(monkeypatch):
 
     monkeypatch.setattr(phase, "prompt", prompt)
     monkeypatch.setattr(phase, "parse", parse)
-    monkeypatch.setattr(phase, "command", command)
+    monkeypatch.setattr(phase, "commands", commands)
     monkeypatch.setattr(phase, "clear", clear)
     monkeypatch.setattr(phase, "render", render)
     monkeypatch.setattr(phase, "header", header)
@@ -47,7 +47,7 @@ def mocks(monkeypatch):
     return {
         "prompt": prompt,
         "parse": parse,
-        "command": command,
+        "commands": commands,
         "clear": clear,
         "render": render,
         "header": header,
@@ -66,7 +66,7 @@ def test_exploration_valid_verb(mocks):
     phase.exploration()
 
     mocks["parse"].assert_called_once_with("go north")
-    mocks["command"].assert_called_once_with("GO", {"direction": "north"})
+    mocks["commands"].assert_called_once_with("GO", {"direction": "north"})
     mocks["clear"].assert_called_once()
     mocks["render"].assert_not_called()
 
@@ -158,6 +158,6 @@ def test_chat_valid_verb_runs_command_only(mocks):
 
     phase.chat()
 
-    mocks["command"].assert_called_once_with("SAY", {"message": "hi"})
+    mocks["commands"].assert_called_once_with("SAY", {"message": "hi"})
     mocks["respond"].assert_not_called()
     mocks["render"].assert_not_called()

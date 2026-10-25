@@ -1,8 +1,12 @@
+import json
+import copy
+
 from typing import Any
 
+from .model import get_user, create_user
 from .rooms.lab_d2_001 import use_on_workbench, workbench
 from .rooms.teachers_room_1 import use_desk_code
-from .state import auto, help_commands
+from .state import auto, help_commands, list_saves, load, DEFAULT_GAME_STATE_PATH
 from .room import render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
     BRIGHT_WHITE, BRIGHT_MAGENTA, RED
@@ -105,6 +109,10 @@ def inspect(details) -> None:
         whiteboard = state["rooms"]["teachers_room_2"]["interactables"]["whiteboard"]
         render(text=whiteboard)
         return None
+    elif target == "receptionist" and state["player"]["current_room"] == "front_desk":
+        receptionist = state["rooms"]["front_desk"]["interactables"]["receptionist"]
+        render(text=receptionist)
+        return None
     else:
         render(text=colorize("The item you're trying to inspect is unavailable", color_code=RED))
         return None
@@ -135,7 +143,8 @@ def use(details: Any) -> None:
         )
         return None
 
-def take(item: str) -> None:
+def take(details: Any) -> None:
+    item = details["target"]
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
     if item not in room_data["items"]:
@@ -147,10 +156,63 @@ def take(item: str) -> None:
     render(colorize(f"You picked up {i['name']}", BRIGHT_GREEN))
     return None
 
-def command(verb, details) -> None:
+def exit_game() -> None:
+    state["running"] = False
+    render("Goodbye. see you again soon")
+    return None
+
+def register(details: Any) -> None:
+    name = details["target"]
+    if not state["player"]["current_room"] == "front_desk":
+        render(colorize(text="You can only register at the front desk", color_code=RED))
+        return None
+    user = get_user(name)
+    if not user:
+       try:
+           user_id = create_user(name)
+           state["player"]["name"] = name
+           state["player"]["id"] = user_id
+           render(text=colorize(f"You have successfully registered a profile as {name}", color_code=BRIGHT_GREEN))
+           return None
+       except Exception as e:
+           render(text=colorize(str(e), color_code=RED))
+           return None
+    render(text=colorize(f"The name '{name}' is already taken. Please try another one.", color_code=RED))
+    return None
+
+def login(details: Any) -> None:
+    name = details["target"]
+    if not state["player"]["current_room"] == "front_desk":
+        render(colorize(text="You can only register at the front desk", color_code=RED))
+        return None
+    if name is None:
+        render(text=colorize("Please enter a name", color_code=RED))
+        return None
+    user = get_user(name)
+    if not user:
+        render(colorize(f"User '{name}' does not exist", color_code=RED))
+        return None
+    state["player"]["name"] = name
+    state["player"]["id"] = user["id"]
+    render(colorize(f"You are currently logged in as {name}", color_code=BRIGHT_GREEN))
+    return None
+
+def restart() -> None:
+    snapshot = copy.deepcopy(state)
+    with open(DEFAULT_GAME_STATE_PATH) as df:
+        state.clear()
+        state.update(json.load(df))
+        state["player"]["name"] = snapshot["player"]["name"]
+        state["player"]["id"] = snapshot["player"]["id"]
+    render(text=colorize("New game!", color_code=BRIGHT_GREEN))
+
+
+def commands(verb, details) -> None:
     if verb == "quit":
-        state["running"] = False
-        render("Goodbye. see you again soon")
+        exit_game()
+        return
+    if verb == "restart":
+        restart()
         return
     elif verb == "help":
         helper()
@@ -160,8 +222,22 @@ def command(verb, details) -> None:
         return
     elif verb == "use":
         use(details)
+        return
+    elif verb == "register":
+        register(details)
+        return
+    elif verb == "login":
+        login(details)
+        return
     elif verb == "save":
-        save(details.get("target", "save_slot_1.json"))
+        save(details)
+        return
+    elif verb == "saves":
+        list_saves()
+        return
+    elif verb == "load":
+        load(details)
+        return
     elif verb == "inspect":
         inspect(details)
         return
@@ -169,12 +245,11 @@ def command(verb, details) -> None:
         render()
         return
     elif verb == "take":
-        item = details.get("target", "")
-        take(item)
+        take(details)
         return
     elif verb == "go":
-        target = details.get("target", "")
-        move(target)
+        move(details)
+        return
 
 
 def run() -> None:

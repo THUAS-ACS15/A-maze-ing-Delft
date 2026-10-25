@@ -1,38 +1,17 @@
 {
     "running": true,
     "enable_colors": true,
-    "terminal_width": 80,
+    "terminal_width": 147,
     "player": {
-        "username": null,
-        "fullname": null,
-        "current_room": "lab_d2_001",
-        "inventory": [
-            "blueprint",
-            "keycard_lvl1"
-        ],
-        "move": [
-            "lobby",
-            "classroom_d_2015",
-            "classroom_d_2035",
-            "teachers_room_1",
-            "classroom_d_2035",
-            "project_room_1",
-            "teachers_room_2",
-            "project_room_2",
-            "teacher_room_4"
-        ]
+        "id": 3,
+        "name": "polaris",
+        "current_room": "lobby",
+        "inventory": [],
+        "move": [],
+        "forward": []
     },
     "workbench": {
-        "installed_parts": [
-            "chassis_frame",
-            "battery_pack",
-            "mainboard",
-            "sensory_module",
-            "wifi_credentials",
-            "motors_speakers",
-            "api_usb",
-            "mega_phone"
-        ],
+        "installed_parts": [],
         "required_parts": [
             "chassis_frame",
             "battery_pack",
@@ -43,11 +22,12 @@
             "api_usb",
             "mega_phone"
         ],
-        "is_ready": true
+        "is_ready": false
     },
     "flags": {
-        "tr1_desk_unlocked": true,
-        "tr2_whiteboard_inspected": true,
+        "fr1_user_registered": false,
+        "tr1_desk_unlocked": false,
+        "tr2_whiteboard_inspected": false,
         "tr4_drawer_decrypted": false,
         "lab_power_on": false
     },
@@ -63,6 +43,18 @@
             "name": "Robot Chassis Frame",
             "description": "An aluminum skeleton designed to house microcontrollers and servos.",
             "is_assembly_part": true
+        },
+        "paper_clip": {
+            "id": "paper_clip",
+            "name": "Paper Clip",
+            "description": "A small piece of bent steel wire. Useful for securing documents or picking delicate internal switches.",
+            "is_assembly_part": false
+        },
+        "coffee_cup": {
+            "id": "coffee_cup",
+            "name": "Coffee Cup",
+            "description": "A ceramic mug filled with lukewarm coffee. Provides a mild focus boost and a brief distraction from terminal diagnostic logs",
+            "is_assembly_part": false
         },
         "mega_phone": {
             "id": "mega_phone",
@@ -122,11 +114,32 @@
             "requires": null,
             "exits": {
                 "north": "classroom_d_2015",
-                "east": "teachers_room_1"
+                "east": "teachers_room_1",
+                "west": "front_desk"
             },
-            "items": [],
+            "items": [
+                "blueprint",
+                "chassis_frame"
+            ],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
+            }
+        },
+        "front_desk": {
+            "id": "front_desk",
+            "name": "Front Desk",
+            "description": "The front desk of the build. here you can see the receptionist welcoming you with a smile",
+            "restricted": false,
+            "requires": null,
+            "exits": {
+                "east": "lobby"
+            },
+            "items": [
+                "paper_clip",
+                "coffee_cup"
+            ],
+            "interactables": {
+                "receptionist": "You can register a new profile by typing 'register <name>'"
             }
         },
         "classroom_d_2015": {
@@ -139,7 +152,9 @@
                 "south": "lobby",
                 "east": "classroom_d_2035"
             },
-            "items": [],
+            "items": [
+                "battery_pack"
+            ],
             "interactables": {}
         },
         "teachers_room_1": {
@@ -173,7 +188,9 @@
                 "south": "teachers_room_1",
                 "east": "project_room_1"
             },
-            "items": [],
+            "items": [
+                "mainboard"
+            ],
             "interactables": {}
         },
         "project_room_1": {
@@ -186,7 +203,9 @@
                 "west": "classroom_d_2035",
                 "south": "teachers_room_2"
             },
-            "items": [],
+            "items": [
+                "sensory_module"
+            ],
             "interactables": {}
         },
         "teachers_room_2": {
@@ -199,7 +218,10 @@
                 "north": "project_room_1",
                 "east": "project_room_2"
             },
-            "items": [],
+            "items": [
+                "wifi_credentials",
+                "mega_phone"
+            ],
             "interactables": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
@@ -214,7 +236,9 @@
                 "west": "teachers_room_2",
                 "south": "teacher_room_4"
             },
-            "items": [],
+            "items": [
+                "motors_speakers"
+            ],
             "interactables": {}
         },
         "teacher_room_4": {
@@ -227,7 +251,9 @@
                 "north": "project_room_2",
                 "west": "lab_d2_001"
             },
-            "items": [],
+            "items": [
+                "api_usb"
+            ],
             "interactables": {}
         },
         "lab_d2_001": {
@@ -250,22 +276,23 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": "2026-10-22T06:21:03.500627+00:00",
-        "duration": "22:49:14",
-        "phase": "CHAT",
+        "timestamp": null,
+        "duration": "0:00:00",
+        "phase": "EXPLORATION",
         "phases": {
             "exploration": {
                 "activated": false
             },
             "assembly": {
-                "activated": true,
+                "activated": false,
                 "wifi_password": "Tr0janH0rse!"
             },
             "chat": {
-                "activated": true,
+                "activated": false,
                 "mock": false,
                 "robot": {
-                    "name": "Leon",
+                    "name": "Jarvis",
+                    "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
                     "history": []
                 }
             }

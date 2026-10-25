@@ -61,7 +61,7 @@ def workbench(text: str | None = None) -> None:
     else:
         remaining = len(required_parts) - len(installed_parts)
         if text:
-          print(text)
+            print(text)
         out(
             colorize(
                 f"Locate remaining {remaining} part(s) to complete assembly.",

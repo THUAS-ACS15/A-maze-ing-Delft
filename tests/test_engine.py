@@ -1,6 +1,7 @@
 """Tests for ``src/engine.py``."""
 
 import builtins
+import json
 from unittest.mock import Mock
 
 import pytest
@@ -89,10 +90,15 @@ def command_env(monkeypatch):
         "helper": Mock(),
         "inventory": Mock(),
         "use": Mock(),
+        "register": Mock(),
+        "login": Mock(),
         "save": Mock(),
+        "list_saves": Mock(),
+        "load": Mock(),
         "inspect": Mock(),
         "take": Mock(),
         "move": Mock(),
+        "restart": Mock(),
     }
     for name, mock in mocks.items():
         monkeypatch.setattr(engine, name, mock)
@@ -106,6 +112,7 @@ def _inspect_state(current_room, unlocked=False):
             "lobby": {"interactables": {"terminal": "TERMINAL TEXT"}},
             "teachers_room_1": {"interactables": {"desk": {"hint": "DESK HINT"}}},
             "teachers_room_2": {"interactables": {"whiteboard": "WHITEBOARD TEXT"}},
+            "front_desk": {"interactables": {"receptionist": "RECEPTIONIST TEXT"}},
             "lab_d2_001": {},
         },
         "flags": {
@@ -267,6 +274,14 @@ def test_inspect_whiteboard(monkeypatch, inspect_env):
     inspect_env["render"].assert_called_once_with(text="WHITEBOARD TEXT")
 
 
+def test_inspect_receptionist(monkeypatch, inspect_env):
+    monkeypatch.setattr(engine, "state", _inspect_state("front_desk"))
+
+    engine.inspect({"target": "receptionist"})
+
+    inspect_env["render"].assert_called_once_with(text="RECEPTIONIST TEXT")
+
+
 @pytest.mark.parametrize(
     ("target", "room"),
     [
@@ -344,7 +359,7 @@ def test_take_missing(monkeypatch, take_env):
         },
     )
 
-    engine.take("battery")
+    engine.take({"target": "battery"})
 
     take_env.assert_called_once_with(text="There is no 'battery' here.")
 
@@ -357,7 +372,7 @@ def test_take_success(monkeypatch, take_env):
     }
     monkeypatch.setattr(engine, "state", state)
 
-    engine.take("battery")
+    engine.take({"target": "battery"})
 
     assert state["rooms"]["lobby"]["items"] == []
     assert state["player"]["inventory"] == ["battery"]
@@ -368,20 +383,20 @@ def test_command_quit(monkeypatch, command_env):
     state = {"running": True}
     monkeypatch.setattr(engine, "state", state)
 
-    engine.command("quit", {})
+    engine.commands("quit", {})
 
     assert state["running"] is False
     command_env["render"].assert_called_once_with("Goodbye. see you again soon")
 
 
 def test_command_help(command_env):
-    engine.command("help", {})
+    engine.commands("help", {})
 
     command_env["helper"].assert_called_once_with()
 
 
 def test_command_inventory(command_env):
-    engine.command("inventory", {})
+    engine.commands("inventory", {})
 
     command_env["inventory"].assert_called_once_with()
 
@@ -389,66 +404,102 @@ def test_command_inventory(command_env):
 def test_command_use(command_env):
     details = {"target": "keycard", "indirect": "door"}
 
-    engine.command("use", details)
+    engine.commands("use", details)
 
     command_env["use"].assert_called_once_with(details)
 
 
 @pytest.mark.parametrize(
-    ("details", "expected"),
+    "details",
     [
-        pytest.param({"target": "slot2.json"}, "slot2.json", id="explicit"),
-        pytest.param({}, "save_slot_1.json", id="default"),
+        pytest.param({"target": "slot2.json"}, id="explicit"),
+        pytest.param({"target": None}, id="default-none"),
     ],
 )
-def test_command_save(command_env, details, expected):
-    engine.command("save", details)
+def test_command_save(command_env, details):
+    engine.commands("save", details)
 
-    command_env["save"].assert_called_once_with(expected)
+    command_env["save"].assert_called_once_with(details)
+
+
+def test_command_register(command_env):
+    details = {"target": "alice"}
+
+    engine.commands("register", details)
+
+    command_env["register"].assert_called_once_with(details)
+
+
+def test_command_login(command_env):
+    details = {"target": "alice"}
+
+    engine.commands("login", details)
+
+    command_env["login"].assert_called_once_with(details)
+
+
+def test_command_load(command_env):
+    details = {"target": "slot1"}
+
+    engine.commands("load", details)
+
+    command_env["load"].assert_called_once_with(details)
+
+
+def test_command_saves(command_env):
+    engine.commands("saves", {})
+
+    command_env["list_saves"].assert_called_once_with()
 
 
 def test_command_inspect(command_env):
     details = {"target": "desk"}
 
-    engine.command("inspect", details)
+    engine.commands("inspect", details)
 
     command_env["inspect"].assert_called_once_with(details)
 
 
 def test_command_look(command_env):
-    engine.command("look", {})
+    engine.commands("look", {})
 
     command_env["render"].assert_called_once_with()
 
 
 @pytest.mark.parametrize(
-    ("details", "expected"),
+    "details",
     [
-        pytest.param({"target": "battery"}, "battery", id="with-target"),
-        pytest.param({}, "", id="default-empty"),
+        pytest.param({"target": "battery"}, id="with-target"),
+        pytest.param({}, id="empty"),
     ],
 )
-def test_command_take(command_env, details, expected):
-    engine.command("take", details)
+def test_command_take(command_env, details):
+    engine.commands("take", details)
 
-    command_env["take"].assert_called_once_with(expected)
+    command_env["take"].assert_called_once_with(details)
 
 
 @pytest.mark.parametrize(
-    ("details", "expected"),
+    "details",
     [
-        pytest.param({"target": "north"}, "north", id="with-target"),
-        pytest.param({}, "", id="default-empty"),
+        pytest.param({"target": "north"}, id="with-target"),
+        pytest.param({}, id="empty"),
     ],
 )
-def test_command_go(command_env, details, expected):
-    engine.command("go", details)
+def test_command_go(command_env, details):
+    engine.commands("go", details)
 
-    command_env["move"].assert_called_once_with(expected)
+    command_env["move"].assert_called_once_with(details)
+
+
+def test_command_restart(command_env):
+    engine.commands("restart", {})
+
+    command_env["restart"].assert_called_once_with()
 
 
 def test_command_unknown_verb_is_ignored(command_env):
-    engine.command("fly", {})
+    engine.commands("fly", {})
 
     for mock in command_env.values():
         mock.assert_not_called()
@@ -495,3 +546,146 @@ def test_run_dispatches_phase(monkeypatch, phase, expected_handler):
             handler.assert_called_once_with()
         else:
             handler.assert_not_called()
+
+
+def _render_text(render_mock):
+    call = render_mock.call_args
+    return call.args[0] if call.args else call.kwargs["text"]
+
+
+@pytest.fixture
+def register_env(monkeypatch):
+    mocks = {
+        "render": Mock(),
+        "get_user": Mock(return_value=None),
+        "create_user": Mock(return_value=7),
+    }
+    monkeypatch.setattr(engine, "render", mocks["render"])
+    monkeypatch.setattr(engine, "get_user", mocks["get_user"])
+    monkeypatch.setattr(engine, "create_user", mocks["create_user"])
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
+    return mocks
+
+
+def test_register_requires_front_desk(monkeypatch, register_env):
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "lobby"}})
+
+    engine.register({"target": "alice"})
+
+    register_env["get_user"].assert_not_called()
+    register_env["create_user"].assert_not_called()
+    assert "front desk" in _render_text(register_env["render"]).lower()
+
+
+def test_register_creates_profile(monkeypatch, register_env):
+    state = {"player": {"current_room": "front_desk"}}
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.register({"target": "alice"})
+
+    register_env["get_user"].assert_called_once_with("alice")
+    register_env["create_user"].assert_called_once_with("alice")
+    assert state["player"]["name"] == "alice"
+    assert state["player"]["id"] == 7
+    assert "successfully registered" in _render_text(register_env["render"]).lower()
+
+
+def test_register_rejects_existing_name(monkeypatch, register_env):
+    register_env["get_user"].return_value = 1
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "front_desk"}})
+
+    engine.register({"target": "alice"})
+
+    register_env["create_user"].assert_not_called()
+    assert "already taken" in _render_text(register_env["render"]).lower()
+
+
+def test_register_reports_db_error(monkeypatch, register_env):
+    register_env["create_user"].side_effect = Exception("boom")
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "front_desk"}})
+
+    engine.register({"target": "alice"})
+
+    assert "boom" in _render_text(register_env["render"])
+
+
+@pytest.fixture
+def login_env(monkeypatch):
+    mocks = {
+        "render": Mock(),
+        "get_user": Mock(return_value=None),
+    }
+    monkeypatch.setattr(engine, "render", mocks["render"])
+    monkeypatch.setattr(engine, "get_user", mocks["get_user"])
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
+    return mocks
+
+
+def test_login_requires_front_desk(monkeypatch, login_env):
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "lobby"}})
+
+    engine.login({"target": "alice"})
+
+    login_env["get_user"].assert_not_called()
+    assert "front desk" in _render_text(login_env["render"]).lower()
+
+
+def test_login_without_name(monkeypatch, login_env):
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "front_desk"}})
+
+    engine.login({"target": None})
+
+    login_env["get_user"].assert_not_called()
+    assert "enter a name" in _render_text(login_env["render"]).lower()
+
+
+def test_login_unknown_user(monkeypatch, login_env):
+    monkeypatch.setattr(engine, "state", {"player": {"current_room": "front_desk"}})
+
+    engine.login({"target": "alice"})
+
+    login_env["get_user"].assert_called_once_with("alice")
+    assert "does not exist" in _render_text(login_env["render"]).lower()
+
+
+def test_login_success(monkeypatch, login_env):
+    login_env["get_user"].return_value = {"id": 7, "name": "alice"}
+    state = {"player": {"current_room": "front_desk"}}
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.login({"target": "alice"})
+
+    assert state["player"]["name"] == "alice"
+    assert state["player"]["id"] == 7
+    assert "logged in" in _render_text(login_env["render"]).lower()
+
+
+def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
+    default_path = tmp_path / "default_state.json"
+    default_path.write_text(
+        json.dumps(
+            {
+                "player": {"id": None, "name": "guest", "current_room": "lobby"},
+                "rooms": {"lobby": {}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    game_state = {
+        "player": {"id": 3, "name": "polaris", "current_room": "lab"},
+        "rooms": {"lab": {}},
+    }
+    render = Mock()
+    monkeypatch.setattr(engine, "state", game_state)
+    monkeypatch.setattr(engine, "DEFAULT_GAME_STATE_PATH", default_path)
+    monkeypatch.setattr(engine, "render", render)
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
+
+    engine.restart()
+
+    assert engine.state is game_state
+    assert game_state["player"]["name"] == "polaris"
+    assert game_state["player"]["id"] == 3
+    assert game_state["player"]["current_room"] == "lobby"
+    assert game_state["rooms"] == {"lobby": {}}
+    render.assert_called_once_with(text="New game!")

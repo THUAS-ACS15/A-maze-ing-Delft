@@ -1,13 +1,14 @@
 {
     "running": true,
     "enable_colors": true,
-    "terminal_width":  80,
+    "terminal_width":  147,
     "player": {
-        "username": null,
-        "fullname": null,
+        "id": null,
+        "name": "guest",
         "current_room": "lobby",
         "inventory": [],
-        "move": []
+        "move": [],
+        "forward": []
     },
     "workbench": {
         "installed_parts": [],
@@ -24,6 +25,7 @@
         "is_ready": false
     },
     "flags": {
+        "fr1_user_registered": false,
         "tr1_desk_unlocked": false,
         "tr2_whiteboard_inspected": false,
         "tr4_drawer_decrypted": false,
@@ -41,6 +43,18 @@
             "name": "Robot Chassis Frame",
             "description": "An aluminum skeleton designed to house microcontrollers and servos.",
             "is_assembly_part": true
+        },
+         "paper_clip": {
+            "id": "paper_clip",
+            "name": "Paper Clip",
+            "description": "A small piece of bent steel wire. Useful for securing documents or picking delicate internal switches.",
+            "is_assembly_part": false
+        },
+         "coffee_cup": {
+            "id": "coffee_cup",
+            "name": "Coffee Cup",
+            "description": "A ceramic mug filled with lukewarm coffee. Provides a mild focus boost and a brief distraction from terminal diagnostic logs",
+            "is_assembly_part": false
         },
         "mega_phone": {
             "id": "mega_phone",
@@ -98,10 +112,22 @@
             "description": "The main floor lobby. A flickering terminal sits near the entrance.",
             "restricted": false,
             "requires": null,
-            "exits": {"north": "classroom_d_2015", "east": "teachers_room_1"},
+            "exits": {"north": "classroom_d_2015", "east": "teachers_room_1", "west":  "front_desk"},
             "items": ["blueprint", "chassis_frame"],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
+            }
+        },
+        "front_desk": {
+            "id": "front_desk",
+            "name": "Front Desk",
+            "description": "The front desk of the build. here you can see the receptionist welcoming you with a smile",
+            "restricted": false,
+            "requires": null,
+            "exits": {"east": "lobby"},
+            "items": ["paper_clip", "coffee_cup"],
+            "interactables": {
+                "receptionist": "You can register a new profile by typing 'register <name>'"
             }
         },
         "classroom_d_2015": {

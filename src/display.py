@@ -1,16 +1,17 @@
 from subprocess import run
 
-from .utils.colors import BOLD, BRIGHT_MAGENTA, BRIGHT_YELLOW, DIM
+from .utils.colors import BOLD, BRIGHT_MAGENTA, BRIGHT_YELLOW, DIM, BRIGHT_GREEN, CYAN, \
+    BRIGHT_WHITE, RED, WHITE
 
 
 def colorize(text: str, color_code: str) -> str:
     from .state import state
     return f"{color_code}{text}\033[0m" if state["enable_colors"] else text
 
-def out(text: str = "") -> None:
+def out(text: str = "", end: str | None = None) -> None:
     import builtins
 
-    builtins.print(safe(text))
+    builtins.print(safe(text), end=end)
 
 def draw_line(char: str = "-") -> None:
     from .state import state
@@ -42,7 +43,7 @@ def clear() -> None:
         else:
             run(["cls" if os.name == "nt" else "clear"], shell=True)
 
-def header() -> None:
+def header(content: str | None = None) -> None:
     from .state import state
 
     current_room = state["player"]["current_room"]
@@ -53,9 +54,60 @@ def header() -> None:
     out(
         colorize(f"[{state['game_state']['phase']}]", BRIGHT_MAGENTA)
     )
-    out(
-        colorize(f"LOCATION: {room_data['name']}", BRIGHT_YELLOW + BOLD)
-    )
+
+    if content:
+        space_needed = state["terminal_width"] - len(safe(content)) - len(state["player"]["name"])
+        print(content, end=f"{' ' * space_needed}")
+        out(colorize(f"{state['player']['name'].upper().rjust(15)}", DIM))
+    else:
+        space_needed = state["terminal_width"] - len(f"LOCATION: {room_data['name']}") - len(
+            state["player"]["name"]
+            )
+        out(
+            colorize(f"LOCATION: {room_data['name']}", BRIGHT_YELLOW + BOLD),
+            end=f"{' ' * space_needed}"
+        )
+        out(colorize(f"{state['player']['name'].upper()}", DIM))
     out(colorize(f"{state['game_state']['duration']}", DIM + BOLD))
 
     draw_line("═")
+
+def footer():
+    from .state import state
+    current_room = state["player"]["current_room"]
+    room_data = state["rooms"][current_room]
+
+    # Exits
+    exits = room_data.get("exits") or {}
+    if exits:
+        formatted_exits = [f"{direction.upper()} -> {target}" for direction, target
+                           in exits.items()]
+        out(colorize(f"Exits: {', '.join(formatted_exits)}", CYAN))
+    else:
+        out(colorize("Exits: None available.", RED))
+
+    # Loose Items
+    room_items = room_data.get("items") or []
+    if room_items:
+        out(colorize("\nItems in area:", BRIGHT_WHITE + BOLD))
+        for item_id in room_items:
+            item_data = state["items"][item_id]
+            display_name = item_data.get("name", item_id)
+            component_tag = (
+                f" {colorize('[ASSEMBLY PART]', BRIGHT_GREEN)}"
+                if item_data.get("is_assembly_part")
+                else ""
+            )
+            out(
+                f"  • {colorize(display_name, BRIGHT_YELLOW)}{component_tag}"
+            )
+
+    # Points of Interest
+    interactables = room_data.get("interactables") or room_data.get("interactable") or {}
+    if interactables:
+        out(colorize("\nInteractables:", DIM))
+        for poi_key in interactables.keys():
+            out(f"  • {colorize(poi_key, WHITE)}")
+
+    out()
+

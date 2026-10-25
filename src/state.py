@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import json
 import os
+import re
+
 from datetime import timezone, datetime
 from pathlib import Path
+from typing import Any
 
-from .display import colorize
+from .utils.generate_save_slot import next_save_slot
+from .utils.format_timestamp import format_timestamp
+from .utils.colors import BRIGHT_GREEN, BRIGHT_RED, DIM, CYAN
+from .model import create_save, get_user_saves, get_user_save
+from .display import colorize, header, out
 from .utils.colors import RED
 
 from .utils.duration import calculate_duration
@@ -40,7 +47,9 @@ def initialize() -> None:
     return None
 
 def auto() -> None:
-    duration = calculate_duration(state["game_state"]["timestamp"], datetime.now(timezone.utc).isoformat())
+    start_time = state["game_state"]["timestamp"] or datetime.now(timezone.utc).isoformat()
+    current_time = datetime.now(timezone.utc).isoformat()
+    duration = calculate_duration(start_time, current_time)
     state["game_state"]["duration"] = str(duration) or "00:00:00"
     with open(USER_STATE_PATH, "w") as a:
         json.dump(state, a, indent=4)
@@ -49,14 +58,52 @@ def auto() -> None:
         state["game_state"]["phase"] = "ASSEMBLY"
         state["game_state"]["phases"]["assembly"]["activated"] = True
 
-def save(filename: str = "save_slot_1.json") -> tuple[bool, str]:
-    """Persists current runtime state to disk."""
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    save_path = os.path.join(SAVE_DIR, filename)
 
-    with open(save_path, "w", encoding="utf-8") as s:
-        json.dump(state, s, indent=4)
-    return True, f"[System] Game saved to {save_path}"
+def save(details: Any = None) -> None:
+    """Persists current runtime state to disk."""
+    from .room import render
+    if not state["player"].get("id"):
+        render(colorize("You have to register to save, go to the front desk", RED))
+        return None
+
+    filename = details["target"] if details else None
+    if filename is None:
+        filename = next_save_slot(state["player"]["name"])
+
+    filename =  re.sub(r"[^\w-]", "", filename.replace(" ", "_"))
+    os.makedirs(SAVE_DIR, exist_ok=True)
+    save_path = os.path.join(SAVE_DIR, f"{filename}.json")
+
+    if not os.path.exists(save_path):
+        with open(save_path, "w") as s:
+            json.dump(state, s, indent=4)
+        create_save(filename, state["player"]["id"])
+        render(colorize(f"[system] Game saved to {filename}", BRIGHT_GREEN))
+        return None
+    render(colorize("An unexpected error occurred", BRIGHT_RED))
+    return None
+
+def list_saves() -> None:
+    width = int(state["terminal_width"])
+    header(colorize("SAVED CHECKPOINTS", CYAN))
+    user_id = state["player"].get("id")
+    out()
+    if not user_id:
+        text = "You have to register a profile to view saves. Go to the front desk!"
+        out(colorize(text.center(width), DIM))
+        return None
+    user_saves = get_user_saves(user_id)
+    if user_saves:
+        for row in user_saves:
+            date = format_timestamp(row['created_at'])
+            space_needed = state["terminal_width"] - len(date) - len(row["slot"])
+            print(row["slot"], end=f"{' ' * space_needed}")
+            print(colorize(f"{date}", DIM))
+        return None
+
+    text = "You currently have no saved slot linked to your profile"
+    out(colorize(text.center(width), DIM))
+    return None
 
 def spawn() -> str:
     """Guarantee a valid spawn point (default lobby)."""
@@ -70,34 +117,99 @@ def spawn() -> str:
         current_room = room_id if room_id in rooms else next(iter(rooms), "lobby")
     return current_room
 
-
-def load(filename: str = "save_slot_1.json") -> bool:
+def load(details: Any) -> None:
     """Loads a saved game file into active memory."""
-    global state
-    save_path = os.path.join(SAVE_DIR, filename)
-    if not os.path.exists(save_path):
-        print("[System] No save file found.")
-        return False
+    from .room import render
+    slot = details["target"].removesuffix(".json")
+    if not state["player"].get("id"):
+        render(
+            colorize(
+                text="You have to register to load, go to the front desk",
+                color_code=RED
+            )
+        )
+        return None
+    is_saved = get_user_save(state["player"]["id"], slot)
+    if is_saved is None:
+        render(
+            colorize(
+                text=f"You currently do not have any progress saved as '{slot}'", color_code=RED
+                )
+            )
+        return None
+    save_path = SAVE_DIR / f"{slot}.json"
+    if not save_path.exists():
+        render(colorize(text=f"You currently have no saved progress as '{slot}'", color_code=RED))
+        return None
 
     with open(save_path, encoding="utf-8") as f:
-        state = json.load(f)
-    print(f"[System] Loaded saved file from {save_path}")
-    return True
+        loaded = json.load(f)
+    state.clear()
+    state.update(loaded)
+    render(colorize(f"Game loaded from {slot}", BRIGHT_GREEN))
+    return None
 
-def move(destination: str) -> None:
-    """Move by direction ('north'/'n') or adjacent room id/name.
+def _history_back() -> None:
+    """Move to the previous room in the player's visit history."""
+    from .room import render
 
-    Adjacent-only: a room name is accepted only if it appears in the
-    current room's exits values. Returns (ok, next_room_id or message).
-    """
+    player = state["player"]
+    history = player.setdefault("move", [])
+    if not history:
+        render(text=colorize("You have no previous room to go back to.", RED))
+        return None
+
+    previous_room = history[-1]
+    if previous_room not in state["rooms"]:
+        render(text=colorize(f"Unknown destination '{previous_room}'.", RED))
+        return None
+
+    history.pop()
+    player.setdefault("forward", []).append(player["current_room"])
+    player["current_room"] = previous_room
+    render()
+    return None
+
+
+def _history_forward() -> None:
+    """Move forward again after going back through history."""
+    from .room import render
+
+    player = state["player"]
+    forward = player.setdefault("forward", [])
+    if not forward:
+        render(text=colorize("You have no forward room to go to.", RED))
+        return None
+
+    next_room = forward[-1]
+    if next_room not in state["rooms"]:
+        render(text=colorize(f"Unknown destination '{next_room}'.", RED))
+        return None
+
+    forward.pop()
+    player.setdefault("move", []).append(player["current_room"])
+    player["current_room"] = next_room
+    render()
+    return None
+
+
+def move(details: Any) -> None:
+    """Move by direction, adjacent room, or history ('back'/'forward')."""
     from .parser import ROOM_ALIASES, resolve_room_target
     from .room import render
+
+    destination = details["target"]
+    target = resolve_room_target(destination)
+
+    if target == "back":
+        return _history_back()
+    if target == "forward":
+        return _history_forward()
 
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
     exits = room_data["exits"]
 
-    target = resolve_room_target(destination)
     if target in ROOM_ALIASES.values():
         target_id = exits.get(target)
     else:
@@ -136,7 +248,8 @@ def move(destination: str) -> None:
         )
         return None
 
+    state["player"].setdefault("forward", []).clear()
     state["player"]["current_room"] = target_id
-    state["player"]["move"].append(current_room)
+    state["player"].setdefault("move", []).append(current_room)
     render()
     return None

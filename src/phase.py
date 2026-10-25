@@ -1,6 +1,6 @@
 from .utils.chat import respond
 from .display import clear, header, out, colorize
-from .engine import  prompt, command
+from .engine import  prompt, commands
 from .parser import parse
 from .room import render
 from .state import state
@@ -14,7 +14,7 @@ def exploration() -> None:
     raw = prompt()
     verb, details = parse(raw)
     clear()
-    command(verb, details)
+    commands(verb, details)
     if verb in ("UNKNOWN", "INVALID", "EMPTY"):
         render(
             colorize(text="Invalid input. Please try again. type 'help' for a list of available commands.",
@@ -39,7 +39,7 @@ def assembly() -> None:
     raw = prompt()
     verb, details = parse(raw)
     clear()
-    command(verb, details)
+    commands(verb, details)
     if verb == "activate":
         activate()
     if verb in ("UNKNOWN", "INVALID", "EMPTY"):
@@ -59,7 +59,7 @@ def chat() -> None:
     raw = prompt()
     verb, details = parse(raw)
     clear()
-    command(verb, details)
+    commands(verb, details)
     if verb in ("UNKNOWN", "INVALID", "EMPTY") and state["player"]["current_room"] == "lab_d2_001":
         header()
         out()

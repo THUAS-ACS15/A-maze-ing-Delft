@@ -15,13 +15,13 @@ DATABASE_PATH = _BASE_DIR / "data" / "game.db"
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT NOT NULL,
+    name       TEXT NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 CREATE TABLE IF NOT EXISTS saves (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    slot       TEXT NOT NULL,
+    slot       TEXT NOT NULL UNIQUE,
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
@@ -66,3 +66,4 @@ def init(db_path: Path | None = None) -> None:
     """Create the tables idempotently."""
     with connection(db_path) as conn:
         conn.executescript(_SCHEMA)
+

@@ -1,7 +1,7 @@
 import io
 import sys
 import config  # noqa: F401  (loads .env)
-from database import init
+from db import init
 
 from typing import cast
 

@@ -34,13 +34,13 @@ pythonpath = ["."]
 testpaths = ["tests"]
 addopts = [
     "--cov=src",
-    "--cov=database",
+    "--cov=db",
     "--cov-report=term-missing",
 ]
 
 [tool.coverage.run]
 branch = true
-source = ["src", "database"]
+source = ["src", "db"]
 omit = [
     "*/tests/*",
     "*/__init__.py",

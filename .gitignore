@@ -7,9 +7,7 @@
 *.pyc
 saves.db
 scoreboard.db
-data/game.db
+data/*
 debug.py
 .env
 .coverage
-.src/saves/*
-.src/data/user_state.json

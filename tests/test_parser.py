@@ -91,6 +91,27 @@ def test_parse_single_token_movement(raw_input, expected_target):
 
 
 @pytest.mark.parametrize(
+    ("raw_input", "expected_target", "expected_raw"),
+    [
+        pytest.param("back", "back", "back", id="back"),
+        pytest.param("backward", "back", "backward", id="backward"),
+        pytest.param("bkw", "back", "bkw", id="bkw"),
+        pytest.param("behind", "back", "behind", id="behind"),
+        pytest.param("forward", "forward", "forward", id="forward"),
+        pytest.param("front", "forward", "front", id="front"),
+        pytest.param("fwd", "forward", "fwd", id="fwd"),
+        pytest.param("go back", "back", "back", id="go-back"),
+        pytest.param("move forward", "forward", "forward", id="move-forward"),
+    ],
+)
+def test_parse_history_movement(raw_input, expected_target, expected_raw):
+    assert parser.parse(raw_input) == (
+        "go",
+        {"target": expected_target, "raw": expected_raw},
+    )
+
+
+@pytest.mark.parametrize(
     ("raw_input", "expected_action", "expected_raw"),
     [
         pytest.param("look", "look", "", id="look"),
@@ -114,7 +135,7 @@ def test_parse_simple_verbs(raw_input, expected_action, expected_raw):
 @pytest.mark.parametrize(
     ("raw_input", "expected_slot", "expected_raw"),
     [
-        pytest.param("save", "save_slot_1.json", "", id="default-slot"),
+        pytest.param("save", None, "", id="default-slot"),
         pytest.param("save slot1", "slot1", "slot1", id="explicit-slot"),
     ],
 )
@@ -125,10 +146,29 @@ def test_parse_save(raw_input, expected_slot, expected_raw):
     )
 
 
+def test_parse_register_with_name():
+    assert parser.parse("register alice") == (
+        "register",
+        {"target": "alice", "raw": "alice"},
+    )
+
+
+def test_parse_register_without_name_uses_generator(monkeypatch):
+    monkeypatch.setattr(parser, "random_name_generator", lambda: "Operator_Aegis_123")
+
+    assert parser.parse("register") == (
+        "register",
+        {"target": "Operator_Aegis_123", "raw": ""},
+    )
+
+
+def test_parse_saves():
+    assert parser.parse("saves") == ("saves", {"raw": ""})
+
+
 @pytest.mark.parametrize(
     ("raw_input", "expected_slot", "expected_raw"),
     [
-        pytest.param("load", "save_slot_1.json", "", id="default-slot"),
         pytest.param("load slot1", "slot1", "slot1", id="explicit-slot"),
     ],
 )
@@ -136,6 +176,35 @@ def test_parse_load(raw_input, expected_slot, expected_raw):
     assert parser.parse(raw_input) == (
         "load",
         {"target": expected_slot, "raw": expected_raw},
+    )
+
+
+def test_parse_load_without_slot_is_invalid():
+    assert parser.parse("load") == (
+        "INVALID",
+        {"message": "Enter a valid slot to load (e.g., 'load user_slot_1')."},
+    )
+
+
+@pytest.mark.parametrize(
+    "raw_input",
+    [
+        pytest.param("login alice", id="login"),
+        pytest.param("log_in alice", id="log-in-underscore"),
+        pytest.param("sign_in alice", id="sign-in-underscore"),
+    ],
+)
+def test_parse_login(raw_input):
+    assert parser.parse(raw_input) == (
+        "login",
+        {"target": "alice", "raw": "alice"},
+    )
+
+
+def test_parse_login_without_name_is_invalid():
+    assert parser.parse("login") == (
+        "INVALID",
+        {"message": "You have to enter a valid username (e.g., 'login user1')."},
     )
 
 
@@ -165,6 +234,17 @@ def test_parse_go_no_args():
             )
         },
     )
+
+
+@pytest.mark.parametrize(
+    ("raw_input", "expected_raw"),
+    [
+        pytest.param("restart", "", id="restart"),
+        pytest.param("new_game", "", id="new-game-underscore"),
+    ],
+)
+def test_parse_restart(raw_input, expected_raw):
+    assert parser.parse(raw_input) == ("restart", {"raw": expected_raw})
 
 
 @pytest.mark.parametrize(
@@ -322,9 +402,8 @@ def test_parse_clear_verb(monkeypatch, raw_input, expected_raw):
     ("raw_input", "expected_raw"),
     [
         pytest.param("drop battery", "drop battery", id="drop"),
-        pytest.param("back", "back", id="back"),
     ],
 )
 def test_parse_unhandled_verb_falls_through(raw_input, expected_raw):
-    # These verbs exist in VERB_ALIASES but have no handling branch.
+    # This verb exists in VERB_ALIASES but has no handling branch.
     assert parser.parse(raw_input) == ("UNKNOWN", {"raw": expected_raw})
