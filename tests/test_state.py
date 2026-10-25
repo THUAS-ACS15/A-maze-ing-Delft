@@ -1,9 +1,7 @@
 """Tests for ``src/state.py``."""
 
 import json
-import os
 from datetime import timedelta
-from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
