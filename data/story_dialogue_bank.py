@@ -130,7 +130,7 @@ Congratulations! You have completed the game and escaped the school building!"""
             "header": "👩 You step into Teacher's Room 4.",
             "enter": (
                 "The room looks pretty empty, except for a computer on a desk. This might"
-                "be your chance to log in with chose credentials on a computer and get something "
+                "be your chance to log in with those credentials on a computer and get something "
                 "useful from the school's intranet."
             ),
             "puzzle_take_api_and_prompt_usb": (
