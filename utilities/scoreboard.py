@@ -123,7 +123,7 @@ def display_scoreboard() -> None:
                     Align.center(SCOREBOARD_TITLE_ART),
                     Align.center(table),
                     "\n\n\n",
-                    Align.center(f"^ Previous | Page {page + 1}/{page_count}, use enter to go back | Next v"),
+                    Align.center(f"^ previous page | {page + 1}/{page_count} use enter to go back | next v"),
                 ),
                 vertical = "middle",
             )
