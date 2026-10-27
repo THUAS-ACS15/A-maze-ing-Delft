@@ -44,5 +44,5 @@ def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: f
         case _:
             raise ValueError(f"Invalid type: {type}. Must be 'puzzle', 'quiz', or 'qte'.")
 
-    print_line(text2art(text_to_print, font="univers", chr_ignore=True), text_delay, console)
+    print_line(text2art(text_to_print, font = "univers", chr_ignore = True), text_delay, console)
     sleep(final_delay)
