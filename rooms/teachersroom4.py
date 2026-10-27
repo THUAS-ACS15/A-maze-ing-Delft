@@ -248,7 +248,7 @@ def enter_teachers_room4(state: dict) -> str:
                                         print_line(file_system_with_secret)
                                     case "cat super_secret_file.txt":
                                         syntax_disp = Syntax(
-                                            room_dialogue_bank["puzzle_take_api_and_prompt"],
+                                            room_dialogue_bank["puzzle_take_api_and_prompt_usb"],
                                             "python",
                                             theme="monokai",
                                             line_numbers=True,
