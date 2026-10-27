@@ -7,6 +7,10 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+# ruff: noqa: E402
+# ^ prevent ruff from erroring imports
+# because pytest needs that path before importing (as below)
+
 from rich.text import Text
 
 import sys

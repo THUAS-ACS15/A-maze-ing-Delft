@@ -15,7 +15,6 @@ from rich.text import Text
 
 from data.item_description_bank import item_description_bank
 from data.item_render_bank import item_render_bank
-from utilities.clear_screen import clear_screen
 from utilities.status_bar import display_top_bar
 from utilities.main_menu import read_key
 
@@ -25,6 +24,8 @@ NO_RENDER_PLACEHOLDER = (
     "  | ? |  \n"
     "  |___|  \n"
 )
+
+NO_DESCRIPTION_PLACEHOLDER = "No description available."
 
 controls_str = "[italic]^ next item | use enter to go back | v previous item[/italic]"
 
@@ -86,8 +87,19 @@ def create_item_details_panel(item_name: str | None, panel_height: int) -> Panel
         Panel: a rich Panel containing the render + description sub-panels.
     """
 
-    render_text = item_render_bank.get(item_name, NO_RENDER_PLACEHOLDER) if item_name else NO_RENDER_PLACEHOLDER
-    desc_text   = item_description_bank.get(item_name, "No description available.") if item_name else "No description available."
+    # get texts for item name and desc,
+    # if they don't exist use 
+    render_text = (
+        item_render_bank.get(item_name, NO_RENDER_PLACEHOLDER)
+        if item_name is not None
+        else NO_RENDER_PLACEHOLDER
+    )
+
+    desc_text = (
+        item_description_bank.get(item_name, NO_DESCRIPTION_PLACEHOLDER)
+        if item_name is not None
+        else NO_DESCRIPTION_PLACEHOLDER
+    )
 
     render_panel = Panel(
         Align.center(render_text, vertical="middle"),
@@ -124,7 +136,7 @@ def render_inventory(console: Console, inventory: list[str], selected: int) -> N
 
     console.clear()
     display_top_bar(console)
-    console.print(Align.center(f"[bold]Your inventory[/bold]"))
+    console.print(Align.center("[bold]Your inventory[/bold]"))
     console.print('\n')
 
     item_name = inventory[selected] if inventory else None
