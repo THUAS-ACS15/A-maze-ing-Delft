@@ -10,10 +10,9 @@ from typing import Any
 
 from .utils.generate_save_slot import next_save_slot
 from .utils.format_timestamp import format_timestamp
-from .utils.colors import BRIGHT_GREEN, BRIGHT_RED, DIM, CYAN
 from .model import create_save, get_user_saves, get_user_save
 from .display import colorize, header, out
-from .utils.colors import RED
+from .utils.colors import RED, BRIGHT_GREEN, BRIGHT_RED, DIM, CYAN
 
 from .utils.duration import calculate_duration
 
@@ -30,7 +29,7 @@ USER_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 state: dict = {}
 help_commands: list = []
 
-def initialize() -> None:
+def init() -> None:
     global state
     # 1. Initialize USER_STATE_PATH from default template if missing or 0-byte
     if not USER_STATE_PATH.exists() or USER_STATE_PATH.stat().st_size == 0:

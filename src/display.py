@@ -89,7 +89,7 @@ def footer():
     # Loose Items
     room_items = room_data.get("items") or []
     if room_items:
-        out(colorize("\nItems in area:", BRIGHT_WHITE + BOLD))
+        out(colorize(text="\nItems in area:", color_code=BRIGHT_WHITE + BOLD))
         for item_id in room_items:
             item_data = state["items"][item_id]
             display_name = item_data.get("name", item_id)
@@ -105,9 +105,9 @@ def footer():
     # Points of Interest
     interactables = room_data.get("interactables") or room_data.get("interactable") or {}
     if interactables:
-        out(colorize("\nInteractables:", DIM))
-        for poi_key in interactables.keys():
-            out(f"  • {colorize(poi_key, WHITE)}")
+        out(colorize("\nInteractables:", DIM + BOLD))
+        for interactable in interactables.keys():
+            out(f"  • {colorize(interactable, WHITE)}")
 
     out()
 

@@ -1,18 +1,30 @@
+from datetime import timezone, datetime
 import json
 import copy
 
 from typing import Any
 
-from .model import get_user, create_user
+from .display import header
+from .model import get_user, create_user, get_scoreboard_entries
 from .rooms.lab_d2_001 import use_on_workbench, workbench
 from .rooms.teachers_room_1 import use_desk_code
 from .state import auto, help_commands, list_saves, load, DEFAULT_GAME_STATE_PATH
 from .room import render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
-    BRIGHT_WHITE, BRIGHT_MAGENTA, RED
-from .display import draw_line, out, colorize
+    BRIGHT_WHITE, RED, INFO, ERROR, SUCCESS
+from .display import out, colorize
 from .state import spawn,  \
     save, move, state
+from .utils.format_timestamp import format_timestamp
+
+
+STATUS_FLAG_LABELS = {
+    "fr1_user_registered": "Front desk registration",
+    "tr1_desk_unlocked": "Teachers Room 1 desk unlocked",
+    "tr2_whiteboard_inspected": "Teachers Room 2 whiteboard inspected",
+    "tr4_drawer_decrypted": "Teachers Room 4 drawer decrypted",
+    "lab_power_on": "Lab power restored",
+}
 
 
 def prompt(message: str | None = None) -> str:
@@ -23,12 +35,7 @@ def prompt(message: str | None = None) -> str:
 def inventory() -> None:
     """Renders carried items and displays total core assembly parts held."""
 
-    draw_line("=")
-    out(colorize(f"[{state['game_state']['phase']}]", BRIGHT_MAGENTA))
-    out(colorize("INVENTORY", BRIGHT_CYAN + BOLD))
-    out(colorize(f"{state['game_state']['duration']}", DIM))
-    draw_line("=")
-
+    header(colorize(text="INVENTORY", color_code=BRIGHT_CYAN + BOLD))
     if not state["player"]["inventory"]:
         out(colorize("Your inventory is currently empty.", DIM))
         out()
@@ -67,6 +74,7 @@ def helper() -> None:
         from rich.console import Console
         from rich.table import Table
 
+        header(colorize(text="HELP MENU", color_code=INFO + BOLD))
         console = Console(highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True)
         for group in groups:
             table = Table(title=group["title"], show_header=True, header_style="bold")
@@ -82,6 +90,7 @@ def helper() -> None:
             out(f"[{group['title']}]")
             for cmd in group["commands"]:
                 out(f"  {cmd['command']:<24} {cmd['description']}  e.g. {cmd['example']}")
+        return None
 
 def inspect(details) -> None:
     target = details["target"]
@@ -152,8 +161,21 @@ def take(details: Any) -> None:
         return None
     room_data["items"].remove(item)
     state["player"]["inventory"].append(item)
-    i = state["items"][item]
-    render(colorize(f"You picked up {i['name']}", BRIGHT_GREEN))
+    itm = state["items"][item]
+    render(colorize(f"You picked up {itm['name']}", BRIGHT_GREEN))
+    return None
+
+def drop(details: Any) -> None:
+    item = details["target"]
+    item_data = state["items"][item]
+    current_room = state["player"]["current_room"]
+    room_data = state["rooms"][current_room]
+    if item not in state["player"]["inventory"]:
+        render(text=colorize(f"You currently do not have '{item_data['name']}' here.", color_code=RED))
+        return None
+    state["player"]["inventory"].remove(item)
+    state["rooms"][current_room]["items"].append(item)
+    render(colorize(f"You dropped {item_data['name']} in {room_data['name']}", BRIGHT_GREEN))
     return None
 
 def exit_game() -> None:
@@ -190,12 +212,26 @@ def login(details: Any) -> None:
         return None
     user = get_user(name)
     if not user:
-        render(colorize(f"User '{name}' does not exist", color_code=RED))
+        render(colorize(f"User '{name}' does not exist", color_code=ERROR))
         return None
     state["player"]["name"] = name
     state["player"]["id"] = user["id"]
-    render(colorize(f"You are currently logged in as {name}", color_code=BRIGHT_GREEN))
+    render(colorize(f"You are currently logged in as {name}", color_code=SUCCESS))
     return None
+
+def logout() -> None:
+    if state["player"]["current_room"] != "front_desk":
+        render(colorize(text="You can only complete this operation at the front desk", color_code=ERROR))
+        return None
+    if not state["player"]["id"]:
+        render(colorize(text="You are currently not logged in!", color_code=ERROR))
+        return None
+    snapshot = copy.deepcopy(state)
+    state["player"]["id"] = None
+    state["player"]["name"] = "guest"
+    render(colorize(text=f"You have been logged out from {snapshot['player']['name']}", color_code=SUCCESS))
+    return None
+
 
 def restart() -> None:
     snapshot = copy.deepcopy(state)
@@ -204,7 +240,167 @@ def restart() -> None:
         state.update(json.load(df))
         state["player"]["name"] = snapshot["player"]["name"]
         state["player"]["id"] = snapshot["player"]["id"]
+        state["game_state"]["timestamp"] = datetime.now(timezone.utc).isoformat()
     render(text=colorize("New game!", color_code=BRIGHT_GREEN))
+
+def scoreboard() -> None:
+    width = int(state["terminal_width"])
+    entries = get_scoreboard_entries()
+    header(colorize(text="GAME SCOREBOARD", color_code=INFO + BOLD))
+    if not entries:
+        out()
+        out(colorize(text="No entries found!".center(width), color_code=DIM))
+        return None
+
+    rows = []
+    for rank, entry in enumerate(entries, start=1):
+        user = get_user(entry["user_id"])
+        player_name = user["name"] if user else f"Unknown ({entry['user_id']})"
+        rows.append((rank, player_name, entry))
+
+    try:
+        import os
+
+        from rich.console import Console
+        from rich.table import Table
+
+        console = Console(
+            highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True
+        )
+        table = Table(title="Top Scores", show_header=False, header_style="bold")
+        table.add_column("Rank", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Player", style="bold")
+        table.add_column("Score", justify="right")
+        table.add_column("Avg Room", justify="right")
+        table.add_column("Exploration", justify="right")
+        table.add_column("Assembly", justify="right")
+        for rank, player_name, entry in rows:
+            table.add_row(
+                str(rank),
+                player_name,
+                str(entry["score"]),
+                entry["avg_room_time"],
+                entry["exploration_time"],
+                entry["assembly_time"],
+            )
+        console.print(table)
+        return None
+    except ModuleNotFoundError:
+        out(
+            f"{'Rank':<6}{'Player':<20}{'Score':>8}  "
+            f"{'Avg Room':<10}{'Exploration':<12}{'Assembly':<10}"
+        )
+        for rank, player_name, entry in rows:
+            out(
+                f"{rank:<6}{player_name:<20}{entry['score']:>8}  "
+                f"{entry['avg_room_time']:<10}{entry['exploration_time']:<12}"
+                f"{entry['assembly_time']:<10}"
+            )
+
+    return None
+
+def status() -> None:
+    header(colorize(text="STATUS", color_code=INFO + BOLD))
+
+    player = state["player"]
+    game_state = state["game_state"]
+    rooms = state["rooms"]
+    items = state["items"]
+    flags = state["flags"]
+    workbench = state["workbench"]
+
+    player_id = player.get("id")
+    login_text = (
+        f"Logged in (id {player_id})"
+        if player_id is not None
+        else "Guest / not logged in"
+    )
+    current_room = player["current_room"]
+    room_name = rooms.get(current_room, {}).get("name", current_room)
+    timestamp = game_state.get("timestamp")
+    start_time = format_timestamp(timestamp) if timestamp else "Unknown"
+    duration = game_state.get("duration") or "00:00:00"
+
+    visited_ids = list(dict.fromkeys([*player.get("move", []), current_room]))
+    visited_names = [
+        rooms.get(room_id, {}).get("name", room_id) for room_id in visited_ids
+    ]
+    total_rooms = len(rooms)
+    explored_percent = round(len(visited_ids) / total_rooms * 100)
+
+    completed = [
+        STATUS_FLAG_LABELS.get(flag, flag.replace("_", " ").title())
+        for flag, enabled in flags.items()
+        if enabled
+    ]
+
+    inventory = player["inventory"]
+    inventory_names = [
+        items.get(item_id, {}).get("name", item_id) for item_id in inventory
+    ]
+    assembly_parts = sum(
+        1 for item_id in inventory if items.get(item_id, {}).get("is_assembly_part")
+    )
+
+    installed = len(workbench.get("installed_parts", []))
+    required = len(workbench.get("required_parts", []))
+    ready_text = "ready" if workbench.get("is_ready") else "not ready"
+
+    challenge_text = f"{len(completed)}/{len(flags)}"
+    if completed:
+        challenge_text += "\n" + "\n".join(f"• {label}" for label in completed)
+
+    inventory_text = "\n".join(f"• {name}" for name in inventory_names) or "Empty"
+
+    rows = [
+        ("Name", player.get("name", "guest")),
+        ("Login", login_text),
+        ("Room", room_name),
+        ("Phase", game_state.get("phase", "UNKNOWN")),
+        None,
+        ("Started", start_time),
+        ("Total time", duration),
+        None,
+        ("Rooms explored", f"{len(visited_ids)}/{total_rooms} ({explored_percent}%)"),
+        ("Visited", ", ".join(visited_names) or "None"),
+        ("Challenges", challenge_text),
+        ("Assembly", f"{installed}/{required} installed ({ready_text})"),
+        None,
+        ("Inventory", inventory_text),
+        ("Assembly parts", str(assembly_parts)),
+    ]
+
+    try:
+        import os
+
+        from rich.console import Console
+        from rich.table import Table
+
+        console = Console(
+            highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True
+        )
+        table = Table(show_header=True, header_style="bold")
+        table.add_column("Stat", style="cyan", no_wrap=True)
+        table.add_column("Value")
+        for row in rows:
+            if row is None:
+                table.add_section()
+            else:
+                table.add_row(*row)
+        console.print(table)
+        return None
+    except ModuleNotFoundError:
+        for row in rows:
+            if row is None:
+                out()
+                continue
+            label, value = row
+            lines = value.splitlines()
+            out(f"  {label}: {lines[0]}")
+            for line in lines[1:]:
+                out(f"  {' ' * len(label)}  {line}")
+
+    return None
 
 
 def commands(verb, details) -> None:
@@ -217,6 +413,12 @@ def commands(verb, details) -> None:
     elif verb == "help":
         helper()
         return
+    elif verb == "scoreboard":
+        scoreboard()
+        return
+    elif verb == "status":
+        status()
+        return
     elif verb == "inventory":
         inventory()
         return
@@ -228,6 +430,9 @@ def commands(verb, details) -> None:
         return
     elif verb == "login":
         login(details)
+        return
+    elif verb == "logout":
+        logout()
         return
     elif verb == "save":
         save(details)
@@ -246,6 +451,9 @@ def commands(verb, details) -> None:
         return
     elif verb == "take":
         take(details)
+        return
+    elif verb == "drop":
+        drop(details)
         return
     elif verb == "go":
         move(details)

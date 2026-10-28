@@ -29,6 +29,10 @@ def _out_texts(out_mock):
     return [call.args[0] for call in out_mock.call_args_list if call.args]
 
 
+def _table_rows(table_mock):
+    return {call.args[0]: call.args[1] for call in table_mock.add_row.call_args_list}
+
+
 def _block_rich_import(monkeypatch):
     """Simulate rich not being installed for helper()'s fallback path."""
     real_import = builtins.__import__
@@ -45,11 +49,35 @@ def _block_rich_import(monkeypatch):
 def rendered(monkeypatch):
     """Patch engine's rendering helpers."""
     out_mock = Mock()
-    draw_mock = Mock()
+    header_mock = Mock()
     monkeypatch.setattr(engine, "out", out_mock)
-    monkeypatch.setattr(engine, "draw_line", draw_mock)
+    monkeypatch.setattr(engine, "header", header_mock)
     monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
-    return {"out": out_mock, "draw_line": draw_mock}
+    return {"out": out_mock, "header": header_mock}
+
+
+@pytest.fixture
+def status_table(monkeypatch, rendered):
+    console_cls = Mock()
+    table_cls = Mock()
+    monkeypatch.setattr("rich.console.Console", console_cls)
+    monkeypatch.setattr("rich.table.Table", table_cls)
+    return {"rendered": rendered, "console": console_cls, "table": table_cls}
+
+
+@pytest.fixture
+def scoreboard_env(monkeypatch):
+    mocks = {
+        "header": Mock(),
+        "out": Mock(),
+        "get_scoreboard_entries": Mock(return_value=[]),
+        "get_user": Mock(return_value=None),
+        "state": {"terminal_width": 80},
+    }
+    for name, mock in mocks.items():
+        monkeypatch.setattr(engine, name, mock)
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
+    return mocks
 
 
 @pytest.fixture
@@ -76,7 +104,7 @@ def use_env(monkeypatch):
 
 
 @pytest.fixture
-def take_env(monkeypatch):
+def item_env(monkeypatch):
     render_mock = Mock()
     monkeypatch.setattr(engine, "render", render_mock)
     monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
@@ -88,21 +116,66 @@ def command_env(monkeypatch):
     mocks = {
         "render": Mock(),
         "helper": Mock(),
+        "scoreboard": Mock(),
+        "status": Mock(),
         "inventory": Mock(),
         "use": Mock(),
         "register": Mock(),
         "login": Mock(),
+        "logout": Mock(),
         "save": Mock(),
         "list_saves": Mock(),
         "load": Mock(),
         "inspect": Mock(),
         "take": Mock(),
+        "drop": Mock(),
         "move": Mock(),
         "restart": Mock(),
     }
     for name, mock in mocks.items():
         monkeypatch.setattr(engine, name, mock)
     return mocks
+
+
+def _status_full_state():
+    return {
+        "player": {
+            "id": 5,
+            "name": "sadanand",
+            "current_room": "teachers_room_1",
+            "inventory": ["chassis_frame", "keycard_lvl1", "mystery"],
+            "move": ["lobby", "teachers_room_1", "lobby"],
+        },
+        "rooms": {
+            "lobby": {"name": "Lobby"},
+            "teachers_room_1": {"name": "Teachers Room 1"},
+        },
+        "items": {
+            "chassis_frame": {
+                "name": "Robot Chassis Frame",
+                "is_assembly_part": True,
+            },
+            "keycard_lvl1": {
+                "name": "Level-1 Staff Keycard",
+                "is_assembly_part": False,
+            },
+        },
+        "flags": {
+            "tr1_desk_unlocked": True,
+            "tr2_whiteboard_inspected": False,
+            "lab_power_on": True,
+        },
+        "workbench": {
+            "installed_parts": ["chassis_frame"],
+            "required_parts": ["chassis_frame", "battery_pack"],
+            "is_ready": False,
+        },
+        "game_state": {
+            "timestamp": "2026-10-26T13:34:05.696941+00:00",
+            "duration": "7:51:37",
+            "phase": "EXPLORATION",
+        },
+    }
 
 
 def _inspect_state(current_room, unlocked=False):
@@ -156,7 +229,7 @@ def test_inventory_empty(monkeypatch, rendered):
 
     engine.inventory()
 
-    assert rendered["draw_line"].call_count == 2
+    rendered["header"].assert_called_once_with("INVENTORY")
     assert "Your inventory is currently empty." in _out_texts(rendered["out"])
 
 
@@ -213,7 +286,7 @@ def test_helper_filter_and_fallback(monkeypatch, rendered, phase, assembly_visib
     assert bool([text for text in texts if "[Assembly]" in text]) is assembly_visible
 
 
-def test_helper_rich_path(monkeypatch):
+def test_helper_rich_path(monkeypatch, rendered):
     console_cls = Mock()
     table_cls = Mock()
     monkeypatch.setattr("rich.console.Console", console_cls)
@@ -223,8 +296,232 @@ def test_helper_rich_path(monkeypatch):
 
     engine.helper()
 
+    rendered["header"].assert_called_once_with("HELP MENU")
     console_cls.return_value.print.assert_called_once_with(table_cls.return_value)
     table_cls.return_value.add_row.assert_called_once_with("go", "Move", "go north")
+
+
+def test_scoreboard_empty(scoreboard_env):
+    engine.scoreboard()
+
+    scoreboard_env["header"].assert_called_once_with("GAME SCOREBOARD")
+    assert _out_texts(scoreboard_env["out"]) == ["No entries found!".center(80)]
+    scoreboard_env["get_user"].assert_not_called()
+
+
+def test_scoreboard_rich_table(monkeypatch, scoreboard_env):
+    scoreboard_env["get_scoreboard_entries"].return_value = [
+        {
+            "id": 1,
+            "user_id": 10,
+            "score": 100,
+            "avg_room_time": "0:30",
+            "exploration_time": "1:00",
+            "assembly_time": "0:45",
+        },
+        {
+            "id": 2,
+            "user_id": 20,
+            "score": 75,
+            "avg_room_time": "0:40",
+            "exploration_time": "2:00",
+            "assembly_time": "1:00",
+        },
+    ]
+    scoreboard_env["get_user"].side_effect = lambda user_id: {
+        10: {"name": "Alice"},
+        20: {"name": "Bob"},
+    }[user_id]
+    console_cls = Mock()
+    table_cls = Mock()
+    monkeypatch.setattr("rich.console.Console", console_cls)
+    monkeypatch.setattr("rich.table.Table", table_cls)
+
+    engine.scoreboard()
+
+    scoreboard_env["header"].assert_called_once_with("GAME SCOREBOARD")
+    table_cls.assert_called_once_with(
+        title="Top Scores", show_header=False, header_style="bold"
+    )
+    table = table_cls.return_value
+    assert [call.args[0] for call in table.add_column.call_args_list] == [
+        "Rank",
+        "Player",
+        "Score",
+        "Avg Room",
+        "Exploration",
+        "Assembly",
+    ]
+    assert [call.args for call in table.add_row.call_args_list] == [
+        ("1", "Alice", "100", "0:30", "1:00", "0:45"),
+        ("2", "Bob", "75", "0:40", "2:00", "1:00"),
+    ]
+    console_cls.return_value.print.assert_called_once_with(table)
+    assert [
+        call.args[0] for call in scoreboard_env["get_user"].call_args_list
+    ] == [10, 20]
+
+
+def test_scoreboard_fallback_with_unknown_user(monkeypatch, scoreboard_env):
+    _block_rich_import(monkeypatch)
+    scoreboard_env["get_scoreboard_entries"].return_value = [
+        {
+            "id": 1,
+            "user_id": 99,
+            "score": 42,
+            "avg_room_time": "0:30",
+            "exploration_time": "1:00",
+            "assembly_time": "0:45",
+        },
+    ]
+
+    engine.scoreboard()
+
+    texts = _out_texts(scoreboard_env["out"])
+    assert texts[0].startswith("Rank")
+    assert "Unknown (99)" in texts[1]
+    assert "42" in texts[1]
+
+
+def test_status_full(monkeypatch, status_table):
+    monkeypatch.setattr(engine, "state", _status_full_state())
+
+    engine.status()
+
+    rendered = status_table["rendered"]
+    table_cls = status_table["table"]
+    table = table_cls.return_value
+    rendered["header"].assert_called_once_with("STATUS")
+    rendered["out"].assert_not_called()
+    table_cls.assert_called_once_with(show_header=True, header_style="bold")
+    assert [call.args for call in table.add_column.call_args_list] == [
+        ("Stat",),
+        ("Value",),
+    ]
+    assert table.add_column.call_args_list[0].kwargs == {
+        "style": "cyan",
+        "no_wrap": True,
+    }
+    assert table.add_column.call_args_list[1].kwargs == {}
+    assert table.add_section.call_count == 3
+
+    rows = _table_rows(table)
+    assert rows["Name"] == "sadanand"
+    assert rows["Login"] == "Logged in (id 5)"
+    assert rows["Room"] == "Teachers Room 1"
+    assert rows["Phase"] == "EXPLORATION"
+    assert rows["Started"] == "2026-10-26 13:34"
+    assert rows["Total time"] == "7:51:37"
+    assert rows["Rooms explored"] == "2/2 (100%)"
+    assert rows["Visited"] == "Lobby, Teachers Room 1"
+    assert rows["Challenges"] == (
+        "2/3\n"
+        "• Teachers Room 1 desk unlocked\n"
+        "• Lab power restored"
+    )
+    assert rows["Assembly"] == "1/2 installed (not ready)"
+    assert rows["Inventory"] == (
+        "• Robot Chassis Frame\n"
+        "• Level-1 Staff Keycard\n"
+        "• mystery"
+    )
+    assert rows["Assembly parts"] == "1"
+    status_table["console"].return_value.print.assert_called_once_with(table)
+
+
+def test_status_empty_state(monkeypatch, status_table):
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {
+            "player": {
+                "id": None,
+                "name": "guest",
+                "current_room": "lobby",
+                "inventory": [],
+                "move": [],
+            },
+            "rooms": {"lobby": {"name": "Lobby"}},
+            "items": {},
+            "flags": {},
+            "workbench": {
+                "installed_parts": [],
+                "required_parts": [],
+                "is_ready": False,
+            },
+            "game_state": {
+                "timestamp": None,
+                "duration": "00:00:00",
+                "phase": "EXPLORATION",
+            },
+        },
+    )
+
+    engine.status()
+
+    rows = _table_rows(status_table["table"].return_value)
+    assert rows["Name"] == "guest"
+    assert rows["Login"] == "Guest / not logged in"
+    assert rows["Started"] == "Unknown"
+    assert rows["Total time"] == "00:00:00"
+    assert rows["Rooms explored"] == "1/1 (100%)"
+    assert rows["Visited"] == "Lobby"
+    assert rows["Challenges"] == "0/0"
+    assert rows["Assembly"] == "0/0 installed (not ready)"
+    assert rows["Inventory"] == "Empty"
+    assert rows["Assembly parts"] == "0"
+
+
+def test_status_ready_workbench(monkeypatch, status_table):
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {
+            "player": {
+                "id": 1,
+                "name": "alice",
+                "current_room": "lobby",
+                "inventory": [],
+                "move": [],
+            },
+            "rooms": {"lobby": {"name": "Lobby"}},
+            "items": {},
+            "flags": {},
+            "workbench": {
+                "installed_parts": ["chassis_frame", "battery_pack"],
+                "required_parts": ["chassis_frame", "battery_pack"],
+                "is_ready": True,
+            },
+            "game_state": {
+                "timestamp": "2026-10-26T13:34:05+00:00",
+                "duration": "00:10:00",
+                "phase": "ASSEMBLY",
+            },
+        },
+    )
+
+    engine.status()
+
+    rows = _table_rows(status_table["table"].return_value)
+    assert rows["Assembly"] == "2/2 installed (ready)"
+
+
+def test_status_fallback(monkeypatch, rendered):
+    _block_rich_import(monkeypatch)
+    monkeypatch.setattr(engine, "state", _status_full_state())
+
+    engine.status()
+
+    texts = _out_texts(rendered["out"])
+    assert "  Name: sadanand" in texts
+    assert "  Started: 2026-10-26 13:34" in texts
+    assert "  Challenges: 2/3" in texts
+    assert any(text.endswith("• Teachers Room 1 desk unlocked") for text in texts)
+    assert any(text.endswith("• Lab power restored") for text in texts)
+    assert "  Inventory: • Robot Chassis Frame" in texts
+    assert any(text.endswith("• Level-1 Staff Keycard") for text in texts)
+    assert any(text.endswith("• mystery") for text in texts)
+    assert "  Assembly parts: 1" in texts
 
 
 def test_inspect_terminal(monkeypatch, inspect_env):
@@ -349,7 +646,7 @@ def test_use_item_cannot_use(monkeypatch, use_env):
     )
 
 
-def test_take_missing(monkeypatch, take_env):
+def test_take_missing(monkeypatch, item_env):
     monkeypatch.setattr(
         engine,
         "state",
@@ -361,10 +658,10 @@ def test_take_missing(monkeypatch, take_env):
 
     engine.take({"target": "battery"})
 
-    take_env.assert_called_once_with(text="There is no 'battery' here.")
+    item_env.assert_called_once_with(text="There is no 'battery' here.")
 
 
-def test_take_success(monkeypatch, take_env):
+def test_take_success(monkeypatch, item_env):
     state = {
         "player": {"current_room": "lobby", "inventory": []},
         "rooms": {"lobby": {"items": ["battery"]}},
@@ -376,7 +673,40 @@ def test_take_success(monkeypatch, take_env):
 
     assert state["rooms"]["lobby"]["items"] == []
     assert state["player"]["inventory"] == ["battery"]
-    take_env.assert_called_once_with("You picked up High-Capacity Battery Pack")
+    item_env.assert_called_once_with("You picked up High-Capacity Battery Pack")
+
+
+def test_drop_item_not_held(monkeypatch, item_env):
+    state = {
+        "player": {"current_room": "lobby", "inventory": []},
+        "rooms": {"lobby": {"items": []}},
+        "items": {"battery": {"name": "High-Capacity Battery Pack"}},
+    }
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.drop({"target": "battery"})
+
+    assert state["rooms"]["lobby"]["items"] == []
+    item_env.assert_called_once_with(
+        text="You currently do not have 'High-Capacity Battery Pack' here."
+    )
+
+
+def test_drop_success(monkeypatch, item_env):
+    state = {
+        "player": {"current_room": "lobby", "inventory": ["battery"]},
+        "rooms": {"lobby": {"name": "Lobby", "items": []}},
+        "items": {"battery": {"name": "High-Capacity Battery Pack"}},
+    }
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.drop({"target": "battery"})
+
+    assert state["player"]["inventory"] == []
+    assert state["rooms"]["lobby"]["items"] == ["battery"]
+    item_env.assert_called_once_with(
+        "You dropped High-Capacity Battery Pack in Lobby"
+    )
 
 
 def test_command_quit(monkeypatch, command_env):
@@ -393,6 +723,18 @@ def test_command_help(command_env):
     engine.commands("help", {})
 
     command_env["helper"].assert_called_once_with()
+
+
+def test_command_scoreboard(command_env):
+    engine.commands("scoreboard", {})
+
+    command_env["scoreboard"].assert_called_once_with()
+
+
+def test_command_status(command_env):
+    engine.commands("status", {})
+
+    command_env["status"].assert_called_once_with()
 
 
 def test_command_inventory(command_env):
@@ -438,6 +780,12 @@ def test_command_login(command_env):
     command_env["login"].assert_called_once_with(details)
 
 
+def test_command_logout(command_env):
+    engine.commands("logout", {})
+
+    command_env["logout"].assert_called_once_with()
+
+
 def test_command_load(command_env):
     details = {"target": "slot1"}
 
@@ -477,6 +825,14 @@ def test_command_take(command_env, details):
     engine.commands("take", details)
 
     command_env["take"].assert_called_once_with(details)
+
+
+def test_command_drop(command_env):
+    details = {"target": "battery"}
+
+    engine.commands("drop", details)
+
+    command_env["drop"].assert_called_once_with(details)
 
 
 @pytest.mark.parametrize(
@@ -621,6 +977,14 @@ def login_env(monkeypatch):
     return mocks
 
 
+@pytest.fixture
+def logout_env(monkeypatch):
+    render = Mock()
+    monkeypatch.setattr(engine, "render", render)
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
+    return render
+
+
 def test_login_requires_front_desk(monkeypatch, login_env):
     monkeypatch.setattr(engine, "state", {"player": {"current_room": "lobby"}})
 
@@ -660,6 +1024,54 @@ def test_login_success(monkeypatch, login_env):
     assert "logged in" in _render_text(login_env["render"]).lower()
 
 
+def test_logout_requires_front_desk(monkeypatch, logout_env):
+    state = {
+        "player": {"current_room": "lobby", "id": 7, "name": "alice"},
+    }
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.logout()
+
+    logout_env.assert_called_once()
+    assert state["player"]["id"] == 7
+    assert state["player"]["name"] == "alice"
+    assert "front desk" in _render_text(logout_env).lower()
+
+
+def test_logout_requires_login(monkeypatch, logout_env):
+    state = {
+        "player": {"current_room": "front_desk", "id": None, "name": "guest"},
+    }
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.logout()
+
+    logout_env.assert_called_once()
+    assert state["player"]["id"] is None
+    assert state["player"]["name"] == "guest"
+    assert "not logged in" in _render_text(logout_env).lower()
+
+
+def test_logout_success(monkeypatch, logout_env):
+    state = {
+        "player": {
+            "current_room": "front_desk",
+            "id": 7,
+            "name": "alice",
+            "inventory": ["keycard_lvl1"],
+        },
+    }
+    monkeypatch.setattr(engine, "state", state)
+
+    engine.logout()
+
+    logout_env.assert_called_once()
+    assert state["player"]["id"] is None
+    assert state["player"]["name"] == "guest"
+    assert state["player"]["inventory"] == ["keycard_lvl1"]
+    assert "logged out from alice" in _render_text(logout_env).lower()
+
+
 def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
     default_path = tmp_path / "default_state.json"
     default_path.write_text(
@@ -667,6 +1079,10 @@ def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
             {
                 "player": {"id": None, "name": "guest", "current_room": "lobby"},
                 "rooms": {"lobby": {}},
+                "game_state": {
+                    "timestamp": "2020-01-01T00:00:00+00:00",
+                    "duration": "00:00:00",
+                },
             }
         ),
         encoding="utf-8",
@@ -688,4 +1104,9 @@ def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
     assert game_state["player"]["id"] == 3
     assert game_state["player"]["current_room"] == "lobby"
     assert game_state["rooms"] == {"lobby": {}}
+    assert game_state["game_state"]["duration"] == "00:00:00"
+    assert (
+        game_state["game_state"]["timestamp"]
+        != "2020-01-01T00:00:00+00:00"
+    )
     render.assert_called_once_with(text="New game!")

@@ -86,7 +86,7 @@ def test_initialize_creates_user_state_from_default(monkeypatch, tmp_path, precr
     monkeypatch.setattr(state_module, "state", {})
     monkeypatch.setattr(state_module, "help_commands", [])
 
-    state_module.initialize()
+    state_module.init()
 
     assert json.loads(user_path.read_text()) == default_data
     assert state_module.state == default_data
@@ -110,7 +110,7 @@ def test_initialize_keeps_existing_state(monkeypatch, tmp_path):
     monkeypatch.setattr(state_module, "state", existing_state)
     monkeypatch.setattr(state_module, "help_commands", existing_help)
 
-    state_module.initialize()
+    state_module.init()
 
     assert state_module.state is existing_state
     assert state_module.help_commands == existing_help
@@ -131,7 +131,7 @@ def test_initialize_loads_help_commands(monkeypatch, tmp_path):
     monkeypatch.setattr(state_module, "state", {"rooms": {}})
     monkeypatch.setattr(state_module, "help_commands", [])
 
-    state_module.initialize()
+    state_module.init()
 
     assert state_module.help_commands == help_data
 

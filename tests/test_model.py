@@ -80,6 +80,27 @@ def test_get_scoreboard_entries_returns_rows(database):
     assert entries[0]["exploration_time"] == "1:00"
 
 
+def test_get_scoreboard_entries_orders_by_score_desc(database):
+    user_id = model.create_user("Alice")
+    model.create_scoreboard_entry(user_id, 50, "0:30", "1:00", "0:45")
+    model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+    model.create_scoreboard_entry(user_id, 75, "0:30", "1:00", "0:45")
+
+    entries = model.get_scoreboard_entries()
+
+    assert [entry["score"] for entry in entries] == [100, 75, 50]
+
+
+def test_get_scoreboard_entries_ties_keep_id_order(database):
+    user_id = model.create_user("Alice")
+    first_id = model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+    second_id = model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+
+    entries = model.get_scoreboard_entries()
+
+    assert [entry["id"] for entry in entries] == [first_id, second_id]
+
+
 def test_create_save_with_unknown_user_raises(database):
     with pytest.raises(sqlite3.IntegrityError):
         model.create_save("slot1", 999)

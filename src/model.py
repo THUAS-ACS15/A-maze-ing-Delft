@@ -76,6 +76,9 @@ def create_scoreboard_entry(
 
 
 def get_scoreboard_entries() -> list[dict[str, Any]]:
+    """Return scoreboard rows ordered by highest score first."""
     with connection() as conn:
-        rows = conn.execute("SELECT * FROM scoreboard").fetchall()
+        rows = conn.execute(
+            "SELECT * FROM scoreboard ORDER BY score DESC, id ASC"
+        ).fetchall()
     return [dict(row) for row in rows]

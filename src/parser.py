@@ -48,14 +48,19 @@ def parse(raw_input: str) -> tuple[str, dict]:
     ):
         return "go", {"target": resolve_room_target(cleaned), "raw": cleaned}
 
-    # Resolve primary verb
+    # Resolve primary verb. Prefer an exact multi-word alias when it maps to
+    # a different action than the first token (e.g. "check status").
     verb = VERB_ALIASES.get(first_token)
-    if not verb:
+    exact_verb = VERB_ALIASES.get(cleaned) if " " in cleaned else None
+    if exact_verb is not None and exact_verb != verb:
+        verb = exact_verb
+        args = []
+        arg_str = ""
+    elif verb:
+        args = tokens[1:]
+        arg_str = " ".join(args)
+    else:
         return "UNKNOWN", {"raw": raw_input}
-
-    # Argument processing
-    args = tokens[1:]
-    arg_str = " ".join(args)
 
     if verb == "look":
         return "look", {"raw": arg_str}
@@ -65,6 +70,12 @@ def parse(raw_input: str) -> tuple[str, dict]:
 
     if verb == "help":
         return "help", {"raw": arg_str}
+
+    if verb == "scoreboard":
+        return "scoreboard", {"raw": arg_str}
+
+    if verb == "status":
+        return "status", {"raw": arg_str}
 
     if verb == "clear":
         return "clear", {"raw": arg_str}
@@ -79,6 +90,9 @@ def parse(raw_input: str) -> tuple[str, dict]:
                 "message": "You have to enter a valid username (e.g., 'login user1')."})
         username = args[0]
         return "login", {"target": username, "raw": arg_str}
+
+    if verb == "logout":
+        return "logout", {"raw": arg_str}
 
     if verb == "save":
         slot = args[0] if args else None
@@ -127,6 +141,13 @@ def parse(raw_input: str) -> tuple[str, dict]:
             arg_str = " ".join(item_tokens)
         target_id = ITEM_ALIASES.get(arg_str, arg_str)
         return "take", {"target": target_id, "raw": arg_str}
+
+    if verb == "drop":
+        if not args:
+            return ("INVALID", {
+                "message": "drop what? Specify an item to drop (e.g., 'drop battery_pack')."})
+        target_id = ITEM_ALIASES.get(arg_str, arg_str)
+        return "drop", {"target": target_id, "raw": arg_str}
 
     if verb == "use":
         if not args:

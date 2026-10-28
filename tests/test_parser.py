@@ -133,6 +133,35 @@ def test_parse_simple_verbs(raw_input, expected_action, expected_raw):
 
 
 @pytest.mark.parametrize(
+    "raw_input",
+    [
+        pytest.param("scoreboard", id="scoreboard"),
+        pytest.param("high_score", id="high-score-underscore"),
+    ],
+)
+def test_parse_scoreboard(raw_input):
+    assert parser.parse(raw_input) == ("scoreboard", {"raw": ""})
+
+
+@pytest.mark.parametrize(
+    "raw_input",
+    [
+        pytest.param("status", id="status"),
+        pytest.param("check_status", id="check-status-underscore"),
+        pytest.param("check status", id="check-status-space"),
+    ],
+)
+def test_parse_status(raw_input):
+    assert parser.parse(raw_input) == ("status", {"raw": ""})
+
+
+def test_parse_known_verb_without_branch_falls_through(monkeypatch):
+    monkeypatch.setattr(parser, "VERB_ALIASES", {"unhandled": "unhandled"})
+
+    assert parser.parse("unhandled") == ("UNKNOWN", {"raw": "unhandled"})
+
+
+@pytest.mark.parametrize(
     ("raw_input", "expected_slot", "expected_raw"),
     [
         pytest.param("save", None, "", id="default-slot"),
@@ -206,6 +235,18 @@ def test_parse_login_without_name_is_invalid():
         "INVALID",
         {"message": "You have to enter a valid username (e.g., 'login user1')."},
     )
+
+
+@pytest.mark.parametrize(
+    "raw_input",
+    [
+        pytest.param("logout", id="logout"),
+        pytest.param("log_out", id="log-out-underscore"),
+        pytest.param("sign_out", id="sign-out-underscore"),
+    ],
+)
+def test_parse_logout(raw_input):
+    assert parser.parse(raw_input) == ("logout", {"raw": ""})
 
 
 @pytest.mark.parametrize(
@@ -310,6 +351,27 @@ def test_parse_take_no_args():
 
 
 @pytest.mark.parametrize(
+    ("raw_input", "expected_target", "expected_raw"),
+    [
+        pytest.param("drop battery", "battery_pack", "battery", id="drop"),
+        pytest.param("discard keycard", "keycard_lvl1", "keycard", id="discard-alias"),
+    ],
+)
+def test_parse_drop(raw_input, expected_target, expected_raw):
+    assert parser.parse(raw_input) == (
+        "drop",
+        {"target": expected_target, "raw": expected_raw},
+    )
+
+
+def test_parse_drop_no_args():
+    assert parser.parse("drop") == (
+        "INVALID",
+        {"message": "drop what? Specify an item to drop (e.g., 'drop battery_pack')."},
+    )
+
+
+@pytest.mark.parametrize(
     ("raw_input", "expected_target", "expected_indirect", "expected_raw"),
     [
         pytest.param(
@@ -396,14 +458,3 @@ def test_parse_clear_verb(monkeypatch, raw_input, expected_raw):
     monkeypatch.setattr(parser, "VERB_ALIASES", {"clear": "clear"})
 
     assert parser.parse(raw_input) == ("clear", {"raw": expected_raw})
-
-
-@pytest.mark.parametrize(
-    ("raw_input", "expected_raw"),
-    [
-        pytest.param("drop battery", "drop battery", id="drop"),
-    ],
-)
-def test_parse_unhandled_verb_falls_through(raw_input, expected_raw):
-    # This verb exists in VERB_ALIASES but has no handling branch.
-    assert parser.parse(raw_input) == ("UNKNOWN", {"raw": expected_raw})

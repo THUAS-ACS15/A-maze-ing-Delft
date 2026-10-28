@@ -1,7 +1,7 @@
 {
     "running": true,
     "enable_colors": true,
-    "terminal_width":  147,
+    "terminal_width":  120,
     "player": {
         "id": null,
         "name": "guest",
@@ -171,7 +171,7 @@
             "id": "project_room_1",
             "name": "Project Room 1",
             "description": "A high-tech hardware testing bay.",
-            "restricted": null,
+            "restricted": true,
             "requires": "keycard_lvl1",
             "exits": {"west": "classroom_d_2035", "south": "teachers_room_2"},
             "items": ["sensory_module"],

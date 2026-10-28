@@ -1,12 +1,14 @@
 {
     "running": true,
     "enable_colors": true,
-    "terminal_width": 147,
+    "terminal_width": 120,
     "player": {
-        "id": 3,
-        "name": "polaris",
+        "id": 5,
+        "name": "sadanand",
         "current_room": "lobby",
-        "inventory": [],
+        "inventory": [
+            "blueprint"
+        ],
         "move": [],
         "forward": []
     },
@@ -118,7 +120,6 @@
                 "west": "front_desk"
             },
             "items": [
-                "blueprint",
                 "chassis_frame"
             ],
             "interactables": {
@@ -276,8 +277,8 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": null,
-        "duration": "0:00:00",
+        "timestamp": "2026-10-26T13:34:05.696941+00:00",
+        "duration": "8:24:06",
         "phase": "EXPLORATION",
         "phases": {
             "exploration": {
