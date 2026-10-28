@@ -30,12 +30,52 @@ def _make_state(
         "rooms": rooms if rooms is not None else {"lobby": {}, "classroom": {}},
         "game_state": {
             "timestamp": timestamp,
-            "duration": "00:00:00",
+            "duration": {
+                "last_write": timestamp,
+                "value": "00:00:00",
+                "pause": False,
+            },
             "phase": phase,
             "phases": {"assembly": {"activated": False}},
         },
         "workbench": {"is_ready": is_ready},
     }
+
+
+@pytest.mark.parametrize(
+    ("duration", "expected_value"),
+    [
+        pytest.param("1 day, 2:03:04", "1 day, 2:03:04", id="legacy-string"),
+        pytest.param(None, "00:00:00", id="missing"),
+        pytest.param({"value": "0:05:00"}, "0:05:00", id="dict-missing-keys"),
+    ],
+)
+def test_normalize_state_duration(duration, expected_value):
+    state_data = {
+        "game_state": {"timestamp": "2024-01-01T00:00:00+00:00"}
+    }
+    if duration is not None:
+        state_data["game_state"]["duration"] = duration
+
+    state_module.normalize_state(state_data)
+
+    duration_data = state_data["game_state"]["duration"]
+    assert duration_data["value"] == expected_value
+    assert duration_data["pause"] is False
+    assert duration_data["last_write"] == "2024-01-01T00:00:00+00:00"
+
+
+def test_normalize_state_preserves_existing_duration():
+    duration = {
+        "last_write": "2024-01-01T00:00:00+00:00",
+        "value": "1:00:00",
+        "pause": True,
+    }
+    state_data = {"game_state": {"duration": duration}}
+
+    state_module.normalize_state(state_data)
+
+    assert state_data["game_state"]["duration"] == duration
 
 
 def _move_state():
@@ -74,7 +114,16 @@ def test_initialize_creates_user_state_from_default(monkeypatch, tmp_path, precr
     user_path = tmp_path / "user_state.json"
     default_path = tmp_path / "default.json"
     help_path = tmp_path / "help.json"
-    default_data = {"rooms": {"lobby": {"name": "Lobby"}}, "game_state": {}}
+    default_data = {
+        "rooms": {"lobby": {"name": "Lobby"}},
+        "game_state": {
+            "duration": {
+                "last_write": None,
+                "value": "00:00:00",
+                "pause": False,
+            }
+        },
+    }
     default_path.write_text(json.dumps(default_data))
     help_path.write_text(json.dumps([]))
     if precreate:
@@ -89,7 +138,11 @@ def test_initialize_creates_user_state_from_default(monkeypatch, tmp_path, precr
     state_module.init()
 
     assert json.loads(user_path.read_text()) == default_data
-    assert state_module.state == default_data
+    assert state_module.state["rooms"] == default_data["rooms"]
+    duration = state_module.state["game_state"]["duration"]
+    assert duration["value"] == "00:00:00"
+    assert duration["pause"] is False
+    assert duration["last_write"] is not None
     assert state_module.help_commands == []
 
 
@@ -140,7 +193,7 @@ def test_initialize_loads_help_commands(monkeypatch, tmp_path):
     ("duration_value", "expected_duration"),
     [
         pytest.param(timedelta(minutes=5), "0:05:00", id="timedelta"),
-        pytest.param("", "00:00:00", id="empty-fallback"),
+        pytest.param(timedelta(0), "0:00:00", id="zero"),
     ],
 )
 def test_auto_updates_duration(
@@ -156,8 +209,26 @@ def test_auto_updates_duration(
 
     state_module.auto()
 
-    assert game_state["game_state"]["duration"] == expected_duration
+    duration = game_state["game_state"]["duration"]
+    assert duration["value"] == expected_duration
+    assert duration["last_write"] is not None
     assert json.loads(user_path.read_text()) == game_state
+
+
+def test_auto_skips_write_when_paused(monkeypatch, tmp_path):
+    user_path = tmp_path / "user_state.json"
+    game_state = _make_state()
+    game_state["game_state"]["duration"]["pause"] = True
+    monkeypatch.setattr(state_module, "state", game_state)
+    monkeypatch.setattr(state_module, "USER_STATE_PATH", user_path)
+    monkeypatch.setattr(
+        state_module, "calculate_duration", Mock(return_value=timedelta(minutes=5))
+    )
+
+    state_module.auto()
+
+    assert game_state["game_state"]["duration"]["value"] == "00:00:00"
+    assert not user_path.exists()
 
 
 def test_auto_advances_phase_when_ready(monkeypatch, tmp_path):
@@ -504,8 +575,34 @@ def test_load_existing_file_updates_state_in_place(monkeypatch, tmp_path):
     state_module.load({"target": "slot1"})
 
     assert state_module.state is game_state
-    assert game_state == save_data
+    assert game_state["player"] == save_data["player"]
+    assert game_state["rooms"] == save_data["rooms"]
+    duration = game_state["game_state"]["duration"]
+    assert duration["value"] == save_data["game_state"]["duration"]["value"]
+    assert duration["pause"] is False
+    assert duration["last_write"] is not None
     assert "loaded" in render.call_args.args[0].lower()
+
+
+def test_load_normalizes_legacy_duration(monkeypatch, tmp_path):
+    save_dir = tmp_path / "saves"
+    save_dir.mkdir()
+    save_data = _make_state()
+    save_data["game_state"]["duration"] = "1 day, 2:03:04"
+    (save_dir / "slot1.json").write_text(json.dumps(save_data), encoding="utf-8")
+    game_state = _load_state()
+    monkeypatch.setattr(state_module, "state", game_state)
+    monkeypatch.setattr(state_module, "SAVE_DIR", save_dir)
+    monkeypatch.setattr(state_module, "colorize", lambda text=None, color_code=None: text)
+    monkeypatch.setattr(room_module, "render", Mock())
+    monkeypatch.setattr(state_module, "get_user_save", Mock(return_value={"slot": "slot1"}))
+
+    state_module.load({"target": "slot1"})
+
+    duration = game_state["game_state"]["duration"]
+    assert duration["value"] == "1 day, 2:03:04"
+    assert duration["pause"] is False
+    assert duration["last_write"] is not None
 
 
 def test_load_strips_json_suffix(monkeypatch, tmp_path):

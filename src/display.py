@@ -1,3 +1,5 @@
+import re
+
 from subprocess import run
 
 from .utils.colors import BOLD, BRIGHT_MAGENTA, BRIGHT_YELLOW, DIM, BRIGHT_GREEN, CYAN, \
@@ -56,19 +58,24 @@ def header(content: str | None = None) -> None:
     )
 
     if content:
-        space_needed = state["terminal_width"] - len(safe(content)) - len(state["player"]["name"])
-        print(content, end=f"{' ' * space_needed}")
-        out(colorize(f"{state['player']['name'].upper().rjust(15)}", DIM))
+        visible_len = len(re.sub(r"\x1b\[[0-9;]*m", "", content))
+        space_needed = max(1, state["terminal_width"] - visible_len - len(state["player"]["name"]))
+        out(content, end=f"{' ' * space_needed}")
+        out(colorize(f"{state['player']['name'].upper()}", DIM))
     else:
-        space_needed = state["terminal_width"] - len(f"LOCATION: {room_data['name']}") - len(
-            state["player"]["name"]
-            )
+        space_needed = max(
+            1,
+            state["terminal_width"] - len(f"LOCATION: {room_data['name']}") - len(
+                state["player"]["name"]
+            ),
+        )
         out(
             colorize(f"LOCATION: {room_data['name']}", BRIGHT_YELLOW + BOLD),
             end=f"{' ' * space_needed}"
         )
         out(colorize(f"{state['player']['name'].upper()}", DIM))
-    out(colorize(f"{state['game_state']['duration']}", DIM + BOLD))
+    out(colorize(text=f"{state['game_state']['duration']['value']}", color_code=DIM + BOLD), end=" ")
+    out(colorize(text=f"{'[PAUSED]' if state['game_state']['duration']['pause'] else ''}", color_code=DIM))
 
     draw_line("═")
 
@@ -80,8 +87,10 @@ def footer():
     # Exits
     exits = room_data.get("exits") or {}
     if exits:
-        formatted_exits = [f"{direction.upper()} -> {target}" for direction, target
-                           in exits.items()]
+        formatted_exits = []
+        for direction, target in exits.items():
+            target_name = state["rooms"].get(target, {}).get("name", target)
+            formatted_exits.append(f"{direction.upper()} -> {target_name}")
         out(colorize(f"Exits: {', '.join(formatted_exits)}", CYAN))
     else:
         out(colorize("Exits: None available.", RED))

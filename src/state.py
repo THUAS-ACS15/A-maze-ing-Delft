@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -8,6 +9,7 @@ from datetime import timezone, datetime
 from pathlib import Path
 from typing import Any
 
+from .utils.parse_time import parse_time_str
 from .utils.generate_save_slot import next_save_slot
 from .utils.format_timestamp import format_timestamp
 from .model import create_save, get_user_saves, get_user_save
@@ -29,6 +31,25 @@ USER_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 state: dict = {}
 help_commands: list = []
 
+def normalize_state(state_data: dict) -> None:
+    """Ensure loaded state uses the current duration schema."""
+    game_state = state_data.setdefault("game_state", {})
+    duration = game_state.get("duration")
+    if isinstance(duration, dict):
+        duration["last_write"] = (
+            duration.get("last_write") or game_state.get("timestamp")
+        )
+        duration["value"] = duration.get("value") or "00:00:00"
+        duration["pause"] = duration.get("pause", False)
+        return
+
+    game_state["duration"] = {
+        "last_write": game_state.get("timestamp"),
+        "value": duration if isinstance(duration, str) and duration else "00:00:00",
+        "pause": False,
+    }
+
+
 def init() -> None:
     global state
     # 1. Initialize USER_STATE_PATH from default template if missing or 0-byte
@@ -41,17 +62,26 @@ def init() -> None:
     if not state:
         state = json.loads(USER_STATE_PATH.read_text())
 
+    normalize_state(state)
+
     if not help_commands:
         help_commands[:] = json.loads(HELP_COMMANDS_PATH.read_text(encoding="utf-8"))
+
+    state["game_state"]["duration"]["last_write"] = datetime.now(timezone.utc).isoformat()
     return None
 
 def auto() -> None:
-    start_time = state["game_state"]["timestamp"] or datetime.now(timezone.utc).isoformat()
-    current_time = datetime.now(timezone.utc).isoformat()
-    duration = calculate_duration(start_time, current_time)
-    state["game_state"]["duration"] = str(duration) or "00:00:00"
-    with open(USER_STATE_PATH, "w") as a:
-        json.dump(state, a, indent=4)
+    last_write = copy.deepcopy(state["game_state"]["duration"]["last_write"])
+    duration = calculate_duration(last_write, datetime.now(timezone.utc).isoformat())
+    state["game_state"]["duration"]["last_write"] = datetime.now(
+        timezone.utc
+        ).isoformat()
+
+    if not state["game_state"]["duration"]["pause"]:
+        state["game_state"]["duration"]["value"] =\
+            str(duration + parse_time_str(state["game_state"]["duration"]["value"]))
+        with open(USER_STATE_PATH, "w") as a:
+            json.dump(state, a, indent=4)
 
     if state["workbench"]["is_ready"] and state["game_state"]["phase"] == "EXPLORATION":
         state["game_state"]["phase"] = "ASSEMBLY"
@@ -96,8 +126,8 @@ def list_saves() -> None:
         for row in user_saves:
             date = format_timestamp(row['created_at'])
             space_needed = state["terminal_width"] - len(date) - len(row["slot"])
-            print(row["slot"], end=f"{' ' * space_needed}")
-            print(colorize(f"{date}", DIM))
+            out(row["slot"], end=f"{' ' * space_needed}")
+            out(colorize(f"{date}", DIM))
         return None
 
     text = "You currently have no saved slot linked to your profile"
@@ -145,6 +175,10 @@ def load(details: Any) -> None:
         loaded = json.load(f)
     state.clear()
     state.update(loaded)
+    normalize_state(state)
+    state["game_state"]["duration"]["last_write"] = datetime.now(
+        timezone.utc
+    ).isoformat()
     render(colorize(f"Game loaded from {slot}", BRIGHT_GREEN))
     return None
 
@@ -177,12 +211,12 @@ def _history_forward() -> None:
     player = state["player"]
     forward = player.setdefault("forward", [])
     if not forward:
-        render(text=colorize("You have no forward room to go to.", RED))
+        render(text=colorize("You have no forward room to go to.", color_code=RED))
         return None
 
     next_room = forward[-1]
     if next_room not in state["rooms"]:
-        render(text=colorize(f"Unknown destination '{next_room}'.", RED))
+        render(text=colorize(f"Unknown destination '{next_room}'.", color_code=RED))
         return None
 
     forward.pop()
@@ -201,9 +235,11 @@ def move(details: Any) -> None:
     target = resolve_room_target(destination)
 
     if target == "back":
-        return _history_back()
+        _history_back()
+        return None
     if target == "forward":
-        return _history_forward()
+        _history_forward()
+        return None
 
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]

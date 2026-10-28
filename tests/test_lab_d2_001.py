@@ -27,7 +27,11 @@ def _make_state(installed, inventory=None, phase="EXPLORATION", robot_name="Jarv
         "player": {"inventory": list(inventory) if inventory is not None else []},
         "game_state": {
             "phase": phase,
-            "duration": "00:00:00",
+            "duration": {
+                "last_write": None,
+                "value": "00:00:00",
+                "pause": False,
+            },
             "phases": {
                 "assembly": {"wifi_password": WIFI_PASSWORD},
                 "chat": {"robot": {"name": robot_name}},

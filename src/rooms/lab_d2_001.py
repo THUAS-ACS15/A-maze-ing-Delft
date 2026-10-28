@@ -25,7 +25,7 @@ def workbench(text: str | None = None) -> None:
     )
     out(
         colorize(
-            f"[{state['game_state']['duration']}]", DIM
+            f"[{state['game_state']['duration']['value']}]", DIM
         )
     )
     draw_line("═")

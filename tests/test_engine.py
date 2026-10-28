@@ -29,8 +29,17 @@ def _out_texts(out_mock):
     return [call.args[0] for call in out_mock.call_args_list if call.args]
 
 
-def _table_rows(table_mock):
-    return {call.args[0]: call.args[1] for call in table_mock.add_row.call_args_list}
+def _status_rows(out_mock):
+    rows = {}
+    for text in _out_texts(out_mock):
+        label, separator, value = text.strip().partition(":")
+        if separator and not label.startswith("•"):
+            rows[label] = value.strip()
+    return rows
+
+
+def _duration(value="00:00:00"):
+    return {"last_write": None, "value": value, "pause": False}
 
 
 def _block_rich_import(monkeypatch):
@@ -54,15 +63,6 @@ def rendered(monkeypatch):
     monkeypatch.setattr(engine, "header", header_mock)
     monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
     return {"out": out_mock, "header": header_mock}
-
-
-@pytest.fixture
-def status_table(monkeypatch, rendered):
-    console_cls = Mock()
-    table_cls = Mock()
-    monkeypatch.setattr("rich.console.Console", console_cls)
-    monkeypatch.setattr("rich.table.Table", table_cls)
-    return {"rendered": rendered, "console": console_cls, "table": table_cls}
 
 
 @pytest.fixture
@@ -139,6 +139,7 @@ def command_env(monkeypatch):
 
 def _status_full_state():
     return {
+        "terminal_width": 120,
         "player": {
             "id": 5,
             "name": "sadanand",
@@ -172,7 +173,37 @@ def _status_full_state():
         },
         "game_state": {
             "timestamp": "2026-10-26T13:34:05.696941+00:00",
-            "duration": "7:51:37",
+            "duration": _duration("7:51:37"),
+            "phase": "EXPLORATION",
+        },
+    }
+
+
+def _visited_state(count: int, width: int = 120) -> dict:
+    rooms = {
+        f"room_{index}": {"name": f"Room {index}"}
+        for index in range(1, count + 1)
+    }
+    return {
+        "terminal_width": width,
+        "player": {
+            "id": None,
+            "name": "guest",
+            "current_room": f"room_{count}",
+            "inventory": [],
+            "move": [f"room_{index}" for index in range(1, count + 1)],
+        },
+        "rooms": rooms,
+        "items": {},
+        "flags": {},
+        "workbench": {
+            "installed_parts": [],
+            "required_parts": [],
+            "is_ready": False,
+        },
+        "game_state": {
+            "timestamp": None,
+            "duration": _duration(),
             "phase": "EXPLORATION",
         },
     }
@@ -222,7 +253,11 @@ def test_inventory_empty(monkeypatch, rendered):
         engine,
         "state",
         {
-            "game_state": {"phase": "EXPLORATION", "duration": "00:00:00"},
+            "terminal_width": 80,
+            "game_state": {
+                "phase": "EXPLORATION",
+                "duration": _duration(),
+            },
             "player": {"inventory": []},
         },
     )
@@ -230,7 +265,10 @@ def test_inventory_empty(monkeypatch, rendered):
     engine.inventory()
 
     rendered["header"].assert_called_once_with("INVENTORY")
-    assert "Your inventory is currently empty." in _out_texts(rendered["out"])
+    assert any(
+        "Your inventory is currently empty." in text
+        for text in _out_texts(rendered["out"])
+    )
 
 
 def test_inventory_populated(monkeypatch, rendered):
@@ -238,7 +276,11 @@ def test_inventory_populated(monkeypatch, rendered):
         engine,
         "state",
         {
-            "game_state": {"phase": "EXPLORATION", "duration": "00:05:00"},
+            "terminal_width": 80,
+            "game_state": {
+                "phase": "EXPLORATION",
+                "duration": _duration("00:05:00"),
+            },
             "player": {"inventory": ["chassis_frame", "keycard_lvl1"]},
             "items": {
                 "chassis_frame": {
@@ -276,7 +318,11 @@ def test_inventory_populated(monkeypatch, rendered):
 def test_helper_filter_and_fallback(monkeypatch, rendered, phase, assembly_visible):
     _block_rich_import(monkeypatch)
     monkeypatch.setattr(engine, "help_commands", HELP_GROUPS)
-    monkeypatch.setattr(engine, "state", {"game_state": {"phase": phase}})
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {"game_state": {"phase": phase, "duration": _duration()}},
+    )
 
     engine.helper()
 
@@ -292,7 +338,11 @@ def test_helper_rich_path(monkeypatch, rendered):
     monkeypatch.setattr("rich.console.Console", console_cls)
     monkeypatch.setattr("rich.table.Table", table_cls)
     monkeypatch.setattr(engine, "help_commands", HELP_GROUPS)
-    monkeypatch.setattr(engine, "state", {"game_state": {"phase": "EXPLORATION"}})
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {"game_state": {"phase": "EXPLORATION", "duration": _duration()}},
+    )
 
     engine.helper()
 
@@ -309,7 +359,7 @@ def test_scoreboard_empty(scoreboard_env):
     scoreboard_env["get_user"].assert_not_called()
 
 
-def test_scoreboard_rich_table(monkeypatch, scoreboard_env):
+def test_scoreboard_table(scoreboard_env):
     scoreboard_env["get_scoreboard_entries"].return_value = [
         {
             "id": 1,
@@ -332,38 +382,35 @@ def test_scoreboard_rich_table(monkeypatch, scoreboard_env):
         10: {"name": "Alice"},
         20: {"name": "Bob"},
     }[user_id]
-    console_cls = Mock()
-    table_cls = Mock()
-    monkeypatch.setattr("rich.console.Console", console_cls)
-    monkeypatch.setattr("rich.table.Table", table_cls)
 
     engine.scoreboard()
 
     scoreboard_env["header"].assert_called_once_with("GAME SCOREBOARD")
-    table_cls.assert_called_once_with(
-        title="Top Scores", show_header=False, header_style="bold"
-    )
-    table = table_cls.return_value
-    assert [call.args[0] for call in table.add_column.call_args_list] == [
-        "Rank",
-        "Player",
-        "Score",
-        "Avg Room",
-        "Exploration",
-        "Assembly",
-    ]
-    assert [call.args for call in table.add_row.call_args_list] == [
-        ("1", "Alice", "100", "0:30", "1:00", "0:45"),
-        ("2", "Bob", "75", "0:40", "2:00", "1:00"),
-    ]
-    console_cls.return_value.print.assert_called_once_with(table)
+    texts = _out_texts(scoreboard_env["out"])
+    assert texts[0].startswith("Rank")
+    assert "Player" in texts[0]
+    assert "Score" in texts[0]
+    assert "Avg Room" in texts[0]
+    assert "Exploration" in texts[0]
+    assert "Assembly" in texts[0]
+    assert texts[1].startswith("1")
+    assert "Alice" in texts[1]
+    assert "100" in texts[1]
+    assert "0:30" in texts[1]
+    assert "1:00" in texts[1]
+    assert "0:45" in texts[1]
+    assert texts[2].startswith("2")
+    assert "Bob" in texts[2]
+    assert "75" in texts[2]
+    assert "0:40" in texts[2]
+    assert "2:00" in texts[2]
+    assert "1:00" in texts[2]
     assert [
         call.args[0] for call in scoreboard_env["get_user"].call_args_list
     ] == [10, 20]
 
 
-def test_scoreboard_fallback_with_unknown_user(monkeypatch, scoreboard_env):
-    _block_rich_import(monkeypatch)
+def test_scoreboard_unknown_user(scoreboard_env):
     scoreboard_env["get_scoreboard_entries"].return_value = [
         {
             "id": 1,
@@ -383,57 +430,36 @@ def test_scoreboard_fallback_with_unknown_user(monkeypatch, scoreboard_env):
     assert "42" in texts[1]
 
 
-def test_status_full(monkeypatch, status_table):
+def test_status_full(monkeypatch, rendered):
     monkeypatch.setattr(engine, "state", _status_full_state())
 
     engine.status()
 
-    rendered = status_table["rendered"]
-    table_cls = status_table["table"]
-    table = table_cls.return_value
-    rendered["header"].assert_called_once_with("STATUS")
-    rendered["out"].assert_not_called()
-    table_cls.assert_called_once_with(show_header=True, header_style="bold")
-    assert [call.args for call in table.add_column.call_args_list] == [
-        ("Stat",),
-        ("Value",),
-    ]
-    assert table.add_column.call_args_list[0].kwargs == {
-        "style": "cyan",
-        "no_wrap": True,
-    }
-    assert table.add_column.call_args_list[1].kwargs == {}
-    assert table.add_section.call_count == 3
-
-    rows = _table_rows(table)
-    assert rows["Name"] == "sadanand"
-    assert rows["Login"] == "Logged in (id 5)"
+    rendered["header"].assert_called_once_with("STATUS MENU")
+    rows = _status_rows(rendered["out"])
+    assert rows["Name"] == "Sadanand"
     assert rows["Room"] == "Teachers Room 1"
     assert rows["Phase"] == "EXPLORATION"
     assert rows["Started"] == "2026-10-26 13:34"
-    assert rows["Total time"] == "7:51:37"
-    assert rows["Rooms explored"] == "2/2 (100%)"
+    assert rows["Time spent"] == "7:51:37"
+    assert rows["Explored"] == "2/2 (100%)"
     assert rows["Visited"] == "Lobby, Teachers Room 1"
     assert rows["Challenges"] == (
-        "2/3\n"
-        "• Teachers Room 1 desk unlocked\n"
-        "• Lab power restored"
+        "2/3 Teachers Room 1 desk unlocked, Lab power restored"
     )
     assert rows["Assembly"] == "1/2 installed (not ready)"
     assert rows["Inventory"] == (
-        "• Robot Chassis Frame\n"
-        "• Level-1 Staff Keycard\n"
-        "• mystery"
+        "Robot Chassis Frame, Level-1 Staff Keycard, mystery"
     )
     assert rows["Assembly parts"] == "1"
-    status_table["console"].return_value.print.assert_called_once_with(table)
 
 
-def test_status_empty_state(monkeypatch, status_table):
+def test_status_empty_state(monkeypatch, rendered):
     monkeypatch.setattr(
         engine,
         "state",
         {
+            "terminal_width": 120,
             "player": {
                 "id": None,
                 "name": "guest",
@@ -451,7 +477,7 @@ def test_status_empty_state(monkeypatch, status_table):
             },
             "game_state": {
                 "timestamp": None,
-                "duration": "00:00:00",
+                "duration": _duration(),
                 "phase": "EXPLORATION",
             },
         },
@@ -459,12 +485,11 @@ def test_status_empty_state(monkeypatch, status_table):
 
     engine.status()
 
-    rows = _table_rows(status_table["table"].return_value)
-    assert rows["Name"] == "guest"
-    assert rows["Login"] == "Guest / not logged in"
+    rows = _status_rows(rendered["out"])
+    assert rows["Name"] == "Guest"
     assert rows["Started"] == "Unknown"
-    assert rows["Total time"] == "00:00:00"
-    assert rows["Rooms explored"] == "1/1 (100%)"
+    assert rows["Time spent"] == "00:00:00"
+    assert rows["Explored"] == "1/1 (100%)"
     assert rows["Visited"] == "Lobby"
     assert rows["Challenges"] == "0/0"
     assert rows["Assembly"] == "0/0 installed (not ready)"
@@ -472,11 +497,12 @@ def test_status_empty_state(monkeypatch, status_table):
     assert rows["Assembly parts"] == "0"
 
 
-def test_status_ready_workbench(monkeypatch, status_table):
+def test_status_ready_workbench(monkeypatch, rendered):
     monkeypatch.setattr(
         engine,
         "state",
         {
+            "terminal_width": 120,
             "player": {
                 "id": 1,
                 "name": "alice",
@@ -494,7 +520,7 @@ def test_status_ready_workbench(monkeypatch, status_table):
             },
             "game_state": {
                 "timestamp": "2026-10-26T13:34:05+00:00",
-                "duration": "00:10:00",
+                "duration": _duration("00:10:00"),
                 "phase": "ASSEMBLY",
             },
         },
@@ -502,26 +528,154 @@ def test_status_ready_workbench(monkeypatch, status_table):
 
     engine.status()
 
-    rows = _table_rows(status_table["table"].return_value)
+    rows = _status_rows(rendered["out"])
     assert rows["Assembly"] == "2/2 installed (ready)"
 
 
-def test_status_fallback(monkeypatch, rendered):
-    _block_rich_import(monkeypatch)
-    monkeypatch.setattr(engine, "state", _status_full_state())
+def test_status_visited_shows_last_five(monkeypatch, rendered):
+    width = 120
+    monkeypatch.setattr(engine, "state", _visited_state(7, width))
 
     engine.status()
 
     texts = _out_texts(rendered["out"])
-    assert "  Name: sadanand" in texts
-    assert "  Started: 2026-10-26 13:34" in texts
-    assert "  Challenges: 2/3" in texts
-    assert any(text.endswith("• Teachers Room 1 desk unlocked") for text in texts)
-    assert any(text.endswith("• Lab power restored") for text in texts)
-    assert "  Inventory: • Robot Chassis Frame" in texts
-    assert any(text.endswith("• Level-1 Staff Keycard") for text in texts)
-    assert any(text.endswith("• mystery") for text in texts)
-    assert "  Assembly parts: 1" in texts
+    rows = _status_rows(rendered["out"])
+    assert rows["Visited"] == "... Room 3, Room 4, Room 5, Room 6, Room 7"
+    visited_line = next(text for text in texts if text.startswith(" Visited:"))
+    assert len(visited_line) == width - 1
+
+
+def test_status_visited_no_ellipsis_at_five(monkeypatch, rendered):
+    monkeypatch.setattr(engine, "state", _visited_state(5))
+
+    engine.status()
+
+    rows = _status_rows(rendered["out"])
+    assert rows["Visited"] == "Room 1, Room 2, Room 3, Room 4, Room 5"
+
+
+def test_status_wraps_long_values(monkeypatch, rendered):
+    width = 50
+    rooms = {
+        f"room_{index}": {"name": f"Very Long Room Name {index}"}
+        for index in range(1, 7)
+    }
+    rooms["lobby"] = {"name": "Lobby"}
+    items = {
+        "chassis": {"name": "Robot Chassis Frame", "is_assembly_part": True},
+        "keycard": {"name": "Level-1 Staff Keycard", "is_assembly_part": False},
+        "mystery": {"name": "Mystery Component", "is_assembly_part": False},
+    }
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {
+            "terminal_width": width,
+            "player": {
+                "id": None,
+                "name": "guest",
+                "current_room": "lobby",
+                "inventory": ["chassis", "keycard", "mystery"],
+                "move": list(rooms),
+            },
+            "rooms": rooms,
+            "items": items,
+            "flags": {},
+            "workbench": {
+                "installed_parts": [],
+                "required_parts": [],
+                "is_ready": False,
+            },
+            "game_state": {
+                "timestamp": None,
+                "duration": _duration(),
+                "phase": "EXPLORATION",
+            },
+        },
+    )
+
+    engine.status()
+
+    texts = _out_texts(rendered["out"])
+    assert all(len(text) <= width - 1 for text in texts)
+
+    visited_index = next(
+        index for index, text in enumerate(texts) if text.startswith(" Visited:")
+    )
+    visited_indent = " " * (len(" Visited:") + 1)
+    assert texts[visited_index].startswith(" Visited: ...")
+    assert texts[visited_index].endswith(",")
+    assert texts[visited_index + 1].startswith(visited_indent)
+    assert "Very Long Room Name" in texts[visited_index + 1]
+
+    inventory_index = next(
+        index for index, text in enumerate(texts) if text.startswith(" Inventory:")
+    )
+    inventory_indent = " " * (len(" Inventory:") + 1)
+    assert any(
+        text.startswith(inventory_indent)
+        and ("Keycard" in text or "Mystery" in text)
+        for text in texts[inventory_index + 1:]
+    )
+
+
+def test_status_wraps_single_long_item(monkeypatch, rendered):
+    width = 40
+    long_name = "A" * 60
+    rooms = {
+        "long_room": {"name": long_name},
+        "lobby": {"name": "Lobby"},
+    }
+    monkeypatch.setattr(
+        engine,
+        "state",
+        {
+            "terminal_width": width,
+            "player": {
+                "id": None,
+                "name": "guest",
+                "current_room": "lobby",
+                "inventory": [],
+                "move": ["long_room", "lobby"],
+            },
+            "rooms": rooms,
+            "items": {},
+            "flags": {},
+            "workbench": {
+                "installed_parts": [],
+                "required_parts": [],
+                "is_ready": False,
+            },
+            "game_state": {
+                "timestamp": None,
+                "duration": _duration(),
+                "phase": "EXPLORATION",
+            },
+        },
+    )
+
+    engine.status()
+
+    texts = _out_texts(rendered["out"])
+    assert all(len(text) <= width - 1 for text in texts)
+    assert any(text.startswith(" Visited:") for text in texts)
+    assert any(
+        text.startswith(" " * (len(" Visited:") + 1)) and "A" in text
+        for text in texts
+    )
+
+
+def test_print_status_row_wraps_multiline(monkeypatch):
+    out_mock = Mock()
+    monkeypatch.setattr(engine, "out", out_mock)
+
+    engine._print_status_row("Test", "first line\nsecond line", 40)
+
+    texts = _out_texts(out_mock)
+    assert texts[0].startswith(" Test:")
+    assert "first line" in texts[0]
+    assert texts[1].startswith(" " * (len(" Test:") + 1))
+    assert texts[1].strip() == "second line"
 
 
 def test_inspect_terminal(monkeypatch, inspect_env):
@@ -710,13 +864,17 @@ def test_drop_success(monkeypatch, item_env):
 
 
 def test_command_quit(monkeypatch, command_env):
-    state = {"running": True}
+    state = {"running": True, "terminal_width": 80}
+    out = Mock()
     monkeypatch.setattr(engine, "state", state)
+    monkeypatch.setattr(engine, "out", out)
+    monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
 
     engine.commands("quit", {})
 
     assert state["running"] is False
-    command_env["render"].assert_called_once_with("Goodbye. see you again soon")
+    command_env["status"].assert_called_once_with()
+    out.assert_called_once_with("Goodbye. see you again soon".center(80))
 
 
 def test_command_help(command_env):
@@ -1081,7 +1239,7 @@ def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
                 "rooms": {"lobby": {}},
                 "game_state": {
                     "timestamp": "2020-01-01T00:00:00+00:00",
-                    "duration": "00:00:00",
+                    "duration": _duration(),
                 },
             }
         ),
@@ -1104,7 +1262,10 @@ def test_restart_resets_state_but_keeps_player(monkeypatch, tmp_path):
     assert game_state["player"]["id"] == 3
     assert game_state["player"]["current_room"] == "lobby"
     assert game_state["rooms"] == {"lobby": {}}
-    assert game_state["game_state"]["duration"] == "00:00:00"
+    duration = game_state["game_state"]["duration"]
+    assert duration["value"] == "00:00:00"
+    assert duration["pause"] is False
+    assert duration["last_write"] is not None
     assert (
         game_state["game_state"]["timestamp"]
         != "2020-01-01T00:00:00+00:00"

@@ -139,7 +139,14 @@ def test_header_reads_state_and_draws(monkeypatch):
             "terminal_width": 10,
             "player": {"current_room": "lab", "name": "guest"},
             "rooms": {"lab": {"name": "Lab D 2001"}},
-            "game_state": {"phase": "EXPLORATION", "duration": "00:05:00"},
+            "game_state": {
+                "phase": "EXPLORATION",
+                "duration": {
+                    "last_write": None,
+                    "value": "00:05:00",
+                    "pause": False,
+                },
+            },
         },
     )
     monkeypatch.setattr(display, "colorize", lambda text, color_code: text)
@@ -152,16 +159,17 @@ def test_header_reads_state_and_draws(monkeypatch):
 
     assert draw_mock.call_count == 2
     assert [call.args[0] for call in draw_mock.call_args_list] == ["═", "═"]
-    assert out_mock.call_count == 4
+    assert out_mock.call_count == 5
     assert [call.args[0] for call in out_mock.call_args_list] == [
         "[EXPLORATION]",
         "LOCATION: Lab D 2001",
         "GUEST",
         "00:05:00",
+        "",
     ]
 
 
-def test_header_with_content(monkeypatch, capsys):
+def test_header_with_content(monkeypatch):
     monkeypatch.setattr(
         state_module,
         "state",
@@ -170,7 +178,14 @@ def test_header_with_content(monkeypatch, capsys):
             "terminal_width": 40,
             "player": {"current_room": "lab", "name": "polaris"},
             "rooms": {"lab": {"name": "Lab D 2001"}},
-            "game_state": {"phase": "EXPLORATION", "duration": "00:05:00"},
+            "game_state": {
+                "phase": "EXPLORATION",
+                "duration": {
+                    "last_write": None,
+                    "value": "00:05:00",
+                    "pause": False,
+                },
+            },
         },
     )
     monkeypatch.setattr(display, "colorize", lambda text, color_code: text)
@@ -180,8 +195,9 @@ def test_header_with_content(monkeypatch, capsys):
 
     display.header("SAVED CHECKPOINTS")
 
-    assert capsys.readouterr().out == "SAVED CHECKPOINTS" + " " * (
+    assert out_mock.call_args_list[1].args[0] == "SAVED CHECKPOINTS"
+    assert out_mock.call_args_list[1].kwargs["end"] == " " * (
         40 - len("SAVED CHECKPOINTS") - len("polaris")
     )
-    assert out_mock.call_args_list[1].args[0] == "POLARIS".rjust(15)
-    assert out_mock.call_args_list[2].args[0] == "00:05:00"
+    assert out_mock.call_args_list[2].args[0] == "POLARIS"
+    assert out_mock.call_args_list[3].args[0] == "00:05:00"

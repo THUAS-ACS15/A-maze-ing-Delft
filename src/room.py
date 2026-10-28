@@ -6,6 +6,7 @@ from .state import state
 
 def render(text: str | None = None, asset: str | None = None) -> None:
     """Displays current location, description, exits, items, and interactable features."""
+    state["game_state"]["duration"]["pause"] = False
     header()
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]

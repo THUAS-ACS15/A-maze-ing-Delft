@@ -1,6 +1,7 @@
 from datetime import timezone, datetime
 import json
 import copy
+import textwrap
 
 from typing import Any
 
@@ -8,7 +9,14 @@ from .display import header
 from .model import get_user, create_user, get_scoreboard_entries
 from .rooms.lab_d2_001 import use_on_workbench, workbench
 from .rooms.teachers_room_1 import use_desk_code
-from .state import auto, help_commands, list_saves, load, DEFAULT_GAME_STATE_PATH
+from .state import (
+    auto,
+    help_commands,
+    list_saves,
+    load,
+    normalize_state,
+    DEFAULT_GAME_STATE_PATH,
+)
 from .room import render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
     BRIGHT_WHITE, RED, INFO, ERROR, SUCCESS
@@ -34,10 +42,12 @@ def prompt(message: str | None = None) -> str:
 
 def inventory() -> None:
     """Renders carried items and displays total core assembly parts held."""
-
+    width = int(state["terminal_width"])
+    state["game_state"]["duration"]["pause"] = True
     header(colorize(text="INVENTORY", color_code=BRIGHT_CYAN + BOLD))
     if not state["player"]["inventory"]:
-        out(colorize("Your inventory is currently empty.", DIM))
+        out()
+        out(colorize(text="Your inventory is currently empty.".center(width), color_code=DIM))
         out()
         return
 
@@ -63,6 +73,7 @@ def inventory() -> None:
     out()
 
 def helper() -> None:
+    state["game_state"]["duration"]["pause"] = True
     groups = [
         group for group in help_commands
         if group["title"] != "Assembly" or state["game_state"]["phase"] == "ASSEMBLY"
@@ -180,7 +191,8 @@ def drop(details: Any) -> None:
 
 def exit_game() -> None:
     state["running"] = False
-    render("Goodbye. see you again soon")
+    status()
+    out(colorize(text="Goodbye. see you again soon".center(state["terminal_width"]), color_code=BRIGHT_GREEN))
     return None
 
 def register(details: Any) -> None:
@@ -238,9 +250,14 @@ def restart() -> None:
     with open(DEFAULT_GAME_STATE_PATH) as df:
         state.clear()
         state.update(json.load(df))
+        normalize_state(state)
         state["player"]["name"] = snapshot["player"]["name"]
         state["player"]["id"] = snapshot["player"]["id"]
-        state["game_state"]["timestamp"] = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc).isoformat()
+        state["game_state"]["timestamp"] = now
+        state["game_state"]["duration"]["last_write"] = now
+        state["game_state"]["duration"]["value"] = "00:00:00"
+        state["game_state"]["duration"]["pause"] = False
     render(text=colorize("New game!", color_code=BRIGHT_GREEN))
 
 def scoreboard() -> None:
@@ -258,73 +275,95 @@ def scoreboard() -> None:
         player_name = user["name"] if user else f"Unknown ({entry['user_id']})"
         rows.append((rank, player_name, entry))
 
-    try:
-        import os
-
-        from rich.console import Console
-        from rich.table import Table
-
-        console = Console(
-            highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True
-        )
-        table = Table(title="Top Scores", show_header=False, header_style="bold")
-        table.add_column("Rank", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Player", style="bold")
-        table.add_column("Score", justify="right")
-        table.add_column("Avg Room", justify="right")
-        table.add_column("Exploration", justify="right")
-        table.add_column("Assembly", justify="right")
-        for rank, player_name, entry in rows:
-            table.add_row(
-                str(rank),
-                player_name,
-                str(entry["score"]),
-                entry["avg_room_time"],
-                entry["exploration_time"],
-                entry["assembly_time"],
-            )
-        console.print(table)
-        return None
-    except ModuleNotFoundError:
+    out(
+        f"{'Rank':<6}{'Player':<20}{'Score':>8}  "
+        f"{'Avg Room':<10}{'Exploration':<12}{'Assembly':<10}"
+    )
+    for rank, player_name, entry in rows:
         out(
-            f"{'Rank':<6}{'Player':<20}{'Score':>8}  "
-            f"{'Avg Room':<10}{'Exploration':<12}{'Assembly':<10}"
+            f"{rank:<6}{player_name:<20}{entry['score']:>8}  "
+            f"{entry['avg_room_time']:<10}{entry['exploration_time']:<12}"
+            f"{entry['assembly_time']:<10}"
         )
-        for rank, player_name, entry in rows:
-            out(
-                f"{rank:<6}{player_name:<20}{entry['score']:>8}  "
-                f"{entry['avg_room_time']:<10}{entry['exploration_time']:<12}"
-                f"{entry['assembly_time']:<10}"
-            )
 
     return None
 
+def _wrap_status_text(text: str, width: int) -> list[str]:
+    """Wrap status text, preferring comma-separated item boundaries."""
+    if ", " in text:
+        lines = []
+        current = ""
+        for item in text.split(", "):
+            candidate = f"{current}, {item}" if current else item
+            if len(candidate) <= width:
+                current = candidate
+            else:
+                if current:
+                    lines.append(f"{current},")
+                current = item
+        if current:
+            lines.append(current)
+
+        wrapped = []
+        for line in lines:
+            if len(line) <= width:
+                wrapped.append(line)
+            else:
+                wrapped.extend(
+                    textwrap.wrap(line, width=width, break_long_words=True) or [""]
+                )
+        return wrapped or [""]
+
+    return textwrap.wrap(text, width=width, break_long_words=True) or [""]
+
+
+def _print_status_row(label: str, value: str, width: int) -> None:
+    """Print one status row, wrapping long values at ``width``."""
+    prefix = f" {label}:"
+    indent = " " * (len(prefix) + 1)
+    available = max(1, width - len(prefix) - 2)
+    first, *rest = value.splitlines() or [""]
+
+    chunks = _wrap_status_text(first, available)
+    if len(chunks) == 1:
+        gap = max(1, width - len(prefix) - len(chunks[0]) - 1)
+        out(f"{prefix}{' ' * gap}{chunks[0]}")
+    else:
+        out(f"{prefix} {chunks[0]}")
+        for chunk in chunks[1:]:
+            out(f"{indent}{chunk}")
+
+    for line in rest:
+        for chunk in _wrap_status_text(line, available):
+            out(f"{indent}{chunk}")
+
+
+
 def status() -> None:
-    header(colorize(text="STATUS", color_code=INFO + BOLD))
+    state["game_state"]["duration"]["pause"] = True
+    header(colorize(text="STATUS MENU", color_code=BRIGHT_YELLOW + BOLD))
 
     player = state["player"]
     game_state = state["game_state"]
     rooms = state["rooms"]
     items = state["items"]
     flags = state["flags"]
-    workbench = state["workbench"]
+    wb = state["workbench"]
 
-    player_id = player.get("id")
-    login_text = (
-        f"Logged in (id {player_id})"
-        if player_id is not None
-        else "Guest / not logged in"
-    )
     current_room = player["current_room"]
-    room_name = rooms.get(current_room, {}).get("name", current_room)
-    timestamp = game_state.get("timestamp")
+    room_name = rooms[current_room]["name"]
+    timestamp = game_state["timestamp"]
     start_time = format_timestamp(timestamp) if timestamp else "Unknown"
-    duration = game_state.get("duration") or "00:00:00"
+    duration = game_state["duration"]["value"] or "00:00:00"
 
     visited_ids = list(dict.fromkeys([*player.get("move", []), current_room]))
     visited_names = [
-        rooms.get(room_id, {}).get("name", room_id) for room_id in visited_ids
+        rooms[room_id]["name"] for room_id in visited_ids
     ]
+    recent_visited = visited_names[-5:]
+    visited_text = ", ".join(recent_visited) or "None"
+    if len(visited_names) > 5:
+        visited_text = f"... {visited_text}"
     total_rooms = len(rooms)
     explored_percent = round(len(visited_ids) / total_rooms * 100)
 
@@ -333,73 +372,51 @@ def status() -> None:
         for flag, enabled in flags.items()
         if enabled
     ]
+    installed = len(wb["installed_parts"])
 
-    inventory = player["inventory"]
+    inv = player["inventory"]
     inventory_names = [
-        items.get(item_id, {}).get("name", item_id) for item_id in inventory
+        items.get(item_id, {}).get("name", item_id) for item_id in inv
     ]
     assembly_parts = sum(
-        1 for item_id in inventory if items.get(item_id, {}).get("is_assembly_part")
+        1 for item_id in inv if items.get(item_id, {}).get("is_assembly_part")
     )
 
-    installed = len(workbench.get("installed_parts", []))
-    required = len(workbench.get("required_parts", []))
-    ready_text = "ready" if workbench.get("is_ready") else "not ready"
+    required = len(wb["required_parts"])
+    ready_text = "ready" if wb["is_ready"] else "not ready"
+
+    inventory_items = ", ".join(inventory_names) or "Empty"
 
     challenge_text = f"{len(completed)}/{len(flags)}"
     if completed:
-        challenge_text += "\n" + "\n".join(f"• {label}" for label in completed)
-
-    inventory_text = "\n".join(f"• {name}" for name in inventory_names) or "Empty"
+        challenge_text += " " + ", ".join(completed)
 
     rows = [
-        ("Name", player.get("name", "guest")),
-        ("Login", login_text),
+        ("Name", player["name"].title()),
         ("Room", room_name),
-        ("Phase", game_state.get("phase", "UNKNOWN")),
+        ("Phase", game_state["phase"]),
         None,
         ("Started", start_time),
-        ("Total time", duration),
+        ("Time spent", duration),
         None,
-        ("Rooms explored", f"{len(visited_ids)}/{total_rooms} ({explored_percent}%)"),
-        ("Visited", ", ".join(visited_names) or "None"),
+        ("Explored", f"{len(visited_ids)}/{total_rooms} ({explored_percent}%)"),
+        ("Visited", visited_text),
         ("Challenges", challenge_text),
         ("Assembly", f"{installed}/{required} installed ({ready_text})"),
         None,
-        ("Inventory", inventory_text),
+        ("Inventory", inventory_items),
         ("Assembly parts", str(assembly_parts)),
     ]
 
-    try:
-        import os
 
-        from rich.console import Console
-        from rich.table import Table
+    for row in rows:
+        if row is None:
+            out()
+            continue
+        label, value = row
+        _print_status_row(label, value, state["terminal_width"])
 
-        console = Console(
-            highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True
-        )
-        table = Table(show_header=True, header_style="bold")
-        table.add_column("Stat", style="cyan", no_wrap=True)
-        table.add_column("Value")
-        for row in rows:
-            if row is None:
-                table.add_section()
-            else:
-                table.add_row(*row)
-        console.print(table)
-        return None
-    except ModuleNotFoundError:
-        for row in rows:
-            if row is None:
-                out()
-                continue
-            label, value = row
-            lines = value.splitlines()
-            out(f"  {label}: {lines[0]}")
-            for line in lines[1:]:
-                out(f"  {' ' * len(label)}  {line}")
-
+    out()
     return None
 
 

@@ -11,7 +11,10 @@ BASE_STATE = {
     "enable_colors": False,
     "terminal_width": 20,
     "player": {"current_room": "lab", "name": "guest"},
-    "game_state": {"phase": "EXPLORATION", "duration": "00:00:00"},
+    "game_state": {
+        "phase": "EXPLORATION",
+        "duration": {"last_write": None, "value": "00:00:00", "pause": False},
+    },
     "rooms": {
         "lab": {
             "name": "Lab",
@@ -19,7 +22,8 @@ BASE_STATE = {
             "exits": {"east": "hall"},
             "items": [],
             "interactables": {},
-        }
+        },
+        "hall": {"name": "Hall"},
     },
     "items": {},
 }
@@ -54,7 +58,7 @@ def test_render_basic(room_state, capsys):
     assert "LOCATION: Lab" in output
     assert "00:00:00" in output
     assert "A test lab." in output
-    assert "Exits: EAST -> hall" in output
+    assert "Exits: EAST -> Hall" in output
     assert "Items in area:" in output
     assert "Battery Pack" in output
     assert "[ASSEMBLY PART]" in output
@@ -92,6 +96,14 @@ def test_render_no_exits(room_state, capsys, exits):
     room.render()
 
     assert "Exits: None available." in capsys.readouterr().out
+
+
+def test_render_unknown_exit_target(room_state, capsys):
+    room_state["rooms"]["lab"]["exits"] = {"east": "missing"}
+
+    room.render()
+
+    assert "Exits: EAST -> missing" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize(

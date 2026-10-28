@@ -3,17 +3,46 @@
     "enable_colors": true,
     "terminal_width": 120,
     "player": {
-        "id": 5,
-        "name": "sadanand",
-        "current_room": "lobby",
+        "id": 7,
+        "name": "dominik",
+        "current_room": "teacher_room_4",
         "inventory": [
-            "blueprint"
+            "paper_clip",
+            "coffee_cup",
+            "blueprint",
+            "keycard_lvl1"
         ],
-        "move": [],
+        "move": [
+            "lobby",
+            "classroom_d_2015",
+            "classroom_d_2035",
+            "classroom_d_2015",
+            "lobby",
+            "front_desk",
+            "lobby",
+            "classroom_d_2015",
+            "classroom_d_2035",
+            "teachers_room_1",
+            "classroom_d_2035",
+            "project_room_1",
+            "teachers_room_2",
+            "project_room_2",
+            "teacher_room_4",
+            "lab_d2_001"
+        ],
         "forward": []
     },
     "workbench": {
-        "installed_parts": [],
+        "installed_parts": [
+            "chassis_frame",
+            "battery_pack",
+            "mainboard",
+            "sensory_module",
+            "wifi_credentials",
+            "motors_speakers",
+            "api_usb",
+            "mega_phone"
+        ],
         "required_parts": [
             "chassis_frame",
             "battery_pack",
@@ -24,12 +53,12 @@
             "api_usb",
             "mega_phone"
         ],
-        "is_ready": false
+        "is_ready": true
     },
     "flags": {
         "fr1_user_registered": false,
-        "tr1_desk_unlocked": false,
-        "tr2_whiteboard_inspected": false,
+        "tr1_desk_unlocked": true,
+        "tr2_whiteboard_inspected": true,
         "tr4_drawer_decrypted": false,
         "lab_power_on": false
     },
@@ -119,9 +148,7 @@
                 "east": "teachers_room_1",
                 "west": "front_desk"
             },
-            "items": [
-                "chassis_frame"
-            ],
+            "items": [],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
             }
@@ -135,10 +162,7 @@
             "exits": {
                 "east": "lobby"
             },
-            "items": [
-                "paper_clip",
-                "coffee_cup"
-            ],
+            "items": [],
             "interactables": {
                 "receptionist": "You can register a new profile by typing 'register <name>'"
             }
@@ -153,9 +177,7 @@
                 "south": "lobby",
                 "east": "classroom_d_2035"
             },
-            "items": [
-                "battery_pack"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_1": {
@@ -189,24 +211,20 @@
                 "south": "teachers_room_1",
                 "east": "project_room_1"
             },
-            "items": [
-                "mainboard"
-            ],
+            "items": [],
             "interactables": {}
         },
         "project_room_1": {
             "id": "project_room_1",
             "name": "Project Room 1",
             "description": "A high-tech hardware testing bay.",
-            "restricted": null,
+            "restricted": true,
             "requires": "keycard_lvl1",
             "exits": {
                 "west": "classroom_d_2035",
                 "south": "teachers_room_2"
             },
-            "items": [
-                "sensory_module"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_2": {
@@ -219,10 +237,7 @@
                 "north": "project_room_1",
                 "east": "project_room_2"
             },
-            "items": [
-                "wifi_credentials",
-                "mega_phone"
-            ],
+            "items": [],
             "interactables": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
@@ -237,9 +252,7 @@
                 "west": "teachers_room_2",
                 "south": "teacher_room_4"
             },
-            "items": [
-                "motors_speakers"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teacher_room_4": {
@@ -252,10 +265,10 @@
                 "north": "project_room_2",
                 "west": "lab_d2_001"
             },
-            "items": [
-                "api_usb"
-            ],
-            "interactables": {}
+            "items": [],
+            "interactables": {
+                "computer": "Nix OS computer"
+            }
         },
         "lab_d2_001": {
             "id": "lab_d2_001",
@@ -277,22 +290,26 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": "2026-10-26T13:34:05.696941+00:00",
-        "duration": "8:24:06",
-        "phase": "EXPLORATION",
+        "timestamp": "2026-10-28T10:44:46.566810+00:00",
+        "duration": {
+            "last_write": "2026-10-28T13:56:12.607768+00:00",
+            "value": "0:21:44",
+            "pause": false
+        },
+        "phase": "CHAT",
         "phases": {
             "exploration": {
                 "activated": false
             },
             "assembly": {
-                "activated": false,
+                "activated": true,
                 "wifi_password": "Tr0janH0rse!"
             },
             "chat": {
-                "activated": false,
+                "activated": true,
                 "mock": false,
                 "robot": {
-                    "name": "Jarvis",
+                    "name": "Tony",
                     "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
                     "history": []
                 }

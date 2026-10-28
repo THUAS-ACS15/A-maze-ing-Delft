@@ -1,3 +1,6 @@
+from display import out
+
+
 def check_dependencies():
     """
     Install missing or incompatible packages declared in requirements.txt.
@@ -48,8 +51,8 @@ def check_dependencies():
             missing.append(requirement_text)
 
     if missing:
-        print(f'Found missing packages: {", ".join(missing)}')
-        print('Installing them... Please wait.')
+        out(f'Found missing packages: {", ".join(missing)}')
+        out('Installing them... Please wait.')
         python_path = sys.executable
         try:
             try:

@@ -207,7 +207,9 @@
             "requires": "keycard_lvl1",
             "exits": {"north": "project_room_2", "west": "lab_d2_001"},
             "items": ["api_usb"],
-            "interactables": {}
+            "interactables": {
+                "computer": "Nix OS computer"
+            }
         },
         "lab_d2_001": {
             "id": "lab_d2_001",
@@ -228,7 +230,11 @@
     "game_state": {
         "save_version": "1.0.0",
         "timestamp": null,
-        "duration": "00:00:00",
+        "duration": {
+            "last_write": null,
+            "value": "00:00:00",
+            "pause": false
+        },
         "phase": "EXPLORATION",
         "phases": {
             "exploration": {

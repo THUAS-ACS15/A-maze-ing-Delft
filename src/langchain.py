@@ -60,5 +60,5 @@ def langchain(provider: Provider, model_name: str | None = None) -> BaseChatMode
                             streaming=True,
                         )
     except Exception as e:
-        print(f"\n[Warning] Failed to load provider '{provider}': {e}")
+        out(f"\n[Warning] Failed to load provider '{provider}': {e}")
         return None
