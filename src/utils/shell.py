@@ -1,5 +1,6 @@
 """Virtual shell engine. Pure: no game state, no display code, no real filesystem access."""
 
+import fnmatch
 import posixpath
 import shlex
 from dataclasses import dataclass
@@ -140,6 +141,102 @@ class VirtualShell:
                 lines.append(node)
                 read_paths.append(path)
         return ShellResult(output="\n".join(lines), read_paths=tuple(read_paths))
+
+    def _cmd_find(self, args: list[str]) -> ShellResult:
+        root: str | None = None
+        name_pattern: str | None = None
+        ignore_case = False
+        kind: str | None = None
+        index = 0
+        while index < len(args):
+            arg = args[index]
+            if arg in ("-name", "-iname", "-type"):
+                if index + 1 >= len(args):
+                    return ShellResult(output=f"find: missing argument to '{arg}'")
+                value = args[index + 1]
+                index += 2
+                if arg == "-type":
+                    if value not in ("f", "d"):
+                        return ShellResult(output=f"find: unknown argument to -type: {value}")
+                    kind = value
+                else:
+                    name_pattern = value
+                    ignore_case = arg == "-iname"
+            elif not arg.startswith("-") and root is None:
+                root = arg
+                index += 1
+            else:
+                return ShellResult(output=f"find: unknown predicate '{arg}'")
+
+        raw = root if root is not None else "."
+        node = self._node(self._resolve(raw))
+        if node is None:
+            return ShellResult(output=f"find: '{raw}': No such file or directory")
+
+        matches: list[str] = []
+        root_name = posixpath.basename(raw.rstrip("/")) or raw
+        for display, name, entry in self._walk(raw, root_name, node):
+            if kind == "f" and isinstance(entry, dict):
+                continue
+            if kind == "d" and not isinstance(entry, dict):
+                continue
+            if name_pattern is not None:
+                subject, pattern = (name.lower(), name_pattern.lower()) if ignore_case else (name, name_pattern)
+                if not fnmatch.fnmatchcase(subject, pattern):
+                    continue
+            matches.append(display)
+        return ShellResult(output="\n".join(sorted(matches)))
+
+    def _walk(self, display: str, name: str, node: dict | str) -> list[tuple[str, str, dict | str]]:
+        found = [(display, name, node)]
+        if isinstance(node, dict):
+            for child_name, child in node.items():
+                found.extend(self._walk(posixpath.join(display, child_name), child_name, child))
+        return found
+
+    def _cmd_tree(self, args: list[str]) -> ShellResult:
+        show_all = False
+        targets: list[str] = []
+        for arg in args:
+            if arg == "-a":
+                show_all = True
+            elif arg.startswith("-"):
+                return ShellResult(output=f"tree: unrecognized option '{arg}'")
+            else:
+                targets.append(arg)
+        if len(targets) > 1:
+            return ShellResult(output="tree: too many arguments")
+        raw = targets[0] if targets else "."
+        node = self._node(self._resolve(raw))
+        if node is None:
+            return ShellResult(output=f"tree: {raw}: No such file or directory")
+        lines = [raw]
+        if isinstance(node, dict):
+            lines.extend(self._tree_lines(node, "", show_all))
+        return ShellResult(output="\n".join(lines))
+
+    def _tree_lines(self, node: dict, prefix: str, show_all: bool) -> list[str]:
+        names = sorted(name for name in node if show_all or not name.startswith("."))
+        lines: list[str] = []
+        for index, name in enumerate(names):
+            last = index == len(names) - 1
+            lines.append(f"{prefix}{'└── ' if last else '├── '}{name}")
+            child = node[name]
+            if isinstance(child, dict):
+                lines.extend(self._tree_lines(child, prefix + ("    " if last else "│   "), show_all))
+        return lines
+
+    def _cmd_whoami(self, args: list[str]) -> ShellResult:
+        return ShellResult(output=self.user)
+
+    def _cmd_clear(self, args: list[str]) -> ShellResult:
+        return ShellResult(clear_requested=True)
+
+    def _cmd_exit(self, args: list[str]) -> ShellResult:
+        return ShellResult(exit_requested=True)
+
+    _cmd_logout = _cmd_exit
+    _cmd_shutdown = _cmd_exit
 
     def _listing(self, node: dict, show_all: bool) -> list[tuple[str, dict | str]]:
         names = sorted(name for name in node if show_all or not name.startswith("."))

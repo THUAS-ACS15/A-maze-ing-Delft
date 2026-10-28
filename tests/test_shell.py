@@ -144,3 +144,49 @@ def test_cat_multiple_files(shell):
         "/home/teacher/README.txt",
         "/home/teacher/Documents/notes.md",
     )
+
+
+def test_find_all_and_name(shell):
+    output = shell.execute("find .").output.splitlines()
+    assert "./Documents" in output
+    assert "./.secret" in output
+    assert "./.secret/super_secret_file.txt" in output
+
+
+def test_find_iname_and_type(shell):
+    assert shell.execute('find . -iname "*secret*"').output.splitlines() == [
+        "./.secret",
+        "./.secret/super_secret_file.txt",
+    ]
+    assert shell.execute(
+        'find . -type f -iname "*secret*"'
+    ).output.splitlines() == ["./.secret/super_secret_file.txt"]
+
+
+def test_find_absolute_path(shell):
+    assert (
+        shell.execute('find /home/teacher/.secret -name "*.txt"').output
+        == "/home/teacher/.secret/super_secret_file.txt"
+    )
+
+
+def test_find_missing_path(shell):
+    assert (
+        shell.execute("find /missing").output
+        == "find: '/missing': No such file or directory"
+    )
+
+
+def test_tree_hides_and_shows_hidden(shell):
+    visible = shell.execute("tree").output
+    assert ".secret" not in visible
+    assert "Documents" in visible
+    hidden = shell.execute("tree -a").output
+    assert ".secret" in hidden
+
+
+def test_clear_whoami_and_exit(shell):
+    assert shell.execute("whoami").output == "teacher"
+    assert shell.execute("clear").clear_requested is True
+    for command in ("exit", "logout", "shutdown"):
+        assert shell.execute(command).exit_requested is True
