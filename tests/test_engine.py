@@ -84,11 +84,17 @@ def scoreboard_env(monkeypatch):
 def inspect_env(monkeypatch):
     render_mock = Mock()
     workbench_mock = Mock()
+    computer_mock = Mock()
     monkeypatch.setattr(engine, "render", render_mock)
     monkeypatch.setattr(engine, "workbench", workbench_mock)
+    monkeypatch.setattr(engine, "inspect_computer", computer_mock)
     monkeypatch.setattr(engine, "colorize", lambda text=None, color_code=None: text)
     monkeypatch.setattr("src.assets.logo.logo", "LOGO")
-    return {"render": render_mock, "workbench": workbench_mock}
+    return {
+        "render": render_mock,
+        "workbench": workbench_mock,
+        "computer": computer_mock,
+    }
 
 
 @pytest.fixture
@@ -217,6 +223,7 @@ def _inspect_state(current_room, unlocked=False):
             "teachers_room_1": {"interactables": {"desk": {"hint": "DESK HINT"}}},
             "teachers_room_2": {"interactables": {"whiteboard": "WHITEBOARD TEXT"}},
             "front_desk": {"interactables": {"receptionist": "RECEPTIONIST TEXT"}},
+            "teachers_room_4": {"interactables": {"computer": "NIX"}},
             "lab_d2_001": {},
         },
         "flags": {
@@ -733,11 +740,21 @@ def test_inspect_receptionist(monkeypatch, inspect_env):
     inspect_env["render"].assert_called_once_with(text="RECEPTIONIST TEXT")
 
 
+def test_inspect_computer_opens_terminal(monkeypatch, inspect_env):
+    monkeypatch.setattr(engine, "state", _inspect_state("teachers_room_4"))
+
+    engine.inspect({"target": "computer"})
+
+    inspect_env["computer"].assert_called_once_with()
+    inspect_env["render"].assert_not_called()
+
+
 @pytest.mark.parametrize(
     ("target", "room"),
     [
         pytest.param("door", "lobby", id="unknown-target"),
         pytest.param("terminal", "teachers_room_1", id="wrong-room"),
+        pytest.param("computer", "lobby", id="computer-wrong-room"),
     ],
 )
 def test_inspect_unavailable(monkeypatch, inspect_env, target, room):

@@ -9,6 +9,7 @@ from .display import header
 from .model import get_user, create_user, get_scoreboard_entries
 from .rooms.lab_d2_001 import use_on_workbench, workbench
 from .rooms.teachers_room_1 import use_desk_code
+from .rooms.teachers_room_4 import inspect_computer
 from .state import (
     auto,
     help_commands,
@@ -31,6 +32,7 @@ STATUS_FLAG_LABELS = {
     "tr1_desk_unlocked": "Teachers Room 1 desk unlocked",
     "tr2_whiteboard_inspected": "Teachers Room 2 whiteboard inspected",
     "tr4_drawer_decrypted": "Teachers Room 4 drawer decrypted",
+    "tr4_secret_key_copied": "Teachers Room 4 secret key copied",
     "lab_power_on": "Lab power restored",
 }
 
@@ -105,6 +107,7 @@ def helper() -> None:
 
 def inspect(details) -> None:
     target = details["target"]
+    current_room = state["player"]["current_room"]
     if target == "terminal" and state["player"]["current_room"] == "lobby":
         from .assets.logo import logo
         render(text=state["rooms"]["lobby"]["interactables"]["terminal"], asset=logo)
@@ -132,6 +135,9 @@ def inspect(details) -> None:
     elif target == "receptionist" and state["player"]["current_room"] == "front_desk":
         receptionist = state["rooms"]["front_desk"]["interactables"]["receptionist"]
         render(text=receptionist)
+        return None
+    elif target == "computer" and current_room == "teachers_room_4":
+        inspect_computer()
         return None
     else:
         render(text=colorize("The item you're trying to inspect is unavailable", color_code=RED))
