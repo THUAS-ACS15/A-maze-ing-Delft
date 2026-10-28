@@ -1,6 +1,7 @@
 import time
 
 from rich.console import Console
+from rich.markup import escape
 
 from ..utils.colors import CYAN, BLUE, BOLD, RESET
 from ..display import clear
@@ -85,7 +86,8 @@ def _prompt_text(shell: VirtualShell) -> str:
     return f"{top_line}\n{bottom_line}"
 
 
-def _award_secret_key(write_output=console.print) -> None:
+def _award_secret_key(write_output=None) -> None:
+    write_output = write_output or console.print
     inventory = state["player"]["inventory"]
     state["flags"]["tr4_secret_key_copied"] = True
     if "secret_key" in inventory:
@@ -96,7 +98,8 @@ def _award_secret_key(write_output=console.print) -> None:
     write_output(f"[bold green]{name} added to your inventory![/]")
 
 
-def run_shell(shell: VirtualShell, read_input=input, write_output=console.print, clear_screen=clear) -> None:
+def run_shell(shell: VirtualShell, read_input=input, write_output=None, clear_screen=clear) -> None:
+    write_output = write_output or console.print
     while True:
         try:
             raw = read_input(_prompt_text(shell))
@@ -107,7 +110,7 @@ def run_shell(shell: VirtualShell, read_input=input, write_output=console.print,
         if result.clear_requested:
             clear_screen()
         if result.output:
-            write_output(result.output)
+            write_output(escape(result.output))
         if SECRET_PATH in result.read_paths:
             _award_secret_key(write_output)
         if result.exit_requested:

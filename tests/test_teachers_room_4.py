@@ -1,6 +1,8 @@
+from io import StringIO
 from unittest.mock import Mock
 
 import pytest
+from rich.console import Console
 
 from src.rooms import teachers_room_4
 
@@ -129,3 +131,14 @@ def test_inspect_computer_rebases_timer_while_paused(
 
     assert events == [("auto", True), ("render", False)]
     assert terminal_state["game_state"]["duration"]["pause"] is False
+
+
+def test_shell_output_is_rendered_literally(monkeypatch, terminal_state):
+    buffer = StringIO()
+    monkeypatch.setattr(teachers_room_4, "console", Console(file=buffer, force_terminal=False, width=200))
+    commands = iter(["cat /home/teacher/Downloads/lecture_slides.pdf", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+
+    teachers_room_4.run_shell(shell, read_input=lambda _: next(commands), clear_screen=lambda: None)
+
+    assert "[binary data omitted]" in buffer.getvalue()
