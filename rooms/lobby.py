@@ -79,6 +79,7 @@ def enter_lobby(state):
         print("- go <room name>      : Move to another room.'")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game.")
+        print("- inventory           : Show what items are in your inventory.")
         print("- status              : Show current game status.")
         print("- save                : Save the current game state.")
 
@@ -88,13 +89,13 @@ def enter_lobby(state):
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             handle_look()
 
         elif command in ["?", "help"]:
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
+        elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
