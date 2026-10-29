@@ -201,7 +201,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "?":
             clear_screen()
-            get_help(room_commands)
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
