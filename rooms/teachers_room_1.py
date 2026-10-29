@@ -48,9 +48,12 @@ def enter_teachers_room1(state: dict) -> str:
         print("\nAvailable commands:")
         print("- ?                   : Show this help message.")
         print("- look around         : Examine the room and the code on screen.")
+        print("- inventory           : Show what items are in your inventory.")
+        print("- save                : Save the current game state.")
+        print("- status              : Show current game status.")
         if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        print("- go corridor / back  : Leave the room and return to the corridor.")
+        print("- go                  : Leave the room and return to the corridor.")
         print("- quit                : Quit the game entirely.")
 
     def handle_answer(answer):
@@ -74,15 +77,15 @@ def enter_teachers_room1(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
+        elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result

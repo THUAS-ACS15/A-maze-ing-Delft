@@ -84,15 +84,17 @@ def enter_teachers_room2(state):
         clear_screen()
         print("Available commands:")
         print("- look around         : See what the teacher needs help with.")
+        print("- status              : Show current game status.")
+        print("- save                : Save the current game state.")
         if not state["completed"]["teachersroom2"]:
             print("- look at database    : See the tables the teacher is working with.")
             print("- talk to teacher     : Ask the teacher what they need help with.")
             print("- answer <name>       : Tell the teacher the student's name.")
         if state["visited"]["teachersroom2"] and "Wi-Fi Credentials" not in state["inventory"]:
             print("- take credentials    : Pick up the Wi-Fi credentials.")
-        print("- go lobby / back     : Leave the room and return to the lobby.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game entirely.")
+        print("- go                      : Leave the room and return to the lobby.")
+        print("- ?                       : Show this help message.")
+        print("- quit                    : Quit the game entirely.")
 
     def handle_take(item):
         """Pick up the Wi-Fi credentials once the puzzle is solved."""
