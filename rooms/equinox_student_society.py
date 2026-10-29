@@ -104,14 +104,10 @@ def enter_equinox_student_society(state: dict) -> str:
         if not state["completed"]["equinoxstudentsociety"]:
             print("\n You take a close look at the table, and notice")
             print("that there is a small statue of a dragon on it. It seems to be guarding some treasure!")
-            if not state["equinox_coins_claimed"]:
-                print("  Next to it, you find some coins. Looks like it was hoarding some treasure.")
-                print(" Thankfully it's just a statue, so you pick them up. (+10 coins)")
-                state["equinox_coins_claimed"] = True
-            else:
-                print(" You've already collected the coins that were next to it. Now the dragon is broke.")
+            print("Seems like it's just a decoration, but you wonder if it has any significance to the game.")
         else:
             print(" You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
+            print
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)
@@ -126,7 +122,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         This function handles the quiz interaction with the player.
         It displays the quiz questions, collects answers, and calculates the score. 
-        If the player completes the quiz, they receive a certificate and coins.
+        If the player completes the quiz, they receive a certificate.
 
         Inputs: NONE
 

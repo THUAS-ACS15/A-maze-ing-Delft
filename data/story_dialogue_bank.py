@@ -88,9 +88,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "puzzle_take_keycard": (
                 "You pick up the keycard. It looks to be a staff keycard, which will "
                 "allow you to enter some restricted areas. "
-                "After taking it, you notice something shiny in the corner of your eye. "
-                "You look closer and realize you found some shiny coins, and the teacher "
-                "allows you to take them (+10 coins). "
                 "The teacher also asks you to check out the second teacher's room, as it might have "
                 "another piece of the code you need to complete A.I.G.I.S."
             ),
@@ -259,7 +256,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "puzzle_return": "Maybe you'll come back later.",
             "puzzle_complete": "Looks like you stacked the boxes correctly, congratulations!",
             "puzzle_click": "You hear a loud \"click\" sound, and one of the boxes falls open.",
-            "puzzle_coins": "Inside, you find some coins, which you pick up. (+10 coins)",
             "already_complete": "You've already forced the boxes open. There's nothing more to do here.",
             "quit": "👋 You sit on one of the chairs in the Lab and close your eyes. Game over."
         },

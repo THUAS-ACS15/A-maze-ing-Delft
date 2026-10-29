@@ -34,7 +34,6 @@ state: dict = {
     "is_gametime_paused": False,
     "current_objective_id": 0,
     "student_id_obtained": False,
-    "equinox_coins_claimed": False,
     "visited": {
         "labd2001": False,
         "projectroom1": False,

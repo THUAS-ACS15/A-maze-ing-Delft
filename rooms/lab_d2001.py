@@ -240,7 +240,6 @@ def enter_lab_d2001(state: dict) -> str:
             clear_screen()
             print_dialogue(room_dialogue_bank["puzzle_complete"])
             print_dialogue(room_dialogue_bank["puzzle_click"])
-            print_dialogue(room_dialogue_bank["puzzle_coins"])
 
     # +--------------+
     # | Command loop |

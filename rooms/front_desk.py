@@ -41,7 +41,7 @@ def handle_look(state):
     """Describe the room and what the player can do here."""
     loot = room_loot
     print_dialogue(look_around_dialogue_bank["frontdesk"])
-    print("Things you can inspect: counter, printer, logbook, map")
+    print("Things you can inspect: counter, printer, logbook")
     if len(loot) > 0:
         print("In the printer tray:", ", ".join(loot))
     if state["completed"]["frontdesk"]:
@@ -82,7 +82,7 @@ def register(state):
     state["current_objective_id"] += 1
     state["completed"]["frontdesk"] = True
     room_loot.append("Student ID card")
-    print_dialogue(room_dialogue_bank["register_complete"], print_newline_after=False)
+    print_dialogue(room_dialogue_bank["register_complete"], print_newline_after = False)
     print_dialogue(state["player_name"] + ". " + room_dialogue_bank["register_story"])
     print_dialogue(room_dialogue_bank["register_terminal"])
     print_dialogue(room_dialogue_bank["register_collect"])
