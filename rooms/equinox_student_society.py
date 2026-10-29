@@ -107,7 +107,6 @@ def enter_equinox_student_society(state: dict) -> str:
             print("Seems like it's just a decoration, but you wonder if it has any significance to the game.")
         else:
             print(" You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
-            print
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)

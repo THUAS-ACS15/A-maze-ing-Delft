@@ -20,7 +20,7 @@ from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
 from .teachers_room_1 import enter_teachers_room1
 from .teachers_room_2 import enter_teachers_room2
-from .teachers_room_4 import enter_teachers_room4
+from .teachers_room_4 import enter_teachers_room_4
 
 __all__ = [
     "enter_classroom_d2015",
@@ -38,5 +38,5 @@ __all__ = [
     "enter_project_room2",
     "enter_teachers_room1",
     "enter_teachers_room2",
-    "enter_teachers_room4",
+    "enter_teachers_room_4",
 ]

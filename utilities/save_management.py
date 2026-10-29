@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS general (
     time_elapsed REAL NOT NULL,
     has_intro_played INTEGER NOT NULL,
     current_objective_id INTEGER NOT NULL,
-    student_id_obtained INTEGER NOT NULL,
+    student_id_obtained INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS room_visited_status (
