@@ -12,6 +12,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
@@ -69,7 +70,6 @@ def enter_teachers_room2(state):
             else:
                 print("The desk is tidy now, you've already taken the credentials.")
         print("- Possible exits: lobby")
-        print("- Your current inventory:", state["inventory"])
         print()
         print_current_objective(state)
 
@@ -107,7 +107,6 @@ def enter_teachers_room2(state):
             return
         normalized = answer.strip()
         if normalized == "mia" or normalized == "Mia":
-            state["coin_balance"] += 5
             state["completed"]["teachersroom2"] = True
             clear_screen()
             print_dialogue(room_dialogue_bank["puzzle_answer_correct"])
@@ -139,7 +138,7 @@ def enter_teachers_room2(state):
             clear_screen()
             print(DATABASES)
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -152,6 +151,10 @@ def enter_teachers_room2(state):
         elif command == "map":
             display_map(state)
 
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
+    
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)

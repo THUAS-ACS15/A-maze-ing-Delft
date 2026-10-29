@@ -146,7 +146,7 @@ def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to
 
     # Stats to be displayed
     left_status_data = f"{room_name} | {exploration_percent}% explored | {room_completion} | {header_message}"
-    right_status_data = f"🪙 {state['coin_balance']} ⌛ {time_played}"
+    right_status_data = f"⌛ {time_played}"
 
     # Calculate the gap between the left and right status data, remove 5 because the 5 emojis used take up 2 chars each
     gap = terminal_width - 5 - len(left_status_data) - len(right_status_data)
