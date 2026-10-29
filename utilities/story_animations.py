@@ -10,6 +10,7 @@ from rich.live import Live
 from data.story_dialogue_bank import story_dialogue_bank
 from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
+from utilities.save_management import update_elapsed_time
 from utilities.scoreboard import add_scoreboard_entry
 from utilities.status_bar import display_top_bar, get_exploration_percent
 
@@ -170,6 +171,7 @@ def play_game_complete(state) -> None:
             selected_index = (selected_index + 1) % len(menu_options)
             render_menu()
         elif key == "enter":
+            update_elapsed_time(state)
             if selected_index == 0:
                 add_scoreboard_entry(
                     state.get("player_name", "Student"),
