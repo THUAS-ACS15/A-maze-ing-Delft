@@ -16,6 +16,7 @@ from install_dependencies import check_dependencies
 check_dependencies()
 
 import time
+import utilities.auto_color
 
 from rooms.dispatcher import enter_room
 from utilities.story_animations import play_intro
