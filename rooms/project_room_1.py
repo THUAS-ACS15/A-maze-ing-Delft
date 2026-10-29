@@ -12,16 +12,15 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
+from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.save_gui import display_save_menu
 
 # The five lockers. For each locker: its code, the coins inside and the item inside.
 # A code of 0 means the locker has no code. It opens with the brass key instead.
@@ -138,7 +137,7 @@ def inspect_object(state, name):
 
 def take_item(state, item_name):
     """Move an item from the room into the inventory."""
-    loot = room_loot["projectroom1"]
+    loot = room_loot
     for thing in loot:
         if item_name != "" and item_name in thing.lower():
             loot.remove(thing)
@@ -149,6 +148,10 @@ def take_item(state, item_name):
 
 def enter_project_room1(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
+
+    state["projectroom1_progress"] = {
+        "opened": [],
+    }
 
     clear_screen()
     state["visited"]["projectroom1"] = True

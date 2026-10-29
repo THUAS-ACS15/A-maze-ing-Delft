@@ -8,6 +8,7 @@
 
 import os
 import sys
+
 from utilities.status_bar import update_status_bar
 
 

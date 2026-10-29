@@ -1,19 +1,17 @@
 import sys
+import textwrap
 from threading import Event, Thread
+from time import sleep
 
-from rich.console import Console
 from rich.align import Align
+from rich.console import Console
 from rich.live import Live
 
-from time import sleep
-import textwrap
-
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.clear_screen import clear_screen
-from utilities.status_bar import display_top_bar, get_exploration_percent
 from utilities.main_menu import read_key
 from utilities.scoreboard import add_scoreboard_entry
-
-from data.story_dialogue_bank import story_dialogue_bank
+from utilities.status_bar import display_top_bar, get_exploration_percent
 
 GAME_COMPLETE_ART: str = """
 ██▀██  ██▀██ ██▀██▀██ ██▀██      ██▀██ ██▀██ ██▀██▀██ ██▀██ ██    ██▀██ ▀██▀ ██▀██  █

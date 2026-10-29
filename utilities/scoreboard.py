@@ -12,8 +12,8 @@ from rich.align import Align
 from rich.console import Console, Group
 from rich.table import Table
 
-from utilities.status_bar import display_top_bar
 from utilities.main_menu import read_key
+from utilities.status_bar import display_top_bar
 
 SCOREBOARD_TITLE_ART: str = """
 ██▀██ ██▀██ ██▀██ ██▀██ ██▀██ ██▀█▄ ██▀██ ██▀██ ██▀██ ██▀█▄
@@ -31,8 +31,7 @@ CREATE TABLE IF NOT EXISTS scoreboard (
 """
 
 def _format_time_played(time: float) -> str:
-    if time < 0:
-        time = 0
+    time = max(time, 0)
     if time > 3600:
         hours = time // 3600
         minutes = (time % 3600) // 60

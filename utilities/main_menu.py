@@ -7,11 +7,12 @@
 # -----------------------------------------------------------------------------
 
 import readchar  # type: ignore[import-not-found, import-untyped]
+from rich.align import Align
+from rich.console import Console
+from rich.text import Text
+
 from utilities.clear_screen import clear_screen
 from utilities.status_bar import display_top_bar
-from rich.console import Console
-from rich.align import Align
-from rich.text import Text
 
 # Cross-platform single key reading via readchar.
 
@@ -40,7 +41,7 @@ def read_key() -> str:
     """
     try:
         key = readchar.readkey()
-    except Exception:
+    except Exception: #noqa: BLE001
         return ""
     if key in (readchar.key.UP, "\x1b[A"):
         return "up"
@@ -79,7 +80,7 @@ def display_main_menu() -> str:
         clear_screen("", run_status_bar_update=False)
         display_top_bar(console)
         console.print(Align.center(GAME_TITLE_ART, vertical="middle"))
-        console.print(Align.center("[italic][bold gray]use arrow keys to navigate, enter to select[/bold gray][/italic]")) #noqa: E501
+        console.print(Align.center("[italic][bold gray]use arrow keys to navigate, enter to select[/bold gray][/italic]"))
         console.print('\n\n\n')
         for index, option in enumerate(MENU_OPTIONS):
             if index == selected_index:

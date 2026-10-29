@@ -7,7 +7,6 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E501
 # ^ disable ruff checking long lines, as this is dialogue
 
 objective_dialogue_bank: dict = {

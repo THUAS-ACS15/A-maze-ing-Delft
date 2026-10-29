@@ -7,16 +7,16 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E501
 # ^ disable ruff checking long lines, as the map is too big on some lines
 
-from rich.console import Console
-from rich.align import Align
 import time
 
-from utilities.status_bar import display_top_bar, update_status_bar
+from rich.align import Align
+from rich.console import Console
+
 from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
+from utilities.status_bar import display_top_bar, update_status_bar
 
 # this maps room IDs to their name on the map
 # these are shortened for space
@@ -137,7 +137,7 @@ def print_map(state: dict, console: Console) -> None:
     map_object = form_map_object(state)
 
     console.print(map_object)
-    console.print(Align.center('\n[italic]\[use enter to exit][/italic]'))
+    console.print(Align.center('\n[italic]\\[use enter to exit][/italic]'))
 
 def display_map(state: dict) -> None:
     console = Console()

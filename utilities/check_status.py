@@ -29,8 +29,7 @@ def _format_time_played(start_time: float, time_elapsed: float) -> str:
         elapsed = math.ceil(time.time() - float(start_time) + float(time_elapsed))
     except (TypeError, ValueError):
         return "Unknown"
-    if elapsed < 0:
-        elapsed = 0
+    elapsed = max(elapsed, 0)
     if elapsed > 3600:
         hours = elapsed // 3600
         minutes = (elapsed % 3600) // 60

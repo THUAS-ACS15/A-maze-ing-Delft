@@ -7,12 +7,13 @@
 # Contributors: Gift Odigwe, Leon
 # -----------------------------------------------------------------------------
 
-import time
 import textwrap
+import time
 
 from rich.console import Console
 
 from data.objective_dialogue_bank import objective_dialogue_bank
+
 
 def print_dialogue(dialogue_line: str, width: int = 80, print_newline_after: bool = True) -> None:
     """
@@ -76,7 +77,7 @@ def print_current_objective(state: dict) -> None:
 
 def print_line(
     text: str,
-    delay: float | int = 0,
+    delay: float = 0,
     console: Console | None = None,
     style: str | None = None,
 ) -> None:

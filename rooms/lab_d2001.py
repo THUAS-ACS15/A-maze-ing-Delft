@@ -9,17 +9,16 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
+from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_dialogue
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
-
+from utilities.save_gui import display_save_menu
 from utilities.story_animations import play_game_complete
 
 # Vars used in puzzle
@@ -90,21 +89,16 @@ def enter_lab_d2001(state: dict) -> str:
         Inputs: NONE
 
         Outputs:
-            - bool: True if the puzzle is solved correctly, False otherwise.
+            - int: The number of correct platforms.
         """
 
         correct_count = 0
         for platform in platforms:
-            if len(platform) < 2:
-                return False
-            elif sum(platform) != 100:
+            if len(platform) < 2 or sum(platform) != 100:
                 return False
             else:
                 correct_count += 1
-        if correct_count == 3:
-            return True
-        else:
-            return False
+        return correct_count == 3
 
     def box_puzzle_reset() -> None:
         """
@@ -183,11 +177,11 @@ def enter_lab_d2001(state: dict) -> str:
         Outputs: NONE
         """
 
-        show_activity_animation("puzzle", text_delay=0.002, final_delay=1.0)
+        show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
         print_puzzle_instructions()
 
-        # Loops until function returns true, i.e. if puzzle is completed
-        while not box_puzzle_check():
+        # Loops until function returns 3, i.e. if puzzle is completed
+        while box_puzzle_check() != 3:
             try:
                 box = input("\nChoose a box > ").strip().lower()
                 if box == "quit":
