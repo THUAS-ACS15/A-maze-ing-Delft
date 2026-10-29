@@ -207,8 +207,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "podium_success": "Correct! The podium drawer slides open.",
             "lecturer": "Lecturer: \"My students never sit where they should. Arrange them, and I will hand over the plan.\"",
             "lecturer_sequence": "\"After that, finish the timetable sequence on the podium. The D2.015 lab opens with it.\"",
-            "drawer": "The drawer holds a Mainboard!",
-            "drawer_pickup": "Use 'take mainboard' and 'take timetable' to pick them up.",
+            "drawer": "The drawer holds a Motherboard!",
+            "drawer_pickup": "Use 'take motherboard' to pick it up.",
             "quit": "👋 You leave the lecture hall and exit."
         },
         "projectroom1": {
