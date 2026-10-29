@@ -27,14 +27,12 @@ from .lab_d2001 import enter_lab_d2001
 from .lobby import enter_lobby
 from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
-from .store import enter_store
 from .teachersroom1 import enter_teachers_room1
 from .teachersroom2 import enter_teachers_room2
 from .teachersroom4 import enter_teachers_room4
 
 ROOM_HANDLERS = {
     "lobby": enter_lobby,
-    "store": enter_store,
     "labd2001": enter_lab_d2001,
     "teachersroom1": enter_teachers_room1,
     "teachersroom2": enter_teachers_room2,
@@ -72,9 +70,6 @@ ROOM_REQUIREMENTS = {
     "teachersroom4": (4, "Teacher's Room 4 is currently restricted."),
     "projectroom2": (5, "Project Room 2 is reserved right now."),
     "classroomd2035": (6, "Classroom D2.035 is locked."),
-
-    # store is inaccessible now, may be used later
-    "store": (None, "The door doesn't budge. A sign on it indicates it's under maintenance."),
 }
 
 def enter_room(room_name: str, state: dict):
@@ -109,14 +104,14 @@ def enter_room(room_name: str, state: dict):
 
             # check if room is completely unavailable
             if min_objective is None:
-                print(f"\n{reject_message}")
+                print(f"{reject_message}")
                 time.sleep(1.5)
                 state["current_room"] = state["previous_room"]
                 return state["current_room"]
 
             # check if player's objective ID is too low
             if current_objective_id < min_objective:
-                print(f"\n❌ {reject_message}")
+                print(f"❌ {reject_message}")
                 time.sleep(1.5)
                 state["current_room"] = state["previous_room"]
                 return state["current_room"]
