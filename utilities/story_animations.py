@@ -172,7 +172,7 @@ def play_game_complete(state) -> None:
         elif key == "enter":
             if selected_index == 0:
                 add_scoreboard_entry(
-                    state["player_name"],
+                    state.get("player_name", "Student"),
                     get_exploration_percent(state),
                     state["time_elapsed"],
                 )
