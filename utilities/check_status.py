@@ -14,7 +14,6 @@ from rich.prompt import Prompt
 from utilities.clear_screen import clear_screen
 from utilities.loader import loader
 from utilities.print_helpers import print_line
-from utilities.inventory_viewer import display_inventory
 
 # Consistent text style
 HEADER_STYLE = "bold green"

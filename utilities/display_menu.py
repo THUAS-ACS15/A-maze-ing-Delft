@@ -17,7 +17,8 @@ def render_command_options(console: Console, selected_index: int, command_desc: 
     """
     Renders the command options in the console.
     
-    This function is responsible for rendering the command options in the console, highlighting the currently selected option.
+    This function is responsible for rendering the command options in the console,
+    highlighting the currently selected option.
 
     Inputs:
         console (Console): The rich console object for rendering.

@@ -25,7 +25,7 @@ from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
 
-state = {
+state: dict = {
     "player_name": "",
     "current_room": "lobby",
     "previous_room": None,
