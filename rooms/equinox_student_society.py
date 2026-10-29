@@ -18,8 +18,9 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
-from utilities.get_help import get_help
-from utilities.print_helpers import print_line
+from utilities.centralized_commands import display_help
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import print_current_objective, print_line
 from utilities.print_helpers import print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
@@ -103,20 +104,13 @@ def enter_equinox_student_society(state: dict) -> str:
         if not state["completed"]["equinoxstudentsociety"]:
             print("\n You take a close look at the table, and notice")
             print("that there is a small statue of a dragon on it. It seems to be guarding some treasure!")
-            if not state["equinox_coins_claimed"]:
-                print("  Next to it, you find some coins. Looks like it was hoarding some treasure.")
-                print(" Thankfully it's just a statue, so you pick them up. (+10 coins)")
-                state["coin_balance"] += 10
-                state["equinox_coins_claimed"] = True
-            else:
-                print(" You've already collected the coins that were next to it. Now the dragon is broke.")
+            print("Seems like it's just a decoration, but you wonder if it has any significance to the game.")
         else:
             print(" You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
+            print
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print(
-            "- Your current inventory:",
-            state["inventory"],
-        )
+        print()
+        print_current_objective(state)
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -128,7 +122,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         This function handles the quiz interaction with the player.
         It displays the quiz questions, collects answers, and calculates the score. 
-        If the player completes the quiz, they receive a certificate and coins.
+        If the player completes the quiz, they receive a certificate.
 
         Inputs: NONE
 
@@ -207,9 +201,9 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "?":
             clear_screen()
-            get_help(room_commands)
+            display_help(room_commands)
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -219,6 +213,10 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "map":
             display_map(state)
+
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
 
         elif command in ["status", "check status"]:
             clear_screen()

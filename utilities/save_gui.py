@@ -72,8 +72,8 @@ def display_save_art(console: Console):
         else:
             info_rows = [
                 f"Room: {save_info['current_room']}",
-                f"Exploration: {save_info['visited_percent']}% visited, {save_info['completion_percent']}% completed",
-                f"Coins: {save_info['coin_balance']}",
+                f"Visited: {save_info['visited_percent']}%",
+                f"Completed: {save_info['completion_percent']}%",
                 f"Time: {round(save_info['time_elapsed'], 2)}s",
             ]
 

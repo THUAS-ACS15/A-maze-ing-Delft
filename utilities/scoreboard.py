@@ -65,9 +65,24 @@ def get_scoreboard_entries() -> list[tuple]:
         return cursor.fetchall()
 
 def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elapsed: float) -> None:
+    """
+    Adds a new entry to the scoreboard database.
+    
+    This function inserts a new entry into the scoreboard database with
+    the provided player name, 
+    exploration percentage, and time elapsed.
+
+    Inputs:
+        player_name (str): The name of the player.
+        exploration_percent (float): The percentage of the map explored by the player.
+        time_elapsed (float): The time elapsed during the game in seconds.
+    
+    Outputs: NONE
+    """
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
-        cursor.execute("INSERT OR REPLACE INTO scoreboard (player_name, exploration_percent, time_elapsed) VALUES \
+        cursor.execute("INSERT OR REPLACE INTO scoreboard \
+                       (player_name, exploration_percent, time_elapsed) VALUES \
                        (?, ?, ?)", 
         (player_name, exploration_percent, time_elapsed))
         db.commit()

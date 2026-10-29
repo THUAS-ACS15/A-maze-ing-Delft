@@ -11,6 +11,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
@@ -49,7 +50,6 @@ def enter_classroom_d2035(state):
         if len(loot) > 0:
             print("In the podium drawer:", ", ".join(loot))
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print("- Your current inventory:", state["inventory"])
         print()
         print_current_objective(state)
 
@@ -140,7 +140,7 @@ def enter_classroom_d2035(state):
                 loot.remove(thing)
                 print("You took the " + thing + ".")
                 state["inventory"].append(thing)
-                if item_name == "A.I.G.I.S. Motherboard":
+                if thing == "A.I.G.I.S. Motherboard":
                     state["current_objective_id"] += 1
                     print_assembly_part_obtained("(+ A.I.G.I.S. Motherboard)")
                     print()
@@ -168,13 +168,17 @@ def enter_classroom_d2035(state):
             clear_screen()
             take_item(state, command[5:].strip())
     
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 
         elif command == "map":
             display_map(state)
+
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
         
         elif command in ["status", "check status"]:
             clear_screen()

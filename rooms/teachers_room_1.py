@@ -11,10 +11,11 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue
+from utilities.print_helpers import print_current_objective, print_dialogue
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -37,7 +38,8 @@ def enter_teachers_room1(state: dict) -> str:
         if not state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_not_complete"])
         print(f"- Possible exits: {','.join(valid_destinations)}")
-        print("- Your current inventory:", state["inventory"])
+        print()
+        print_current_objective(state)
 
     def handle_help():
         print("\nAvailable commands:")
@@ -57,7 +59,6 @@ def enter_teachers_room1(state: dict) -> str:
         accepted = ["n%2", "n % 2"]
         if normalized in accepted:
             state["completed"]["teachersroom1"] = True
-            state["coin_balance"] += 10
             state["current_objective_id"] += 1
             clear_screen()
             print_dialogue(room_dialogue_bank["puzzle_answer_correct"])
@@ -77,7 +78,7 @@ def enter_teachers_room1(state: dict) -> str:
             clear_screen()
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -90,6 +91,10 @@ def enter_teachers_room1(state: dict) -> str:
         elif command == "map":
             display_map(state)
 
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
+    
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause=True)

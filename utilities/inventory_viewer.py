@@ -16,6 +16,7 @@ from rich.text import Text
 from data.item_description_bank import item_description_bank
 from data.item_render_bank import item_render_bank
 from utilities.status_bar import display_top_bar
+from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
 
 NO_RENDER_PLACEHOLDER = (
@@ -194,5 +195,5 @@ def display_inventory(inventory: list[str]) -> None:
             selected = (selected + 1) % len(inventory)
             render_inventory(console, inventory, selected)
         elif key == "enter":
-            console.clear()
+            clear_screen()
             break

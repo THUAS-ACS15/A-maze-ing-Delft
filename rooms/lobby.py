@@ -15,6 +15,7 @@ from data.look_around_dialogue_bank import look_around_dialogue_bank
 from utilities.check_status import check_status
 from utilities.display_menu import display_selection_menu
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
@@ -90,7 +91,7 @@ def enter_lobby(state):
         elif command in ["?", "help"]:
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -98,6 +99,10 @@ def enter_lobby(state):
         elif command == "map":
             display_map(state)
 
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
+    
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state)

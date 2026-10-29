@@ -88,9 +88,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "puzzle_take_keycard": (
                 "You pick up the keycard. It looks to be a staff keycard, which will "
                 "allow you to enter some restricted areas. "
-                "After taking it, you notice something shiny in the corner of your eye. "
-                "You look closer and realize you found some shiny coins, and the teacher "
-                "allows you to take them (+10 coins). "
                 "The teacher also asks you to check out the second teacher's room, as it might have "
                 "another piece of the code you need to complete A.I.G.I.S."
             ),
@@ -134,12 +131,12 @@ Congratulations! You have completed the game and escaped the school building!"""
                 "useful from the school's intranet."
             ),
             "puzzle_take_api_and_prompt_usb": (
-                "# Congrats, you completed this challenge! "
-                "# Inside, you find code for an encrypted API and some prompts for the LLM, "
-                "# you store it onto a USB drive and safely eject it. "
-                "# You now realize that you actually need to be able to talk and hear A.I.G.I.S., "
-                "# so you should search for some kind of speaker module. Maybe one of the project "
-                "# rooms might have it."
+                "Congrats, you completed this challenge! "
+                "Inside, you find code for an encrypted API and some prompts for the LLM, "
+                "you store it onto a USB drive and safely eject it. "
+                "You now realize that you actually need to be able to talk and hear A.I.G.I.S., "
+                "so you should search for some kind of speaker module. Maybe one of the project "
+                "rooms might have it."
             ),
             "quit": "👋 You leave the computer alone and exit."
         },
@@ -210,8 +207,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "podium_success": "Correct! The podium drawer slides open.",
             "lecturer": "Lecturer: \"My students never sit where they should. Arrange them, and I will hand over the plan.\"",
             "lecturer_sequence": "\"After that, finish the timetable sequence on the podium. The D2.015 lab opens with it.\"",
-            "drawer": "The drawer holds a Mainboard!",
-            "drawer_pickup": "Use 'take mainboard' and 'take timetable' to pick them up.",
+            "drawer": "The drawer holds a Motherboard!",
+            "drawer_pickup": "Use 'take motherboard' to pick it up.",
             "quit": "👋 You leave the lecture hall and exit."
         },
         "projectroom1": {
@@ -259,7 +256,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "puzzle_return": "Maybe you'll come back later.",
             "puzzle_complete": "Looks like you stacked the boxes correctly, congratulations!",
             "puzzle_click": "You hear a loud \"click\" sound, and one of the boxes falls open.",
-            "puzzle_coins": "Inside, you find some coins, which you pick up. (+10 coins)",
             "already_complete": "You've already forced the boxes open. There's nothing more to do here.",
             "quit": "👋 You sit on one of the chairs in the Lab and close your eyes. Game over."
         },
