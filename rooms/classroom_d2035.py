@@ -124,7 +124,7 @@ def enter_classroom_d2035(state):
                 print("You have already completed this room. There is nothing else to do here.")
             elif play_podium(state):
                 state["completed"]["classroomd2035"] = True
-                loot.append("A.I.G.I.S. Motherboard")
+                loot.append("A.I.G.I.S.  ")
                 print_dialogue(room_dialogue_bank["drawer"])
                 print_dialogue(room_dialogue_bank["drawer_pickup"])
             else:
