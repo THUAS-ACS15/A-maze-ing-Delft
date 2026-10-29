@@ -78,6 +78,13 @@ Congratulations! You have completed the game and escaped the school building!"""
                 "The teacher looks up: \"Oh, perfect timing. I\'m missing one last piece of this code. "
                 "I need to check whether a number n is even in Python. What is the expression I "
                 "should use to check that?\""
+                "I have a sample code here check it out."
+                "def check_number(n):"
+                "leftover = ______"
+                "if leftover == 0:"
+                "return print(""Number is even"")"
+                "else"
+                "return print(""Number is odd"")"
             ),
             "puzzle_answer_correct": (
                 "The teacher's eyes light up: \"n % 2 — of course! Thank you!\" "
