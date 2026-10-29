@@ -1,11 +1,13 @@
 # -----------------------------------------------------------------------------
-# File: get_help.py
+# File: centralized_commands.py
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributor: Gift Odigwe
+# Contributor: Gift Odigwe, Leon
 # -----------------------------------------------------------------------------
+
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 """
 Shared help display for rooms.
 
@@ -16,21 +18,36 @@ they use today (e.g. hide a command once its challenge is completed).
 
 DEFAULT_COMMANDS = [
     (
+        "?",
+        "Show this help message."
+    ),
+    (
+        "go",
+        "Go to another room.",
+    ),
+    (
         "look around",
         "Examine the room for clues.",
     ),
-    ("status", "Show your overall progress."),
     (
-        "go lobby / back",
-        "Leave the room and return to the lobby.",
+        "status/check status", 
+        "Show your overall progress."
     ),
-    ("?", "Show this help message."),
-    ("quit", "Quit the game completely."),
-    ("save/pause", "Save your progress.")
+    (
+        "inv/inventory",
+        "Show your inventory."
+    ),
+    (
+        "save/pause",
+        "Save your progress."
+    ),
+    (
+        "quit",
+        "Quit the game completely."
+    ),
 ]
 
-
-def get_help(extra_commands=None, include_go_back=True):
+def display_help(extra_commands: list = None, include_go_back: bool = True):
     """
     Displays the room's command list: extras first, then the defaults.
 
@@ -52,3 +69,6 @@ def get_help(extra_commands=None, include_go_back=True):
     print("Available commands:")
     for command, description in commands:
         print(f"- {command:<18}: {description}")
+
+def display_look_around(state: str):
+    pass

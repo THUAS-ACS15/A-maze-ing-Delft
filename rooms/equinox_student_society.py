@@ -18,7 +18,7 @@ from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
-from utilities.get_help import get_help
+from utilities.centralized_commands import display_help
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_line
 from utilities.print_helpers import print_dialogue
@@ -201,7 +201,7 @@ def enter_equinox_student_society(state: dict) -> str:
 
         elif command == "?":
             clear_screen()
-            get_help(room_commands)
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

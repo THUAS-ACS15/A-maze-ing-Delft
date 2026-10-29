@@ -140,7 +140,7 @@ def enter_classroom_d2035(state):
                 loot.remove(thing)
                 print("You took the " + thing + ".")
                 state["inventory"].append(thing)
-                if item_name == "A.I.G.I.S. Motherboard":
+                if thing == "A.I.G.I.S. Motherboard":
                     state["current_objective_id"] += 1
                     print_assembly_part_obtained("(+ A.I.G.I.S. Motherboard)")
                     print()

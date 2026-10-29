@@ -19,17 +19,17 @@ from .classroom_d2015 import enter_classroom_d2015
 from .classroom_d2031 import enter_classroom_d2031
 from .classroom_d2035 import enter_classroom_d2035
 from .corridor_east import enter_east_corridor
-from .corridor_south import enter_teaching_area
-from .corridor_west import enter_student_wing
+from .corridor_teaching_area import enter_teaching_area
+from .corridor_student_wing import enter_student_wing
 from .equinox_student_society import enter_equinox_student_society
 from .front_desk import enter_front_desk
 from .lab_d2001 import enter_lab_d2001
 from .lobby import enter_lobby
 from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
-from .teachersroom1 import enter_teachers_room1
-from .teachersroom2 import enter_teachers_room2
-from .teachersroom4 import enter_teachers_room4
+from .teachers_room_1 import enter_teachers_room1
+from .teachers_room_2 import enter_teachers_room2
+from .teachers_room_4 import enter_teachers_room4
 
 ROOM_HANDLERS = {
     "lobby": enter_lobby,
