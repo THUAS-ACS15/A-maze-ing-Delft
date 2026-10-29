@@ -17,6 +17,7 @@ from time import sleep
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.display_menu import display_selection_menu
 from utilities.get_help import get_help
 from utilities.print_helpers import print_line
 from utilities.print_helpers import print_dialogue
@@ -111,32 +112,11 @@ def enter_equinox_student_society(state: dict) -> str:
                 print(" You've already collected the coins that were next to it. Now the dragon is broke.")
         else:
             print(" You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
-        print("- Possible exits: lobby")
+        print(f"- Possible exits: {', '.join(valid_destinations)}")
         print(
             "- Your current inventory:",
             state["inventory"],
         )
-
-    def handle_go(destination: str) -> str | None:
-        """
-        Handles movement out of the room.
-
-        This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it
-        prints an error message and returns None.
-
-        Inputs:
-            - destination (str): The destination the player wants to go to.
-
-        Outputs:
-            - location (str): The destination if valid, None otherwise.
-        """
-
-        if destination in valid_destinations:
-            return destination
-        else:
-            print(f"❌ You can't go to '{destination}' from here.")
-            return None
 
     # +-------------------------+
     # | Puzzle helper functions |
@@ -229,9 +209,8 @@ def enter_equinox_student_society(state: dict) -> str:
             clear_screen()
             get_help(room_commands)
 
-        elif command.startswith("go "):
-            destination = command[3:].strip()
-            result = handle_go(destination)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 

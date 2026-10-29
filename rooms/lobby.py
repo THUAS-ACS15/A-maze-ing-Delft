@@ -13,13 +13,14 @@ from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 from utilities.check_status import check_status
+from utilities.display_menu import display_selection_menu
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
-available_rooms = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
+valid_destinations = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
 
 def enter_lobby(state):
     """Starter function for the Lobby room."""
@@ -53,7 +54,7 @@ def enter_lobby(state):
             state["inventory"].append("Robot Chassis Frame")
 
         
-        print(f"- Possible doors: {', '.join(available_rooms)}")
+        print(f"- Possible destinations: {', '.join(valid_destinations)}")
         print(f"- Your inventory: {state['inventory']}")
         print()
         print_current_objective(state)
@@ -80,21 +81,6 @@ def enter_lobby(state):
         print()
         print_current_objective(state)
 
-    def handle_go(room_name):
-        """
-        Handles movement out of the room.
-
-        Checks if destination is valid directly or through aliases,
-        then returns the standardized room string for main.py.
-        """
-        clear_screen()
-
-        if room_name in available_rooms:
-            return room_name
-        else:
-            print(f"❌ '{room_name}' is not a valid exit. Use 'look around' to see available options.")
-            return None
-
     while True:
         command = input("\n> ").strip().lower()
 
@@ -104,9 +90,8 @@ def enter_lobby(state):
         elif command in ["?", "help"]:
             handle_help()
 
-        elif command.startswith("go "):
-            room = command[3:].strip()
-            result = handle_go(room)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 
