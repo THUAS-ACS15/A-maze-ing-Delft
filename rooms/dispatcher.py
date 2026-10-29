@@ -29,14 +29,14 @@ from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
 from .teachers_room_1 import enter_teachers_room1
 from .teachers_room_2 import enter_teachers_room2
-from .teachers_room_4 import enter_teachers_room4
+from .teachers_room_4 import enter_teachers_room_4
 
 ROOM_HANDLERS = {
     "lobby": enter_lobby,
     "labd2001": enter_lab_d2001,
     "teachersroom1": enter_teachers_room1,
     "teachersroom2": enter_teachers_room2,
-    "teachersroom4": enter_teachers_room4,
+    "teachersroom4": enter_teachers_room_4,
     "projectroom1": enter_project_room1,
     "projectroom2": enter_project_room2,
     "frontdesk": enter_front_desk,

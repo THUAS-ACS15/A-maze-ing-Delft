@@ -30,13 +30,11 @@ def clear_screen(
     Outputs: NONE
     """
     main_module = sys.modules.get("__main__")
-    if main_module is None:
-        raise RuntimeError("Error: the __main__ module is unavailable!")
-    state: dict = main_module.state
+    state = getattr(main_module, "state", None) if main_module is not None else None
 
     if os.getenv("PYCHARM_HOSTED"):
         print("\n" * 50)  # fallback for PyCharm
     else:
         os.system("cls" if os.name == "nt" else "clear")
-    if run_status_bar_update:
+    if run_status_bar_update and state is not None:
         update_status_bar(state, header_message)
