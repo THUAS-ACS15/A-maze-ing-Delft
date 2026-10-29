@@ -11,6 +11,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.display_menu import display_selection_menu
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_assembly_part_obtained, print_current_objective
@@ -100,13 +101,6 @@ def enter_teachers_room2(state):
         else:
             print(f"There is no '{item}' here to take.")
 
-    def handle_go(destination):
-        if destination in valid_destinations:
-            return destination
-        else:
-            print(f"You can't go to '{destination}' from here.")
-            return ""
-
     def handle_answer(answer):
         if state["completed"]["teachersroom2"]:
             print("You've already solved this challenge.")
@@ -145,10 +139,8 @@ def enter_teachers_room2(state):
             clear_screen()
             print(DATABASES)
 
-        elif command.startswith("go "):
-            clear_screen()
-            destination = command[3:].strip()
-            result = handle_go(destination)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 

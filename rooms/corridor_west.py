@@ -12,6 +12,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective
 
@@ -72,27 +73,6 @@ def enter_student_wing(state: dict) -> str:
         print("- status           : Show current game status.")
         print("- save             : Save the current game state.")
 
-    def handle_go(destination: str) -> str | None:
-        """
-        Handles movement out of the room.
-
-        This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
-        returns None.
-
-        Inputs:
-            - destination (str): The destination the player wants to go to.
-
-        Outputs:
-            - location (str): The destination if valid, None otherwise.
-        """
- 
-        if destination in valid_destinations:
-            return destination
-        else:
-            print(f"❌ You can't go to '{destination}' from here.")
-            return None
-
     # +--------------+
     # | Command loop |
     # +--------------+
@@ -108,9 +88,8 @@ def enter_student_wing(state: dict) -> str:
             clear_screen()
             handle_help()
 
-        elif command.startswith("go "):
-            destination = command[3:].strip()
-            result = handle_go(destination)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 

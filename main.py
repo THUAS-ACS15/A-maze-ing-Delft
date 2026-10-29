@@ -18,6 +18,7 @@ check_dependencies()
 import time
 
 from rooms.dispatcher import enter_room
+from utilities.story_animations import play_intro
 from utilities.save_gui import display_load_menu
 from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
@@ -100,6 +101,12 @@ def main() -> None:
                 if isinstance(loaded_state, dict):
                     state = loaded_state
 
+            if not state["has_intro_played"]:
+                state["is_gametime_paused"] = True
+                play_intro()
+                state["is_gametime_paused"] = False
+                state["has_intro_played"] = True
+            
             # keep dispatching rooms until the player actually exits,
             # so main menu doesn't take over
             current = state.get("current_room", "lobby")
