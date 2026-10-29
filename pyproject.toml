@@ -21,3 +21,17 @@ ignore = [
     "I001",  # Unsorted or unformatted import block
 ]
 
+[tool.mypy]
+# Optional finale dependencies are not installed in every environment
+# (CI installs only requirements.txt); treat them as untyped when absent.
+
+[[tool.mypy.overrides]]
+module = [
+    "langchain_core.*",
+    "langchain_ollama.*",
+    "langchain_google_genai.*",
+    "langchain_openai.*",
+    "langchain_groq.*",
+]
+ignore_missing_imports = true
+

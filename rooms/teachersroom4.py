@@ -8,12 +8,10 @@ marks the room as completed and advances the objective.
 import time
 
 from rich.console import Console
-from rich.panel import Panel
 from rich.text import Text
 
 from assets.nixos import nixos as nixos_logo
 
-from data.look_around_dialogue_bank import look_around_dialogue_bank
 from data.story_dialogue_bank import story_dialogue_bank
 
 from utilities.clear_screen import clear_screen
@@ -25,14 +23,12 @@ from utilities.print_helpers import (
     print_assembly_part_obtained,
     print_current_objective,
     print_dialogue,
-    print_line,
 )
 from utilities.save_gui import display_save_menu
 from utilities.shell import VirtualShell
 
 header_style = "bold green"
 
-items = ["computer", "paperclip", "note", "mug"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom4"]
 
 # Absolute virtual path of the only file that grants the USB reward.
@@ -117,16 +113,12 @@ console = Console()
 
 room_commands = [
     (
-        "look around",
-        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray area.",
-    ),
-    (
-        "get comfortable",
-        "Sink into the teacher's spinny chair. Spin tax: zero.",
+        "use computer",
+        "Boot the teacher's computer and explore the NixOS terminal.",
     ),
     (
         "help/?",
-        "Lost? Here's the map. Don't tell the teacher you needed it.",
+        "Show the available commands.",
     ),
     (
         "pause/save",
@@ -134,26 +126,7 @@ room_commands = [
     ),
     (
         "leave/exit",
-        "Slip back to the lobby before the footsteps return.",
-    ),
-]
-
-position_commands = [
-    (
-        "stand up",
-        "Abandon the spinny chair. It will miss you.",
-    ),
-    (
-        "pick up",
-        "Pocket something from the desk. The teacher is gone — probably.",
-    ),
-    (
-        "boot computer",
-        "Snoop on the teacher's unfinished work. Password willing.",
-    ),
-    (
-        "help/?",
-        "Lost in comfort? Here's the map.",
+        "Return to the East Corridor.",
     ),
 ]
 
@@ -172,7 +145,7 @@ def _prompt_text(shell: VirtualShell) -> str:
     return f"{top_line}\n{bottom_line}"
 
 
-def _award_usb(state: dict, write_output=None) -> None:
+def _reward(state: dict, write_output=None) -> None:
     """Grant the USB reward on first read of the secret file.
 
     Always marks the room as completed; appends the reward to the inventory
@@ -226,7 +199,7 @@ def run_shell(state: dict, shell: VirtualShell, read_input=input, write_output=N
         if result.output:
             write_output(Text(result.output))
         if SECRET_PATH in result.read_paths:
-            _award_usb(state, write_output)
+            _reward(state, write_output)
         if result.exit_requested:
             break
 
@@ -271,33 +244,8 @@ def inspect_computer(state: dict) -> None:
         clear_screen()
 
 
-def remaining_items(state: dict) -> list:
-    """Items still on the desk (taken ones stay in the inventory)."""
-    return [item for item in items if item not in state.get("inventory", [])]
-
-
-def show_desk(console: Console, state: dict) -> None:
-    """Show the desk contents in a panel."""
-    print_dialogue(look_around_dialogue_bank["teachersroom4"])
-    remaining = remaining_items(state)
-    if remaining:
-        console.print(
-            Panel(
-                "\n".join(f"- {item}" for item in remaining),
-                title="On the desk",
-            )
-        )
-    else:
-        console.print(
-            Panel(
-                "Picked clean. The teacher will notice. Probably.",
-                title="On the desk",
-            )
-        )
-
-
 def enter_teachers_room4(state: dict) -> str:
-    """Greet the player in Teachers Room 4 and send them back to the Lobby."""
+    """Enter Teacher's Room 4; the computer is the only interactable."""
 
     state["previous_room"] = "teachersroom4"
 
@@ -308,46 +256,28 @@ def enter_teachers_room4(state: dict) -> str:
     # Display loading state
     loader(label="Loading teachers room...")
 
+    print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     state["current_room"] = "teachersroom4"
 
-    choice = input(">")
-    while choice not in ("leave", "exit"):
-        match choice:
-            case "?" | "help":
-                display_menu(console, room_commands)
-            case "pause" | "save":
-                display_save_menu(state)
-            case "get comfortable":
-                loader(label="taking a sit...")
-                print_line("You made a good choice. The chair spins. Life is good. ☕")
-                seated = input(">")
-                while seated != "stand up":
-                    match seated:
-                        case "?" | "help":
-                            display_menu(
-                                console,
-                                position_commands,
-                            )
-                        case "look around":
-                            show_desk(console, state)
-                        case "pick up":
-                            remaining = remaining_items(state)
-                            if not remaining:
-                                print_line("Nothing left but crumbs. Leave those too.")
-                            else:
-                                taken = input(">")
-                                state.setdefault(
-                                    "inventory",
-                                    [],
-                                ).append(taken)
-                                print_line(f"You pocket the {taken}. The teacher will never " f"know.")
-                        case "boot computer":
-                            inspect_computer(state)
-                    seated = input(">")
-            case "look around":
-                show_desk(console, state)
-            case "map":
-                display_map(state)
-        choice = input("> ")
-    return "eastcorridor"
+    while True:
+        choice = input("> ").strip().lower()
+
+        if choice in ("use computer", "inspect computer", "boot computer", "computer"):
+            inspect_computer(state)
+
+        elif choice in ("?", "help"):
+            display_menu(console, room_commands)
+
+        elif choice in ("pause", "save"):
+            display_save_menu(state)
+
+        elif choice == "map":
+            display_map(state)
+
+        elif choice in ("leave", "exit"):
+            return "eastcorridor"
+
+        else:
+            clear_screen()
+            print("Unknown command. Type '?' to see available commands.")

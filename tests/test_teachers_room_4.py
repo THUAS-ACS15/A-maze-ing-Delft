@@ -71,3 +71,24 @@ def test_run_shell_exits_cleanly():
 
 def test_enter_teachers_room4_is_callable():
     assert callable(teachersroom4.enter_teachers_room4)
+
+
+def test_enter_room_boots_computer_and_leaves(monkeypatch):
+    state = make_state()
+    state.update({
+        "previous_room": None,
+        "visited": {"teachersroom4": False},
+        "current_room": "eastcorridor",
+    })
+    calls = []
+    monkeypatch.setattr(teachersroom4, "inspect_computer", lambda s: calls.append(s))
+    monkeypatch.setattr(teachersroom4, "clear_screen", lambda: None)
+    monkeypatch.setattr(teachersroom4, "loader", lambda *args, **kwargs: None)
+    monkeypatch.setattr(teachersroom4, "print_dialogue", lambda *args, **kwargs: None)
+    scripted = iter(["use computer", "leave"])
+    monkeypatch.setattr("builtins.input", lambda prompt="": next(scripted))
+
+    result = teachersroom4.enter_teachers_room4(state)
+
+    assert result == "eastcorridor"
+    assert calls == [state]
