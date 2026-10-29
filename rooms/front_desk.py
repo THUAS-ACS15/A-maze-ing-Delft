@@ -32,6 +32,7 @@ def handle_help():
     print("- inspect <object>    : Look closer (try the printer).")
     print("- take <item>         : Pick up an item.")
     print("- go [room]           : Leave the room.")
+    print("- inventory           : Show what items are in your inventory.")
     print("- status / save       : Show your status / open the save menu.")
     print("- ?                   : Show this help message.")
     print("- quit                : Quit the game entirely.")
@@ -133,15 +134,15 @@ def enter_front_desk(state):
     while True:
         command = input("\n> ").lower().strip()
 
-        if command == "look around" or command == "look" or command == "ls":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look(state)
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
             handle_help()
 
-        elif command.startswith("inspect "):
+        elif command in ["inspect", "insp", "check"] or command.startswith ("inspect"):
             clear_screen()
             inspect_object(state, command[8:].strip())
 
@@ -149,7 +150,7 @@ def enter_front_desk(state):
             clear_screen()
             take_item(state, command[5:].strip())
 
-        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
+        elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -168,7 +169,7 @@ def enter_front_desk(state):
         elif command == "pause" or command == "save":
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit_game"])
             sys.exit()
