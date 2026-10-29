@@ -12,11 +12,11 @@ def check_dependencies():
     Outputs: NONE
     """
 
-    from pathlib import Path
-    import sys
-    import subprocess
     import platform
+    import subprocess
+    import sys
     from importlib.metadata import PackageNotFoundError, distribution
+    from pathlib import Path
 
     try:
         from packaging.requirements import Requirement
@@ -24,7 +24,7 @@ def check_dependencies():
         try:
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'packaging'])
             from packaging.requirements import Requirement
-        except Exception:
+        except subprocess.CalledProcessError:
             print('Error: the "packaging" dependency is missing. please run')
             print(f'"{sys.executable}" -m pip install packaging')
             return
@@ -69,7 +69,7 @@ def check_dependencies():
             except (OSError, subprocess.CalledProcessError):
                 try:
                     subprocess.check_call([python_path, '-m', 'ensurepip'])
-                except Exception:
+                except subprocess.CalledProcessError:
                     print('Pip is not installed and ensurepip is not available. Please install pip manually.')
                     return
 
@@ -79,6 +79,6 @@ def check_dependencies():
             if platform.system() == 'Linux':
                 install_command.append('--break-system-packages')
             subprocess.check_call(install_command, stdout=subprocess.DEVNULL)
-        except Exception:
+        except subprocess.CalledProcessError:
             print('Failed to install dependencies. Try running "pip install -r', end = '')
             print('requirements.txt" from your terminal while in the game\'s root folder.')

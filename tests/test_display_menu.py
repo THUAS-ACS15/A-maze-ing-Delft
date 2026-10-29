@@ -7,12 +7,11 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E402
 # ^ prevent ruff from erroring imports
 # because pytest needs that path before importing (as below)
 
-from io import StringIO
 import sys
+from io import StringIO
 from pathlib import Path
 
 from rich.console import Console
@@ -22,7 +21,7 @@ project_root = Path(__file__).resolve().parents[1]
 if str(project_root) not in sys.path:
 	sys.path.insert(0, str(project_root))
 
-import utilities.display_menu as display_menu
+from utilities import display_menu
 
 
 def test_render_command_options_renders_correctly(monkeypatch):

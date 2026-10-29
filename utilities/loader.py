@@ -18,7 +18,7 @@ from rich.progress import BarColumn, Progress, TaskProgressColumn
 
 
 def loader(
-    loading_time: float | int = 0.5,
+    loading_time: float = 0.5,
     label: str = "Loading...",
     console: Console | None = None,
     mode: Literal["LOADER", "PROGRESS"] = "LOADER",

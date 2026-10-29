@@ -7,15 +7,15 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-from utilities.save_management import get_save_info, load_save, save_game
-from utilities.status_bar import display_top_bar
-from utilities.clear_screen import clear_screen
-
 from time import sleep
 
 from rich.align import Align
 from rich.console import Console
 from rich.table import Table
+
+from utilities.clear_screen import clear_screen
+from utilities.save_management import get_save_info, load_save, save_game
+from utilities.status_bar import display_top_bar
 
 CHOOSE_SAVE_ART: str = """
 ██▀██ ██ ██ ██▀██ ██▀██ ██▀██ ██▀██      ██▀██ ██▀██ ██ ██ ██▀██      ██▀██ ██    ██▀██ ▀██▀
@@ -115,7 +115,7 @@ def display_save_menu(state: dict):
         if save_slot_input == "quit":
             console.print(Align.center("[bold red]Exiting save menu...[/bold red]"))
             sleep(1)
-            return None
+            return
         save_slot = int(save_slot_input)
 
         save_game(state, save_slot)

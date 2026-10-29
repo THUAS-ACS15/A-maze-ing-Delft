@@ -10,18 +10,16 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue, print_current_objective
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import print_current_objective, print_dialogue
+from utilities.save_gui import display_save_menu
 
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
-
-room_loot: list[str] = []
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
 valid_destinations = ["lobby"]
 
@@ -39,11 +37,8 @@ def handle_help():
 
 def handle_look(state):
     """Describe the room and what the player can do here."""
-    loot = room_loot
     print_dialogue(look_around_dialogue_bank["frontdesk"])
     print("Things you can inspect: counter, printer, logbook")
-    if len(loot) > 0:
-        print("In the printer tray:", ", ".join(loot))
     if state["completed"]["frontdesk"]:
         print("You already have your Student ID card.")
     print(f"- Possible exits: {', '.join(valid_destinations)}")
@@ -81,7 +76,7 @@ def register(state):
     state["student_id_obtained"] = True
     state["current_objective_id"] += 1
     state["completed"]["frontdesk"] = True
-    room_loot.append("Student ID card")
+    state["inventory"].append("Student ID card")
     print_dialogue(room_dialogue_bank["register_complete"], print_newline_after = False)
     print_dialogue(state["player_name"] + ". " + room_dialogue_bank["register_story"])
     print_dialogue(room_dialogue_bank["register_terminal"])
@@ -107,17 +102,6 @@ def inspect_object(state, name):
         print_dialogue(room_dialogue_bank["logbook_third"])
     else:
         print("There is no '" + name + "' here.")
-
-def take_item(state, item_name):
-    """Move an item from the printer tray into the inventory."""
-    loot = room_loot
-    for thing in loot:
-        if item_name != "" and item_name in thing.lower():
-            loot.remove(thing)
-            state["inventory"].append(thing)
-            print("You took the " + thing + ".")
-            return  # stop right after removing, so the list is not changed while the loop runs
-    print("There is no '" + item_name + "' here to take.")
 
 def enter_front_desk(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
@@ -145,10 +129,6 @@ def enter_front_desk(state):
             clear_screen()
             inspect_object(state, command[8:].strip())
 
-        elif command.startswith("take "):
-            clear_screen()
-            take_item(state, command[5:].strip())
-
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
@@ -170,7 +150,7 @@ def enter_front_desk(state):
 
         elif command == "quit":
             clear_screen()
-            print_dialogue(room_dialogue_bank["quit_game"])
+            print_dialogue(room_dialogue_bank["quit"])
             sys.exit()
         else:
             clear_screen()

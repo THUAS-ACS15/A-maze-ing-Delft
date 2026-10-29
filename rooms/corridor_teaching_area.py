@@ -9,16 +9,15 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue, print_current_objective
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import print_current_objective, print_dialogue
+from utilities.save_gui import display_save_menu
 
 valid_destinations = ["lobby", "classroomd2015", "classroomd2031", "classroomd2035"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachingarea"]
