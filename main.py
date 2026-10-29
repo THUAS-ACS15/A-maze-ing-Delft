@@ -6,23 +6,23 @@
 # Date: October 2026
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E402 
 # this prevents ruff from erroring because of the below dependency check.
 # it's necessary to check deps before running any of the below imports
 # to ensure no crashes and correct installs
 
 # check dependencies before start
 from install_dependencies import check_dependencies
+
 check_dependencies()
 
 import time
 
 from rooms.dispatcher import enter_room
-from utilities.story_animations import play_intro
-from utilities.save_gui import display_load_menu
-from utilities.main_menu import display_main_menu
-from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
+from utilities.main_menu import display_main_menu
+from utilities.save_gui import display_load_menu
+from utilities.scoreboard import display_scoreboard
+from utilities.story_animations import play_intro
 
 state: dict = {
     "player_name": "",

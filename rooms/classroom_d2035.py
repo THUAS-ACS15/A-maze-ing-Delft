@@ -8,16 +8,19 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import (
+    print_assembly_part_obtained,
+    print_current_objective,
+    print_dialogue,
+)
+from utilities.save_gui import display_save_menu
 
 # Right order of the students: seat 1 (window) to seat 4 (aisle).
 SEATING_ANSWER = ["ana", "chloe", "dev", "ben"]
@@ -80,7 +83,7 @@ def enter_classroom_d2035(state):
         show_seating_clues()
         for _ in range(3):
             guess = input("Seats 1-4, names separated by spaces (e.g. ana ben chloe dev) > ").lower().split()
-            if guess == SEATING_ANSWER:
+            if guess == SEATING_ANSWER and not state["completed"]["classroomd2035"]:
                 seating_done = True
                 state["inventory"].append("Seating plan")
                 print_dialogue(room_dialogue_bank["seating_success"])
@@ -93,7 +96,7 @@ def enter_classroom_d2035(state):
         """Part 2: the player has 3 tries to find the next number."""
         print_dialogue(room_dialogue_bank["podium_intro"])
         print_dialogue(room_dialogue_bank["podium_slip"], print_newline_after=False)
-        print(SEQUENCE, "and then ?")
+        print(SEQUENCE, "and then?")
         print_dialogue(room_dialogue_bank["podium_rule"])
         for _ in range(3):
             answer = input("Next number > ").strip()
@@ -106,9 +109,8 @@ def enter_classroom_d2035(state):
     def play_podium(state):
         """Run both parts. Returns True when the player solved everything."""
         # Skip part 1 if the player already solved it on an earlier try.
-        if not seating_done:
-            if not play_seating(state):
-                return False
+        if not seating_done and not play_seating(state):
+            return False
         return play_sequence()
 
     def inspect_object(state, name):
@@ -142,6 +144,7 @@ def enter_classroom_d2035(state):
                 state["inventory"].append(thing)
                 if thing == "A.I.G.I.S. Motherboard":
                     state["current_objective_id"] += 1
+                    state["completed"]["classroomd2035"] = True
                     print_assembly_part_obtained("(+ A.I.G.I.S. Motherboard)")
                     print()
                     print_current_objective(state)

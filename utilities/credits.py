@@ -7,10 +7,12 @@
 # -----------------------------------------------------------------------------
 
 from time import sleep
+
+from rich.align import Align
+from rich.console import Console
+
 from utilities.clear_screen import clear_screen
 from utilities.status_bar import display_top_bar
-from rich.console import Console
-from rich.align import Align
 
 CREDITS_LINES = [
     "A-MAZE-ING DELFT",

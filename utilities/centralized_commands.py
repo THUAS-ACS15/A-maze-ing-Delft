@@ -7,7 +7,6 @@
 # Contributor: Gift Odigwe, Leon
 # -----------------------------------------------------------------------------
 
-from data.look_around_dialogue_bank import look_around_dialogue_bank
 """
 Shared help display for rooms.
 
@@ -47,7 +46,7 @@ DEFAULT_COMMANDS = [
     ),
 ]
 
-def display_help(extra_commands: list = None, include_go_back: bool = True):
+def display_help(extra_commands: list, include_go_back: bool = True):
     """
     Displays the room's command list: extras first, then the defaults.
 

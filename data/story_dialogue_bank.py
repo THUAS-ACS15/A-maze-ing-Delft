@@ -7,7 +7,6 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E501
 # ^ disable ruff checking long lines, as this is dialogue
 
 # story_dialogue_bank is a dictionary that contains all the story-related dialogue and text for the game.

@@ -14,10 +14,11 @@ DB_TABLE_STRUCTURE = """
 CREATE TABLE IF NOT EXISTS general (
     save_slot INTEGER PRIMARY KEY,
     current_room TEXT NOT NULL,
+    previous_room TEXT,
     time_elapsed REAL NOT NULL,
     has_intro_played INTEGER NOT NULL,
     current_objective_id INTEGER NOT NULL,
-    student_id_obtained INTEGER NOT NULL,
+    student_id_obtained INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS room_visited_status (
@@ -96,7 +97,7 @@ def get_save_info(slot: int) -> dict | None:
         cursor = save_db.cursor()
 
         cursor.execute(
-            "SELECT current_room, time_elapsed "
+            "SELECT current_room, previous_room, time_elapsed "
             "FROM general WHERE save_slot = ?",
             (slot,),
         )
@@ -152,7 +153,8 @@ def get_save_info(slot: int) -> dict | None:
         return {
             "save_slot": slot,
             "current_room": info[0],
-            "time_elapsed": info[1],
+            "previous_room": info[1],
+            "time_elapsed": info[2],
             "visited_percent": round(visited_percent, 2),
             "completion_percent": round(completion_percent, 2)
         }
@@ -182,13 +184,14 @@ def save_game(state: dict, slot: int) -> None:
         # Save the general game state
         cursor.execute("""
             INSERT OR REPLACE INTO general 
-            (save_slot, current_room, time_elapsed, has_intro_played,
+            (save_slot, current_room, previous_room, time_elapsed, has_intro_played,
             current_objective_id, student_id_obtained)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 slot,
                 state["current_room"],
+                state["previous_room"],
                 state["time_elapsed"],
                 int(state["has_intro_played"]),
                 state["current_objective_id"],
@@ -226,16 +229,6 @@ def save_game(state: dict, slot: int) -> None:
                 (slot, item),
         )
 
-        # Save store items
-        for item in state["store_available_items"]:
-            cursor.execute("""
-                INSERT OR REPLACE INTO store_items 
-                (save_slot, item)
-                VALUES (?, ?)
-                """,
-                (slot, item),
-        )
-
         save_db.commit()
 
 def load_save(slot: int) -> dict | None:
@@ -258,7 +251,7 @@ def load_save(slot: int) -> dict | None:
 
         # Get general state data
         cursor.execute(
-            "SELECT current_room, time_elapsed, has_intro_played, "
+            "SELECT current_room, previous_room, time_elapsed, has_intro_played, "
             "current_objective_id, student_id_obtained "
             "FROM general WHERE save_slot = ?",
             (slot,),
@@ -295,23 +288,15 @@ def load_save(slot: int) -> dict | None:
 
         inventory_items = [row[0] for row in cursor.fetchall()]
 
-        # Get store items
-        cursor.execute(
-            "SELECT item FROM store_items WHERE save_slot = ?",
-            (slot,),
-        )
-
-        store_items = [item[0] for item in cursor.fetchall()]
-
         reconstructed_state = {
             "current_room": general_info[0],
-            "time_elapsed": general_info[1],
-            "has_intro_played": bool(general_info[2]),
+            "previous_room": general_info[1],
+            "time_elapsed": general_info[2],
+            "has_intro_played": bool(general_info[3]),
             "start_time": time.time(),
             "is_gametime_paused": False,
-            "current_objective_id": general_info[3],
-            "student_id_obtained": bool(general_info[4]),
-            "store_available_items": store_items,
+            "current_objective_id": general_info[4],
+            "student_id_obtained": bool(general_info[5]),
             "visited": visited_rooms,
             "completed": completed_rooms,
             "inventory": inventory_items,

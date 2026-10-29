@@ -7,17 +7,17 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-from rich.console import Console, Group
 from rich.align import Align
+from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
 from data.item_description_bank import item_description_bank
 from data.item_render_bank import item_render_bank
-from utilities.status_bar import display_top_bar
 from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
+from utilities.status_bar import display_top_bar
 
 NO_RENDER_PLACEHOLDER = (
     "   ___   \n"

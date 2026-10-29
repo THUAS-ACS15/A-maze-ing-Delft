@@ -8,25 +8,23 @@
 # -----------------------------------------------------------------------------
 
 import sys
-
-from rich.console import Console
-from rich.prompt import Prompt
-from art import text2art  # type: ignore[import-untyped]
 from time import sleep
 
+from art import text2art  # type: ignore[import-untyped]
+from rich.console import Console
+from rich.prompt import Prompt
+
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.animations import show_activity_animation
+from utilities.centralized_commands import display_help
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
-from utilities.centralized_commands import display_help
-from utilities.inventory_viewer import display_inventory
-from utilities.print_helpers import print_current_objective, print_line
-from utilities.print_helpers import print_dialogue
-from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import print_current_objective, print_dialogue, print_line
+from utilities.save_gui import display_save_menu
 
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["equinoxstudentsociety"]
@@ -107,7 +105,7 @@ def enter_equinox_student_society(state: dict) -> str:
             print("Seems like it's just a decoration, but you wonder if it has any significance to the game.")
         else:
             print(" You've already finished the quiz and claimed your reward, so there's nothing else to do here.")
-            print
+            print()
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)

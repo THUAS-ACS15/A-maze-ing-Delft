@@ -6,23 +6,27 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 import time
-
 from textwrap import dedent
-from art import text2art # type: ignore[import-untyped]
+
+from art import text2art  # type: ignore[import-untyped]
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_menu
+from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.loader import loader
-from utilities.print_helpers import print_dialogue, print_line, print_current_objective, print_assembly_part_obtained
+from utilities.print_helpers import (
+    print_assembly_part_obtained,
+    print_current_objective,
+    print_dialogue,
+    print_line,
+)
 from utilities.save_gui import display_save_menu
-from utilities.game_map import display_map
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
 
 header_style = "bold green"
 
@@ -192,11 +196,16 @@ def enter_teachers_room4(state: dict) -> str:
                                 print_line("Nothing left but crumbs. Leave those too.")
                             else:
                                 taken = input(">")
-                                state.setdefault(
-                                    "inventory",
-                                    [],
-                                ).append(taken)
-                                print_line(f"You pocket the {taken}. The teacher will never " f"know.")
+                                if taken in items:
+                                    if taken in state.get("inventory", []):
+                                        print_line(f"You already took the {taken}.")
+                                    else:
+                                        print_line(f"You pocket the {taken}. The teacher will never know.")
+                                        state.setdefault(
+                                            "inventory",
+                                            [],
+                                        ).append(taken)
+                                        print_line(f"You pocket the {taken}. The teacher will never know.")
                         case "boot computer":
                             clear_screen()
                             sequence = [
@@ -228,7 +237,7 @@ def enter_teachers_room4(state: dict) -> str:
                             time.sleep(2)
                             clear_screen()
                             print_line(
-                                "Viola! you are half way in! Now explore the file system to see if you find "
+                                "Voila! you are half way in! Now explore the file system to see if you find "
                                 "anything interesting.",
                                 delay=0.015,
                             )
@@ -248,6 +257,8 @@ def enter_teachers_room4(state: dict) -> str:
                                     case "ls -a":
                                         print_line(file_system_with_secret)
                                     case "cat super_secret_file.txt":
+                                        state["completed"]["teachersroom4"] = True
+                                        clear_screen()
                                         syntax_disp = Syntax(
                                             room_dialogue_bank["puzzle_take_api_and_prompt_usb"],
                                             "python",

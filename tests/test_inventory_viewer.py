@@ -7,14 +7,13 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E402
 # ^ prevent ruff from erroring imports
 # because pytest needs that path before importing (as below)
 
-from rich.text import Text
-
 import sys
 from pathlib import Path
+
+from rich.text import Text
 
 # add absolute root path to the system path so that pytest can run
 project_root = Path(__file__).resolve().parents[1]
@@ -22,7 +21,7 @@ if str(project_root) not in sys.path:
 	sys.path.insert(0, str(project_root))
 
 # import the whole file as a module
-import utilities.inventory_viewer as inventory_viewer
+from utilities import inventory_viewer
 
 # tests for: inventory_viewer.py
 

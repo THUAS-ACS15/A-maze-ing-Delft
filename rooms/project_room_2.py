@@ -10,17 +10,20 @@
 import random
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import (
+    print_assembly_part_obtained,
+    print_current_objective,
+    print_dialogue,
+)
+from utilities.save_gui import display_save_menu
 
 rainbow_colors_correct = [
     "Red",

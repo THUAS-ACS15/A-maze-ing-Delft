@@ -7,7 +7,6 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: E501
 # ^ disable ruff checking long lines
 
 item_description_bank = {

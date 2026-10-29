@@ -9,9 +9,10 @@
 
 from rich.console import Console
 
+from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
 from utilities.status_bar import room_fancy_names
-from utilities.clear_screen import clear_screen
+
 
 def render_command_options(console: Console, selected_index: int, command_desc: str, commands: dict | list) -> None:
     """
@@ -31,10 +32,7 @@ def render_command_options(console: Console, selected_index: int, command_desc: 
     clear_screen("use up/down and enter to select", True)
     console.print(command_desc, style = "bold white")
 
-    if isinstance(commands, list):
-        lengths = [len(cmd) for cmd in commands]
-    else:
-        lengths = [len(cmd) for cmd in commands.keys()]
+    lengths = [len(cmd) for cmd in commands]
     
     max_length = max(lengths)
     i = 0

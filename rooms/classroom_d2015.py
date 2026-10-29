@@ -11,16 +11,19 @@
 
 import sys
 
+from data.look_around_dialogue_bank import look_around_dialogue_bank
+from data.story_dialogue_bank import story_dialogue_bank
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
-from utilities.inventory_viewer import display_inventory
-from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
-from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
-
-from data.story_dialogue_bank import story_dialogue_bank
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.inventory_viewer import display_inventory
+from utilities.print_helpers import (
+    print_assembly_part_obtained,
+    print_current_objective,
+    print_dialogue,
+)
+from utilities.save_gui import display_save_menu
 
 # The right answers of the two stages.
 CORRECT_VOLTAGE = 10     # 12 - 2 * 4 + 6
@@ -41,6 +44,11 @@ def enter_classroom_d2015(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
 
     state["previous_room"] = "classroomd2015"
+
+    state["d2015_progress"] = {
+        "power_set": False,
+        "rover_calibrated": False,
+    }
     
     clear_screen()
     state["visited"]["classroomd2015"] = True
@@ -126,12 +134,13 @@ def enter_classroom_d2015(state):
     def take_item(state, item_name):
         """Move an item from the podium drawer into the inventory."""
         loot = room_loot
+        item_name = item_name.lower().strip()
         for thing in loot:
             if item_name != "" and item_name in thing.lower():
                 loot.remove(thing)
                 print("You took the " + thing + ".")
                 state["inventory"].append(thing)
-                if item_name == "Memory Sticks":
+                if item_name == "memory sticks":
                     state["current_objective_id"] += 1
                     print_dialogue(room_dialogue_bank["memory_story"])
                     print_dialogue(room_dialogue_bank["memory_story_car"])
