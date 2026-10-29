@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS scoreboard (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     player_name TEXT NOT NULL,
     exploration_percent REAL NOT NULL,
-    coins_collected INTEGER NOT NULL,
     time_elapsed REAL NOT NULL
 );
 """
@@ -60,18 +59,32 @@ def get_scoreboard_entries() -> list[tuple]:
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
         cursor.execute(
-            "SELECT player_name, exploration_percent, coins_collected, time_elapsed "
+            "SELECT player_name, exploration_percent, time_elapsed "
             "FROM scoreboard ORDER BY exploration_percent DESC, time_elapsed ASC"
         )
         return cursor.fetchall()
 
-def add_scoreboard_entry(player_name: str, exploration_percent: float, coins_collected: int, time_elapsed: float) -> None:
+def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elapsed: float) -> None:
+    """
+    Adds a new entry to the scoreboard database.
+    
+    This function inserts a new entry into the scoreboard database with
+    the provided player name, 
+    exploration percentage, and time elapsed.
+
+    Inputs:
+        player_name (str): The name of the player.
+        exploration_percent (float): The percentage of the map explored by the player.
+        time_elapsed (float): The time elapsed during the game in seconds.
+    
+    Outputs: NONE
+    """
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
         cursor.execute("INSERT OR REPLACE INTO scoreboard \
-                       (player_name, exploration_percent, coins_collected, time_elapsed) VALUES \
-                       (?, ?, ?, ?)", 
-        (player_name, exploration_percent, coins_collected, time_elapsed))
+                       (player_name, exploration_percent, time_elapsed) VALUES \
+                       (?, ?, ?)", 
+        (player_name, exploration_percent, time_elapsed))
         db.commit()
 
 def display_scoreboard() -> None:
@@ -102,7 +115,6 @@ def display_scoreboard() -> None:
             table.add_column(Align.center("Player name"), width=20)
             table.add_column(Align.center("Explored %"), width=20)
             table.add_column(Align.center("Time elapsed"), width=20)
-            table.add_column(Align.center("Coins collected"), width=20)
 
             start = page * 10
             for place, entry in enumerate(entries[start:start + 10], start=start + 1):
@@ -112,8 +124,7 @@ def display_scoreboard() -> None:
                     str(place),
                     entry[0],
                     f"{entry[1]}%",
-                    str(entry[2]),
-                    _format_time_played(entry[3]),
+                    _format_time_played(entry[2]),
                     style=style,
                 )
         else:
