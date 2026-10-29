@@ -13,6 +13,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
@@ -55,7 +56,8 @@ def enter_classroom_d2015(state):
         if len(loot) > 0:
             print("In the rover hatch:", ", ".join(loot))
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print("- Your current inventory:", state["inventory"])
+        print()
+        print_current_objective(state)
 
     def handle_help():
         """Print the list of commands."""
@@ -161,13 +163,17 @@ def enter_classroom_d2015(state):
             clear_screen()
             take_item(state, command[5:].strip())
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 
         elif command == "map":
             display_map(state)
+
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
 
         elif command == "status" or command == "check status":
             clear_screen()

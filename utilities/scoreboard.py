@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS scoreboard (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     player_name TEXT NOT NULL,
     exploration_percent REAL NOT NULL,
+    coins_collected INTEGER NOT NULL,
     time_elapsed REAL NOT NULL
 );
 """
@@ -59,17 +60,18 @@ def get_scoreboard_entries() -> list[tuple]:
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
         cursor.execute(
-            "SELECT player_name, exploration_percent, time_elapsed "
+            "SELECT player_name, exploration_percent, coins_collected, time_elapsed "
             "FROM scoreboard ORDER BY exploration_percent DESC, time_elapsed ASC"
         )
         return cursor.fetchall()
 
-def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elapsed: float) -> None:
+def add_scoreboard_entry(player_name: str, exploration_percent: float, coins_collected: int, time_elapsed: float) -> None:
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
-        cursor.execute("INSERT OR REPLACE INTO scoreboard (player_name, exploration_percent, time_elapsed) VALUES \
-                       (?, ?, ?)", 
-        (player_name, exploration_percent, time_elapsed))
+        cursor.execute("INSERT OR REPLACE INTO scoreboard \
+                       (player_name, exploration_percent, coins_collected, time_elapsed) VALUES \
+                       (?, ?, ?, ?)", 
+        (player_name, exploration_percent, coins_collected, time_elapsed))
         db.commit()
 
 def display_scoreboard() -> None:
@@ -100,6 +102,7 @@ def display_scoreboard() -> None:
             table.add_column(Align.center("Player name"), width=20)
             table.add_column(Align.center("Explored %"), width=20)
             table.add_column(Align.center("Time elapsed"), width=20)
+            table.add_column(Align.center("Coins collected"), width=20)
 
             start = page * 10
             for place, entry in enumerate(entries[start:start + 10], start=start + 1):
@@ -109,7 +112,8 @@ def display_scoreboard() -> None:
                     str(place),
                     entry[0],
                     f"{entry[1]}%",
-                    _format_time_played(entry[2]),
+                    str(entry[2]),
+                    _format_time_played(entry[3]),
                     style=style,
                 )
         else:

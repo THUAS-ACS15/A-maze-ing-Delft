@@ -13,6 +13,7 @@ import sys
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
@@ -108,7 +109,6 @@ def enter_project_room2(state: dict) -> str:
         else:
             print_dialogue(room_dialogue_bank["puzzle_already_complete"])
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print("- Your current inventory:", state["inventory"])
         print()
         print_current_objective(state)
 
@@ -199,7 +199,7 @@ def enter_project_room2(state: dict) -> str:
             clear_screen()
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -214,6 +214,10 @@ def enter_project_room2(state: dict) -> str:
 
         elif command == "map":
             display_map(state)
+            
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
 
         elif command in ["status", "check status"]:
             clear_screen()

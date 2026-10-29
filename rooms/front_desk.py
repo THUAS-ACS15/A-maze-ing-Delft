@@ -12,6 +12,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
@@ -46,7 +47,8 @@ def handle_look(state):
     if state["completed"]["frontdesk"]:
         print("You already have your Student ID card.")
     print(f"- Possible exits: {', '.join(valid_destinations)}")
-    print("- Your current inventory:", state["inventory"])
+    print()
+    print_current_objective(state)
 
 def register(state):
     """The small quest: type a name and an 8 digit student number to print the ID card."""
@@ -147,7 +149,7 @@ def enter_front_desk(state):
             clear_screen()
             take_item(state, command[5:].strip())
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -155,6 +157,10 @@ def enter_front_desk(state):
         elif command == "map":
             display_map(state)
 
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
+        
         elif command == "status" or command == "check status":
             clear_screen()
             check_status(state, pause = True)

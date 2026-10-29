@@ -12,6 +12,7 @@ import sys
 from utilities.animations import show_activity_animation
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.inventory_viewer import display_inventory
 from utilities.save_gui import display_save_menu
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
@@ -236,7 +237,6 @@ def enter_lab_d2001(state: dict) -> str:
         # When loop exits, re-check if solve is valid and then set room as
         if box_puzzle_check():
             state["completed"]["labd2001"] = True
-            state["coin_balance"] += 10
             clear_screen()
             print_dialogue(room_dialogue_bank["puzzle_complete"])
             print_dialogue(room_dialogue_bank["puzzle_click"])
@@ -257,7 +257,7 @@ def enter_lab_d2001(state: dict) -> str:
             clear_screen()
             handle_help()
 
-        elif command in ["g", "go", "goto", "move"]:
+        elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
@@ -288,6 +288,10 @@ def enter_lab_d2001(state: dict) -> str:
         elif command == "map":
             display_map(state)
 
+        elif command in ["inv", "inventory"]:
+            clear_screen()
+            display_inventory(state["inventory"])
+    
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)

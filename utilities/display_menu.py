@@ -14,6 +14,19 @@ from utilities.status_bar import room_fancy_names
 from utilities.clear_screen import clear_screen
 
 def render_command_options(console: Console, selected_index: int, command_desc: str, commands: dict | list) -> None:
+    """
+    Renders the command options in the console.
+    
+    This function is responsible for rendering the command options in the console, highlighting the currently selected option.
+
+    Inputs:
+        console (Console): The rich console object for rendering.
+        selected_index (int): The index of the currently selected command.
+        command_desc (str): Description of the command list, outputted above the commands.
+        commands (dict | list): A dictionary or list of commands to display.
+    
+    Outputs: NONE
+    """
     clear_screen("use up/down and enter to select", True)
     console.print(command_desc, style = "bold white")
 
@@ -52,7 +65,20 @@ def render_command_options(console: Console, selected_index: int, command_desc: 
             i += 1
 
 def display_selection_menu(command_desc: str, options: dict[str, str] | list) -> str:
-    """Display the room's command list."""
+    """
+    Displays a selection menu for the player to choose from a list of options.
+
+    This function displays a selection menu in the console, allowing the player to
+    navigate through the options using the up and down arrow keys and select
+    an option by pressing Enter.
+
+    Inputs:
+        command_desc (str): Description of the command list, outputted above the commands.
+        options (dict[str, str] | list): A dictionary or list of options to display.
+    
+    Outputs:
+        str: The selected option from the menu.
+    """
 
     selected_index = 0
 

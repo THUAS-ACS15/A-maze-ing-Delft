@@ -134,12 +134,12 @@ Congratulations! You have completed the game and escaped the school building!"""
                 "useful from the school's intranet."
             ),
             "puzzle_take_api_and_prompt_usb": (
-                "# Congrats, you completed this challenge! "
-                "# Inside, you find code for an encrypted API and some prompts for the LLM, "
-                "# you store it onto a USB drive and safely eject it. "
-                "# You now realize that you actually need to be able to talk and hear A.I.G.I.S., "
-                "# so you should search for some kind of speaker module. Maybe one of the project "
-                "# rooms might have it."
+                "Congrats, you completed this challenge! "
+                "Inside, you find code for an encrypted API and some prompts for the LLM, "
+                "you store it onto a USB drive and safely eject it. "
+                "You now realize that you actually need to be able to talk and hear A.I.G.I.S., "
+                "so you should search for some kind of speaker module. Maybe one of the project "
+                "rooms might have it."
             ),
             "quit": "👋 You leave the computer alone and exit."
         },

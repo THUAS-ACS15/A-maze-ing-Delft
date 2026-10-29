@@ -165,9 +165,6 @@ def check_status(
         if pause:
             print_line("\n \n Available commands:")
             choices = ["exit"]
-            if inventory:
-                console.print("- inventory : View item details")
-                choices = ["inventory", "exit"]
             console.print(f"- exit      : Back to {current_room}")
             while (
                 Prompt.ask(
@@ -177,9 +174,9 @@ def check_status(
                     show_choices=True,
                     console=console,
                 )
-                == "inventory"
+                == "exit"
             ):
-                display_inventory(state["inventory"])
+                break
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)

@@ -32,14 +32,11 @@ state = {
     "start_time": time.time(),
     "has_intro_played": False,
     "is_gametime_paused": False,
-    "coin_balance": 0,
     "current_objective_id": 0,
     "student_id_obtained": False,
     "equinox_coins_claimed": False,
-    "store_available_items": ["Eeyore plushie", "Delft mug"],
     "visited": {
         "labd2001": False,
-        # "store": False,
         "projectroom1": False,
         "projectroom2": False,
         "teachersroom1": False,
@@ -53,7 +50,6 @@ state = {
     },
     "completed": {
         "labd2001": False,
-        # "store": False,
         "projectroom1": False,
         "projectroom2": False,
         "teachersroom1": False,
