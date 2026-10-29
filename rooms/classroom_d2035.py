@@ -10,6 +10,7 @@ import sys
 
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
+from utilities.display_menu import display_selection_menu
 from utilities.save_gui import display_save_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue, print_current_objective, print_assembly_part_obtained
@@ -28,6 +29,8 @@ room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2035"]
 
+seating_done = False
+
 def enter_classroom_d2035(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
 
@@ -45,7 +48,7 @@ def enter_classroom_d2035(state):
         print_dialogue(look_around_dialogue_bank["classroomd2035"])
         if len(loot) > 0:
             print("In the podium drawer:", ", ".join(loot))
-        print("- Possible exits: lobby")
+        print(f"- Possible exits: {', '.join(valid_destinations)}")
         print("- Your current inventory:", state["inventory"])
         print()
         print_current_objective(state)
@@ -61,27 +64,6 @@ def enter_classroom_d2035(state):
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game entirely.")
 
-    def handle_go(destination: str) -> str | None:
-        """
-        Handles movement out of the room.
-
-        This function checks if the player can move to the given destination from this room.
-        If the destination is valid, it returns the destination string. Otherwise, it prints an error message and
-        returns None.
-
-        Inputs:
-            - destination (str): The destination the player wants to go to.
-
-        Outputs:
-            - location (str): The destination if valid, None otherwise.
-        """
- 
-        if destination in valid_destinations:
-            return destination
-        else:
-            print(f"❌ You can't go to '{destination}' from here.")
-            return None
-
     def show_seating_clues():
         """Print the lecturer's note with the seating clues."""
         print_dialogue(room_dialogue_bank["seating_intro"])
@@ -92,12 +74,14 @@ def enter_classroom_d2035(state):
 
     def play_seating(state):
         """Part 1: the player has 3 tries to type the students in the right order."""
+        global seating_done
+        
         print("PART 1: SEATING PLAN")
         show_seating_clues()
         for _ in range(3):
             guess = input("Seats 1-4, names separated by spaces (e.g. ana ben chloe dev) > ").lower().split()
             if guess == SEATING_ANSWER:
-                state["d2035_progress"]["seating"] = True
+                seating_done = True
                 state["inventory"].append("Seating plan")
                 print_dialogue(room_dialogue_bank["seating_success"])
                 print_dialogue(room_dialogue_bank["seating_transfer"])
@@ -122,7 +106,7 @@ def enter_classroom_d2035(state):
     def play_podium(state):
         """Run both parts. Returns True when the player solved everything."""
         # Skip part 1 if the player already solved it on an earlier try.
-        if not state["d2035_progress"]["seating"]:
+        if not seating_done:
             if not play_seating(state):
                 return False
         return play_sequence()
@@ -184,9 +168,8 @@ def enter_classroom_d2035(state):
             clear_screen()
             take_item(state, command[5:].strip())
     
-        elif command.startswith("go "):
-            destination = command[3:].strip()
-            result = handle_go(destination)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 

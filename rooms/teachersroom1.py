@@ -12,6 +12,7 @@ import sys
 from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.save_gui import display_save_menu
+from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.print_helpers import print_dialogue
 
@@ -44,32 +45,8 @@ def enter_teachers_room1(state: dict) -> str:
         print("- look around         : Examine the room and the code on screen.")
         if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        if state["completed"]["teachersroom1"] and "Staff Keycard" not in state["inventory"]:
-            print("- take keycard       : Pick up the keycard.")
         print("- go corridor / back  : Leave the room and return to the corridor.")
         print("- quit                : Quit the game entirely.")
-
-    def handle_take(item):
-        if item == "keycard":
-            if not state["completed"]["teachersroom1"]:
-                print("There's nothing to take yet. Maybe help the teacher first.")
-            elif "Staff Keycard" in state["inventory"]:
-                print("You already have the keycard in your backpack.")
-            else:
-                state["coin_balance"] += 10
-                state["current_objective_id"] += 1
-                clear_screen()
-                print_dialogue(room_dialogue_bank["puzzle_take_keycard"])
-                state["inventory"].append("Staff Keycard")
-        else:
-            print(f"There is no '{item}' here to take.")
-
-    def handle_go(destination):
-        if destination in valid_destinations:
-            return destination
-        else:
-            print(f"You can't go to '{destination}' from here.")
-            return ""
 
     def handle_answer(answer):
         if state["completed"]["teachersroom1"]:
@@ -80,9 +57,12 @@ def enter_teachers_room1(state: dict) -> str:
         accepted = ["n%2", "n % 2"]
         if normalized in accepted:
             state["completed"]["teachersroom1"] = True
+            state["coin_balance"] += 10
+            state["current_objective_id"] += 1
             clear_screen()
             print_dialogue(room_dialogue_bank["puzzle_answer_correct"])
-            state["completed"]["teachersroom1"] = True
+            print_dialogue(room_dialogue_bank["puzzle_take_keycard"])
+            state["inventory"].append("Staff Keycard")
         else:
             print_dialogue(room_dialogue_bank["puzzle_answer_incorrect"])
 
@@ -97,15 +77,8 @@ def enter_teachers_room1(state: dict) -> str:
             clear_screen()
             handle_help()
 
-        elif command.startswith("take "):
-            clear_screen()
-            item = command[5:].strip()
-            handle_take(item)
-
-        elif command.startswith("go "):
-            clear_screen()
-            destination = command[3:].strip()
-            result = handle_go(destination)
+        elif command in ["g", "go", "goto", "move"]:
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
 

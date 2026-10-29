@@ -15,7 +15,6 @@ from .lab_d2001 import enter_lab_d2001
 from .lobby import enter_lobby
 from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
-from .store import enter_store
 from .teachersroom1 import enter_teachers_room1
 from .teachersroom2 import enter_teachers_room2
 from .teachersroom4 import enter_teachers_room4
@@ -34,7 +33,6 @@ __all__ = [
     "enter_lab_d2001",
     "enter_lobby",
     "enter_project_room2",
-    "enter_store",
     "enter_teachers_room1",
     "enter_teachers_room2",
     "enter_teachers_room4",
