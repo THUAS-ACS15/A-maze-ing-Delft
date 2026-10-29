@@ -14,6 +14,7 @@ from rich.prompt import Prompt
 from utilities.clear_screen import clear_screen
 from utilities.loader import loader
 from utilities.print_helpers import print_line
+from utilities.inventory_viewer import display_inventory
 
 # Consistent text style
 HEADER_STYLE = "bold green"
@@ -162,10 +163,6 @@ def check_status(
         print_line(text=inventory_str, delay=DELAY)
 
         if pause:
-            from utilities.inventory_viewer import (
-                item_descriptions,
-            )
-
             print_line("\n \n Available commands:")
             choices = ["exit"]
             if inventory:
@@ -182,8 +179,7 @@ def check_status(
                 )
                 == "inventory"
             ):
-                for item in inventory:
-                    print_line(f"[bold]{item}[/]: {item_descriptions.get(item, 'No description yet.')}")
+                display_inventory(state["inventory"])
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)

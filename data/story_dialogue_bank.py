@@ -22,7 +22,7 @@ story_dialogue_bank: dict = {
     "story_important_flags": {
         "intro": """You are a student locked in the THUAS Delft building.
 You don't remember how you got here, but you need to find a way out.
-The main exit is blocked by a 4-digit combination lock.
+The main exit is blocked by unknown means, and you can't open it.
 A blinking message on a terminal in the lobby reveals an unfinished robotics project: 'Project A.I.G.I.S.'.
 If you can gather the missing hardware across the school and assemble it, its LLM core might know the exit code.""",
 
@@ -130,7 +130,7 @@ Congratulations! You have completed the game and escaped the school building!"""
             "header": "👩 You step into Teacher's Room 4.",
             "enter": (
                 "The room looks pretty empty, except for a computer on a desk. This might"
-                "be your chance to log in with chose credentials on a computer and get something "
+                "be your chance to log in with those credentials on a computer and get something "
                 "useful from the school's intranet."
             ),
             "puzzle_take_api_and_prompt_usb": (

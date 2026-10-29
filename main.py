@@ -6,17 +6,23 @@
 # Date: October 2026
 # -----------------------------------------------------------------------------
 
+# ruff: noqa: E402 
+# this prevents ruff from erroring because of the below dependency check.
+# it's necessary to check deps before running any of the below imports
+# to ensure no crashes and correct installs
+
+# check dependencies before start
+from install_dependencies import check_dependencies
+check_dependencies()
+
 import time
 
 from rooms.dispatcher import enter_room
+from utilities.story_animations import play_intro
 from utilities.save_gui import display_load_menu
 from utilities.main_menu import display_main_menu
 from utilities.scoreboard import display_scoreboard
 from utilities.credits import display_credits
-from utilities.story_animations import play_intro
-
-from debug import SKIP_INTRO, SKIP_MAIN_MENU_TO_NEW_GAME
-from install_dependencies import check_dependencies
 
 state = {
     "player_name": "",
@@ -77,14 +83,8 @@ def main() -> None:
     """
     global state
 
-    # check dependencies before start
-    check_dependencies()
-
     while True:
-        if SKIP_MAIN_MENU_TO_NEW_GAME:
-            choice = "new game"
-        else:
-            choice = display_main_menu()
+        choice = display_main_menu()
 
         if choice == "exit":
             break
@@ -100,17 +100,13 @@ def main() -> None:
                     continue
                 if isinstance(loaded_state, dict):
                     state = loaded_state
-            
-            if state["has_intro_played"] is False and not SKIP_INTRO:
+
+            if not state["has_intro_played"]:
                 state["is_gametime_paused"] = True
                 play_intro()
                 state["is_gametime_paused"] = False
                 state["has_intro_played"] = True
-
-            # if skipping intro make sure to not play it after value is toggled on the same save
-            if SKIP_INTRO:
-                state["has_intro_played"] = True
-
+            
             # keep dispatching rooms until the player actually exits,
             # so main menu doesn't take over
             current = state.get("current_room", "lobby")

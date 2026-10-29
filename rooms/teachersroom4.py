@@ -176,13 +176,15 @@ def enter_teachers_room4(state: dict) -> str:
                 loader(label="taking a sit...")
                 print_line("You made a good choice. The chair spins. Life is good. ☕")
                 seated = input(">")
-                while seated:
+                while seated != "stand up":
                     match seated:
                         case "?" | "help":
                             display_menu(
                                 console,
                                 position_commands,
                             )
+                        case "look around":
+                            show_desk(console, state)
                         case "pick up":
                             remaining = remaining_items(state)
                             if not remaining:
@@ -246,7 +248,7 @@ def enter_teachers_room4(state: dict) -> str:
                                         print_line(file_system_with_secret)
                                     case "cat super_secret_file.txt":
                                         syntax_disp = Syntax(
-                                            room_dialogue_bank["puzzle_take_api_and_prompt"],
+                                            room_dialogue_bank["puzzle_take_api_and_prompt_usb"],
                                             "python",
                                             theme="monokai",
                                             line_numbers=True,
@@ -271,9 +273,7 @@ def enter_teachers_room4(state: dict) -> str:
                                     print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
                                     computer = input(get_prompt())
                             show_goodbye()
-                            break
-                        case "stand up":
-                            break
+                    seated = input(">")
             case "look around":
                 show_desk(console, state)
             case "map":

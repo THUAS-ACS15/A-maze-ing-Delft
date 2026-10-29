@@ -14,6 +14,8 @@ pillow==12.3.0
 rich-pyfiglet==2.0.1
 pyfiglet==1.0.4
 
+# readchar reads keys to navigate menus easier
+readchar==4.2.2
 
 # ==============================================================================
 # CODE QUALITY, LINTING & TESTING
