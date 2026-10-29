@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 
 
+"""Short animated loading indicator."""
+
 import os
 import random
 import time

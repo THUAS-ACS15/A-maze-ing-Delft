@@ -75,12 +75,12 @@ ROOM_REQUIREMENTS = {
 def enter_room(room_name: str, state: dict):
     """Run one room visit and return the next room name.
 
-    Inputs:
-        - room_name (str): the room to enter ("quit"/"exit" leaves the game)
-        - state (dict): the game state, passed through to the room handler
+    Args:
+        room_name: the room to enter ("quit"/"exit" leaves the game)
+        state: the game state, passed through to the room handler
 
-    Outputs:
-        - str: the next room name ("quit"/"exit" means the player is leaving)
+    Returns:
+        the next room name ("quit"/"exit" means the player is leaving)
     """
     if room_name in ("quit", "exit"):
         print("Exiting... goodbye and thanks for playing!")

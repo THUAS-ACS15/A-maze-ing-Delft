@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Front desk: register the player and issue the student ID card."""
+
 # The Front Desk. The player registers here and gets a Student ID card.
 # This room can be entered at any time. Only the printer remembers that the ID was already printed.
 

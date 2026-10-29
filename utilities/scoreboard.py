@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Local scoreboard storage and display."""
+
 import sqlite3
 
 from rich.align import Align
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS scoreboard (
 """
 
 def _format_time_played(time: float) -> str:
+    """Format seconds as 'Xs', 'Ym Zs', or 'Xh Ym Zs'."""
     time = max(time, 0)
     if time > 3600:
         hours = time // 3600
@@ -64,19 +67,15 @@ def get_scoreboard_entries() -> list[tuple]:
         return cursor.fetchall()
 
 def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elapsed: float) -> None:
-    """
-    Adds a new entry to the scoreboard database.
-    
-    This function inserts a new entry into the scoreboard database with
-    the provided player name, 
-    exploration percentage, and time elapsed.
+    """Adds a new entry to the scoreboard database.
 
-    Inputs:
-        player_name (str): The name of the player.
-        exploration_percent (float): The percentage of the map explored by the player.
-        time_elapsed (float): The time elapsed during the game in seconds.
-    
-    Outputs: NONE
+    This function inserts a new entry into the scoreboard database with the
+    provided player name, exploration percentage, and time elapsed.
+
+    Args:
+        player_name: The name of the player.
+        exploration_percent: The percentage of the map explored by the player.
+        time_elapsed: The time elapsed during the game in seconds.
     """
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
@@ -87,16 +86,11 @@ def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elap
         db.commit()
 
 def display_scoreboard() -> None:
-    """
-    Displays the scoreboard on the screen, in increments of 10 entries.
+    """Displays the scoreboard on the screen, in increments of 10 entries.
 
-    The scoreboard is displayed in a table format, with the player's name and time elapsed. 
+    The scoreboard is displayed in a table format, with the player's name and time elapsed.
     The player can navigate through the pages using the arrow keys for prev/next page.
     Pressing 'enter' will exit and return to main menu.
-    
-    Inputs: NONE
-
-    Outputs: NONE
     """
     recreate_scoreboard_table()
     entries = get_scoreboard_entries()

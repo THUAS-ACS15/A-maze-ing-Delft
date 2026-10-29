@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Story, room, and puzzle dialogue keyed by room."""
+
 
 # ^ disable ruff checking long lines, as this is dialogue
 

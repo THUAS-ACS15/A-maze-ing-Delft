@@ -6,6 +6,8 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
+"""Classroom D2.035: seating and sequence puzzles awarding the A.I.G.I.S. motherboard."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank

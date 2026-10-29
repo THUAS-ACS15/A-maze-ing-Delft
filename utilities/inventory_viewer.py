@@ -7,6 +7,8 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+"""Interactive inventory viewer with item art and descriptions."""
+
 from rich.align import Align
 from rich.console import Console, Group
 from rich.panel import Panel
@@ -31,16 +33,15 @@ NO_DESCRIPTION_PLACEHOLDER = "No description available."
 controls_str = "[italic]^ next item | use enter to go back | v previous item[/italic]"
 
 def create_list_panel(inventory: list[str], selected: int, panel_height: int) -> Panel:
-    """
-    Creates the left panel that displays items currently in inventory.
+    """Creates the left panel that displays items currently in inventory.
 
-    Inputs:
-        inventory (list[str]): list of items in inventory, aka state["inventory"]
-        selected    (int):       index of the currently highlighted item.
-        panel_height (int): panel height in terminal lines.
+    Args:
+        inventory: list of items in inventory, aka state["inventory"]
+        selected: index of the currently highlighted item.
+        panel_height: panel height in terminal lines.
 
-    Outputs:
-        Panel: rich panel containing the scrollable list.
+    Returns:
+        rich panel containing the scrollable list.
     """
 
     # how many list rows fit inside the panel (subtract 2 for border)
@@ -77,15 +78,14 @@ def create_list_panel(inventory: list[str], selected: int, panel_height: int) ->
 
 
 def create_item_details_panel(item_name: str | None, panel_height: int) -> Panel:
-    """
-    Builds the right-side detail panel showing the item render and description.
+    """Builds the right-side detail panel showing the item render and description.
 
-    Inputs:
-        item_name (str or none): name of the selected item, or None if empty.
-        panel_height (int): panel height in terminal lines.
+    Args:
+        item_name: name of the selected item, or None if empty.
+        panel_height: panel height in terminal lines.
 
-    Outputs:
-        Panel: a rich Panel containing the render + description sub-panels.
+    Returns:
+        a rich Panel containing the render + description sub-panels.
     """
 
     # get texts for item name and desc,
@@ -124,15 +124,12 @@ def create_item_details_panel(item_name: str | None, panel_height: int) -> Panel
 
 
 def render_inventory(console: Console, inventory: list[str], selected: int) -> None:
-    """
-    Clears the screen and draws the full inventory UI.
+    """Clears the screen and draws the full inventory UI.
 
-    Inputs:
-        console  (Console): rich Console.
-        inventory (list[str]): list of items in inventory, aka state["inventory"]
-        selected (int): index of the currently highlighted item. (starts at 0)
-
-    Outputs: NONE
+    Args:
+        console: rich Console.
+        inventory: list of items in inventory, aka state["inventory"]
+        selected: index of the currently highlighted item. (starts at 0)
     """
 
     console.clear()
@@ -157,17 +154,14 @@ def render_inventory(console: Console, inventory: list[str], selected: int) -> N
 
 
 def display_inventory(inventory: list[str]) -> None:
-    """
-    Opens the inventory viewer, letting the player scroll through their items.
+    """Opens the inventory viewer, letting the player scroll through their items.
 
     The screen is split into a 2/3 item list on the left and a 1/3 detail
-    panel on the right. Up / Down arrows move the selection; 
+    panel on the right. Up / Down arrows move the selection;
     Enter closes the viewer.
 
-    Inputs:
-        inventory (list[str]): list of items in inventory, aka state["inventory"]
-
-    Outputs: NONE
+    Args:
+        inventory: list of items in inventory, aka state["inventory"]
     """
     console  = Console()
     selected = 0

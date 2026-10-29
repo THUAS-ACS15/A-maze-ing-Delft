@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Campus store: spend coins on cosmetic items."""
+
 import sys
 from random import choice
 
@@ -26,16 +28,15 @@ item_prices = {
 }
 
 def get_available_items(state: dict) -> list:
-    """
-    Returns a list of available items in the store.
+    """Returns a list of available items in the store.
 
     This function retrieves the list of available items in the store from the game state.
 
-    Inputs:
-        - state (dict): The current game state dict.
+    Args:
+        state: The current game state dict.
 
-    Outputs:
-        - available_items (list): A list of available items in the store, where each item is represented as a list
+    Returns:
+        A list of available items in the store, where each item is represented as a list
         containing its name, description, and price.
     """
     available_items = state["store_available_items"]
@@ -44,18 +45,14 @@ def get_available_items(state: dict) -> list:
 
 
 def check_store_completion(state: dict) -> None:
-    """
-    Checks if the store has been completed, i.e. if every item was bought.
+    """Checks if the store has been completed, i.e. if every item was bought.
 
-    This function checks if the store has been completed by verifying if there are any
-     available items left in the
-    store.
-    If there are no available items, it updates the game state to mark it as completed.
+    This function checks if the store has been completed by verifying if there
+    are any available items left in the store. If there are no available items,
+    it updates the game state to mark it as completed.
 
-    Inputs:
-        - state (dict): The current game state dict.
-
-    Outputs: NONE
+    Args:
+        state: The current game state dict.
     """
     if len(state["store_available_items"]) == 0 and not state["completed"]["store"]:
         state["completed"]["store"] = True
@@ -79,16 +76,11 @@ def enter_store(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         store. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
         if not state["completed"]["store"]:
             print_dialogue(room_dialogue_bank["look_intro"])
@@ -105,14 +97,9 @@ def enter_store(state: dict) -> str:
         )
 
     def handle_help() -> None:
-        """
-        Lists available commands.
+        """Lists available commands.
 
         This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print("Available commands:")
@@ -124,20 +111,17 @@ def enter_store(state: dict) -> str:
         print("- quit                : Quit the game completely.")
 
     def handle_go(destination: str) -> str | None:
-        """
-        Handles movement out of the room.
+        """Handles movement out of the room.
 
-        This function checks if the player can move to the given destination from this
-         room. If the destination is valid, it returns the destination string. Otherwise,
-         it prints an error message
-         and returns
-        None.
+        This function checks if the player can move to the given destination from
+        this room. If the destination is valid, it returns the destination string.
+        Otherwise, it prints an error message and returns None.
 
-        Inputs:
-            - destination (str): The destination the player wants to go to.
+        Args:
+            destination: The destination the player wants to go to.
 
-        Outputs:
-            - location (str): The destination if valid, None otherwise.
+        Returns:
+            The destination if valid, None otherwise.
         """
         valid_destinations = ["lobby", "back"]
 
@@ -149,17 +133,14 @@ def enter_store(state: dict) -> str:
             return None
 
     def handle_buy(item_to_buy: str) -> None:
-        """
-        Handles the purchase of an item from the store.
+        """Handles the purchase of an item from the store.
 
         This function checks if the item the player wants to buy is available in the store.
         If the item is available, it prompts the player for confirmation. If confirmed, it adds
         the item to the player's inventory, deducts the cost, and removes the item from the store's available items.
 
-        Inputs:
-            - item_to_buy (str): The name of the item the player wants to buy.
-
-        Outputs: NONE
+        Args:
+            item_to_buy: The name of the item the player wants to buy.
         """
         found = False
         # Random greetings chosen after confirming buy

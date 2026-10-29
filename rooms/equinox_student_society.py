@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Equinox Student Society: optional quiz room awarding a quiz certificate."""
+
 import sys
 
 from rich.console import Console
@@ -88,16 +90,11 @@ def enter_equinox_student_society(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         box stacking puzzle. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print_dialogue(look_around_dialogue_bank["equinoxstudentsociety"])
@@ -116,16 +113,11 @@ def enter_equinox_student_society(state: dict) -> str:
     # +-------------------------+
 
     def handle_quiz_start() -> None:
-        """
-        Boots the computer at the desk, and prompts for a start command to start the quiz.
+        """Boots the computer at the desk, and prompts for a start command to start the quiz.
 
         This function handles the quiz interaction with the player.
-        It displays the quiz questions, collects answers, and calculates the score. 
+        It displays the quiz questions, collects answers, and calculates the score.
         If the player completes the quiz, they receive a certificate.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         if state["completed"]["equinoxstudentsociety"]:

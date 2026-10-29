@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Render the campus map with visited and completed room colours."""
+
 
 # ^ disable ruff checking long lines, as the map is too big on some lines
 
@@ -62,6 +64,7 @@ widths = {
 }
 
 def form_map_object(state: dict) -> str:
+    """Build the coloured map string from visited and completed state."""
     visited_state = state["visited"]
     if isinstance(visited_state, dict):
         visited_rooms = {
@@ -120,6 +123,7 @@ def form_map_object(state: dict) -> str:
     return map_object
 
 def print_map(state: dict, console: Console) -> None:
+    """Draw the map header and campus map to the console."""
     clear_screen("", False)
     display_top_bar(console)
 
@@ -140,6 +144,7 @@ def print_map(state: dict, console: Console) -> None:
     console.print(Align.center('\n[italic]\\[use enter to exit][/italic]'))
 
 def display_map(state: dict) -> None:
+    """Show the map until Enter, excluding that time from play time."""
     console = Console()
     clear_screen("", False)
 

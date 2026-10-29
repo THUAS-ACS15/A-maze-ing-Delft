@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Classroom D2.015: electrical puzzle room holding the memory sticks."""
+
 # Classroom D2.015. The player needs the D2.015 timetable (from D2.035) to get in.
 # The puzzle is calibrating a rover: first the bench voltage, then the IR frequency.
 # Solving it gives the High-Capacity Battery Pack and shows the final code digits.

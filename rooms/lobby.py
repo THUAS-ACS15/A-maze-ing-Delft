@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Lobby: starting room and central hub for campus navigation."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -38,15 +40,10 @@ def enter_lobby(state):
         print_dialogue(room_dialogue_bank["no_student_id"], print_newline_after = False)
 
     def handle_look():
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player which
         rooms they can go to.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         clear_screen()
@@ -64,14 +61,9 @@ def enter_lobby(state):
         print_current_objective(state)
 
     def handle_help():
-        """
-        Lists available commands.
+        """Lists available commands.
 
         This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
         clear_screen()
         print("Available commands:")

@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Classroom D2.031: cipher puzzle room awarding the Classroom 2.021 key."""
+
 # Classroom D2.031. The player needs the Seating plan (from D2.035) to get in.
 # The puzzle is a secret message on the board that must be decrypted (a Caesar cipher).
 # Solving it opens the key box and gives the Classroom 2.021 key.

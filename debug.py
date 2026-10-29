@@ -1,3 +1,5 @@
+"""Debug switches for skipping the intro and main menu."""
+
 # These settings can be changed so that the game can be debugged more easily. 
 
 # For example, you can skip the intro and go straight into a new game

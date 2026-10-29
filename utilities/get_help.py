@@ -31,17 +31,14 @@ DEFAULT_COMMANDS = [
 
 
 def get_help(extra_commands=None, include_go_back=True):
-    """
-    Displays the room's command list: extras first, then the defaults.
+    """Displays the room's command list: extras first, then the defaults.
 
-    Inputs:
-        - extra_commands: list of (command, description) tuples with the
-          room-specific commands. Pass [] or None when there are none.
-        - include_go_back: set to False for rooms where the default
-          "go lobby / back" line does not apply (e.g. the lobby itself,
-          which passes its own "go <room name>" extra instead).
-
-    Outputs: NONE
+    Args:
+        extra_commands: list of (command, description) tuples with the room-specific
+            commands. Pass [] or None when there are none.
+        include_go_back: set to False for rooms where the default "go lobby / back" line
+            does not apply (e.g. the lobby itself, which passes its own "go <room name>"
+            extra instead).
     """
     commands = list(extra_commands or [])
     for command, description in DEFAULT_COMMANDS:

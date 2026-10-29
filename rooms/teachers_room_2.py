@@ -7,6 +7,8 @@
 # Contributors: Dominik, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Teacher Room 2: database puzzle awarding the Wi-Fi credentials."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -62,6 +64,7 @@ def enter_teachers_room2(state):
     print_dialogue(room_dialogue_bank["enter"])
 
     def handle_look():
+        """Describe the room and the teacher's database puzzle."""
         clear_screen()
         print("You take a look around.")
         if not state["completed"]["teachersroom2"]:
@@ -77,6 +80,7 @@ def enter_teachers_room2(state):
         print_current_objective(state)
 
     def handle_help():
+        """Print the room's available commands."""
         clear_screen()
         print("Available commands:")
         print("- look around         : See what the teacher needs help with.")
@@ -91,6 +95,7 @@ def enter_teachers_room2(state):
         print("- quit                : Quit the game entirely.")
 
     def handle_take(item):
+        """Pick up the Wi-Fi credentials once the puzzle is solved."""
         if item == "credentials":
             if not state["completed"]["teachersroom2"]:
                 print("There's nothing to take yet. Maybe help the teacher first.")
@@ -105,6 +110,7 @@ def enter_teachers_room2(state):
             print(f"There is no '{item}' here to take.")
 
     def handle_answer(answer):
+        """Check the student name answer and mark the puzzle complete."""
         if state["completed"]["teachersroom2"]:
             print("You've already solved this challenge.")
             return

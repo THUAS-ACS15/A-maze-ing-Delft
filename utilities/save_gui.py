@@ -7,6 +7,8 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+"""Save and load slot menus with slot previews."""
+
 from time import sleep
 
 from rich.align import Align
@@ -45,17 +47,14 @@ SAVE_3_INDICATOR: str = """▄▄▄▄▄
  ▀▀▀ """
 
 def display_save_art(console: Console):
-    """
-    Displays the save menu art and the save slot indicators.
-    
+    """Displays the save menu art and the save slot indicators.
+
     This function clears the screen, displays the top bar for decoration,
     and then prints the save menu art along with the indicators for each save slot.
     It also shows the current state of each save slot (empty or with some info).
 
-    Inputs:
-        - console (Console): The rich Console object used for printing to the terminal.
-
-    Outputs: NONE
+    Args:
+        console: The rich Console object used for printing to the terminal.
     """
     clear_screen("", False)
     display_top_bar(console)
@@ -87,17 +86,14 @@ def display_save_art(console: Console):
     console.print(Align.center(slots, vertical="middle"))
 
 def display_save_menu(state: dict):
-    """
-    Displays the save menu, allowing the player to choose a save slot to SAVE their progress.
-    
+    """Displays the save menu, allowing the player to choose a save slot to SAVE their progress.
+
     This function displays the save menu art and prompts the player to select a save slot (1, 2, or 3) or to quit.
-    It validates the input and saves the game state to the chosen slot. 
+    It validates the input and saves the game state to the chosen slot.
     If the player chooses to quit, it exits the save menu.
-    
-    Inputs:
-        - state (dict): The current game state to be saved.
-        
-    Outputs: NONE
+
+    Args:
+        state: The current game state to be saved.
     """
     console: Console = Console()
 
@@ -124,16 +120,11 @@ def display_save_menu(state: dict):
         return
 
 def display_load_menu():
-    """
-    Displays the save menu, allowing the player to choose a save slot to LOAD their progress.
-    
+    """Displays the save menu, allowing the player to choose a save slot to LOAD their progress.
+
     This function displays the save menu art and prompts the player to select a save slot (1, 2, or 3) or to quit.
-    It validates the input and loads the game state from the chosen slot. 
+    It validates the input and loads the game state from the chosen slot.
     If the player chooses to quit, it exits the load menu.
-    
-    Inputs: NONE
-        
-    Outputs: NONE
     """
     console: Console = Console()
 

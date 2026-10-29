@@ -6,6 +6,8 @@
 # Date: October 2026
 # -----------------------------------------------------------------------------
 
+"""Main menu with arrow-key navigation."""
+
 import readchar  # type: ignore[import-not-found, import-untyped]
 from rich.align import Align
 from rich.console import Console
@@ -27,17 +29,14 @@ MENU_OPTIONS = ["CONTINUE", "NEW GAME", "CREDITS", "SCOREBOARD", "EXIT"]
 
 
 def read_key() -> str:
-    """
-    Reads a single keypress from the terminal, without needing Enter.
+    """Reads a single keypress from the terminal, without needing Enter.
 
     Backend is readchar (cross-platform). Arrow key presses are
     translated into "up" or "down"; Enter is translated into
     "enter". Any other key returns an empty string.
 
-    Inputs: NONE
-
-    Outputs:
-        - str: "up", "down", "enter" or "" for any other key.
+    Returns:
+        "up", "down", "enter" or "" for any other key.
     """
     try:
         key = readchar.readkey()
@@ -52,30 +51,21 @@ def read_key() -> str:
     return ""
 
 def display_main_menu() -> str:
-    """
-    Displays the main menu and lets the player pick an option with the arrow keys.
+    """Displays the main menu and lets the player pick an option with the arrow keys.
 
     This function shows the game title and the list of menu options (CONTINUE,
     NEW GAME, CREDITS, EXIT). The player moves the selection up and down with
     the Up/Down arrow keys and confirms a choice with Enter.
 
-    Inputs: NONE
-
-    Outputs:
-        - str: the chosen option in lowercase ("continue", "new game", "credits" or "exit")
+    Returns:
+        the chosen option in lowercase ("continue", "new game", "credits" or "exit")
     """
 
     console = Console()
     selected_index = 0
 
     def render_menu() -> None:
-        """
-        Draws the title and the menu options, highlighting the current selection.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
+        """Draws the title and the menu options, highlighting the current selection."""
 
         clear_screen("", run_status_bar_update=False)
         display_top_bar(console)

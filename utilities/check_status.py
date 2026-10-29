@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Gift Odigwe
 # -----------------------------------------------------------------------------
+"""Player status report covering objective, inventory, time, and exploration."""
+
 import time
 
 from rich.console import Console
@@ -47,18 +49,17 @@ def check_status(
     stream_delay: float = 0.015,
     pause: bool = True,
 ) -> None:
-    """
-    Display the player's overall status with loading + streaming effect.
+    """Display the player's overall status with loading + streaming effect.
 
-    Inputs:
-        - state (dict): game state with visited/completed/coin_balance/student_id_obtained/
-        inventory/current_room/previous_room/start_time
-        - loading_time (float): seconds for the loading spinner (0 skips it, for tests)
-        - stream_delay (float): pause between lines (0 = instant, for tests)
-        - pause (bool): if True, wait for Enter at the end so clearScreen() doesn't wipe output
+    Shifts state["start_time"] forward by the time the status screen was open,
+    pausing game time while viewing status.
 
-    Outputs: NONE (but shifts state["start_time"] forward by the time the
-        status screen was open, pausing game time while viewing status)
+    Args:
+        state: game state with visited/completed/coin_balance/student_id_obtained/
+            inventory/current_room/previous_room/start_time
+        loading_time: seconds for the loading spinner (0 skips it, for tests)
+        stream_delay: pause between lines (0 = instant, for tests)
+        pause: if True, wait for Enter at the end so clearScreen() doesn't wipe output
     """
     enter_time = time.time()
     state["is_gametime_paused"] = True

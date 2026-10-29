@@ -6,6 +6,8 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
+"""Room entry points re-exported for the dispatcher."""
+
 from .classroom_d2015 import enter_classroom_d2015
 from .classroom_d2035 import enter_classroom_d2035
 from .classroom_d2031 import enter_classroom_d2031

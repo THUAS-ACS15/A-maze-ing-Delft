@@ -47,17 +47,14 @@ DEFAULT_COMMANDS = [
 ]
 
 def display_help(extra_commands: list[tuple[str, str]] | None = None, include_go_back: bool = True) -> None:
-    """
-    Displays the room's command list: extras first, then the defaults.
+    """Displays the room's command list: extras first, then the defaults.
 
-    Inputs:
-        - extra_commands: list of (command, description) tuples with the
-          room-specific commands. Pass [] or None when there are none.
-        - include_go_back: set to False for rooms where the default
-          "go lobby / back" line does not apply (e.g. the lobby itself,
-          which passes its own "go <room name>" extra instead).
-
-    Outputs: NONE
+    Args:
+        extra_commands: list of (command, description) tuples with the room-specific
+            commands. Pass [] or None when there are none.
+        include_go_back: set to False for rooms where the default "go lobby / back" line
+            does not apply (e.g. the lobby itself, which passes its own "go <room name>"
+            extra instead).
     """
     commands = list(extra_commands or [])
     for command, description in DEFAULT_COMMANDS:
@@ -70,4 +67,5 @@ def display_help(extra_commands: list[tuple[str, str]] | None = None, include_go
         print(f"- {command:<18}: {description}")
 
 def display_look_around(state: str):
+    """Placeholder for the shared look-around command."""
     pass

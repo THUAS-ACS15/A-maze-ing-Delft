@@ -7,6 +7,8 @@
 # Contributors: Gift Odigwe, Leon
 # -----------------------------------------------------------------------------
 
+"""Console helpers for dialogue, objectives, and item pickups."""
+
 import textwrap
 import time
 
@@ -16,19 +18,16 @@ from data.objective_dialogue_bank import objective_dialogue_bank
 
 
 def print_dialogue(dialogue_line: str, width: int = 80, print_newline_after: bool = True) -> None:
-    """
-    Cleans up dictionary strings and wraps them to a set terminal width.
+    """Cleans up dictionary strings and wraps them to a set terminal width.
 
     This function is used to print dialogue lines from the dialogue_bank dictionary
-    in a wrapped and readable format. 
+    in a wrapped and readable format.
     It removes leading spaces, replaces manual line breaks with spaces,
     and wraps the text to a specified width for better readability in the terminal.
 
-    Inputs:
-         - dialogue_line (str): The dialogue line to be printed.
-         - width (int): The maximum width of the text in the terminal.
-
-    Outputs: NONE
+    Args:
+        dialogue_line: The dialogue line to be printed.
+        width: The maximum width of the text in the terminal.
     """
 
     # dedent and strip fix the indentation of dialogue lines in multi line strings,
@@ -45,30 +44,26 @@ def print_dialogue(dialogue_line: str, width: int = 80, print_newline_after: boo
         print(wrapped_text)
 
 def print_assembly_part_obtained(text: str) -> None:
-    """
-    Prints a message indicating that the player has obtained an assembly part.
+    """Prints a message indicating that the player has obtained an assembly part.
 
     This function is used to notify the player that they have obtained an assembly part
     in the game. It uses Rich's Console for styled output.
 
-    Inputs:
-        - text (str): The message to print.
+    Args:
+        text: The message to print.
     """
     console = Console()
 
     console.print(text, style="bold green")
 
 def print_current_objective(state: dict) -> None:
-    """
-    Prints a message indicating the new objective, based on its ID.
+    """Prints a message indicating the new objective, based on its ID.
 
     This function is used to notify the player of their new objective.
     It uses Rich's Console for styled output.
 
-    Inputs: 
-        - state (dict): The current game state, which contains the objective ID.
-
-    Outputs: NONE
+    Args:
+        state: The current game state, which contains the objective ID.
     """
     console = Console()
 

@@ -1,3 +1,5 @@
+"""Intro, game-complete, and scoreboard cutscenes."""
+
 import sys
 import textwrap
 from threading import Event, Thread
@@ -20,16 +22,11 @@ GAME_COMPLETE_ART: str = """
 ▀▀▀▀▀  ▀▀ ▀▀ ▀▀    ▀▀ ▀▀▀▀▀      ▀▀▀▀▀ ▀▀▀▀▀ ▀▀    ▀▀ ▀▀    ▀▀▀▀▀ ▀▀▀▀▀  ▀▀  ▀▀▀▀▀  ▀"""
 
 def play_intro() -> None:
-    """
-    Plays the intro that sets the story context for the player.
-    
+    """Plays the intro that sets the story context for the player.
+
     This function creates a Rich console, clears the screen and prints the story
-    intro text in a typewriter effect. 
+    intro text in a typewriter effect.
     It waits for the player to press Enter before returning and letting the code continue.
-    
-    Inputs: NONE
-    
-    Outputs: NONE
     """
     
     console = Console()
@@ -45,6 +42,7 @@ def play_intro() -> None:
     enter_pressed = Event()
 
     def wait_for_enter() -> None:
+        """Wait for Enter and signal the animation thread to continue."""
         sys.stdin.readline()
         enter_pressed.set()
 
@@ -76,16 +74,11 @@ def play_intro() -> None:
     enter_pressed.wait()
 
 def play_game_complete(state) -> None:
-    """
-    Plays the game complete cutscene and animatio
-    
-    This function creates a Rich console, clears the screen and prints the story
-    intro text in a typewriter effect. 
-    It waits for the player to press Enter before continuing with completing the game.
-    
-    Inputs: NONE
-    
-    Outputs: NONE
+    """Plays the game complete cutscene and animation.
+
+    This function creates a Rich console, clears the screen and prints the
+    story text in a typewriter effect. It waits for the player to press Enter
+    before continuing with completing the game.
     """
     # menu options for choosing to save to scoreboard
     menu_options = ["Yes, save to scoreboard", "No, don't save to scoreboard"]
@@ -103,6 +96,7 @@ def play_game_complete(state) -> None:
     enter_pressed = Event()
 
     def wait_for_enter() -> None:
+        """Wait for Enter and signal the animation thread to continue."""
         sys.stdin.readline()
         enter_pressed.set()
 
@@ -142,6 +136,7 @@ def play_game_complete(state) -> None:
     selected_index = 0
 
     def render_menu() -> None:
+        """Draw the scoreboard opt-in menu with the current choice highlighted."""
         clear_screen("", False)
         console.print("\n" * 8)
         console.print(Align.center("Do you wish to add your completion to the local scoreboard?"))

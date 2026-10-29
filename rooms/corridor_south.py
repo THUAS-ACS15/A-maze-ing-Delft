@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""South corridor layout: connects the lobby to classrooms D2.015, D2.031, and D2.035."""
+
 import sys
 
 from utilities.check_status import check_status
@@ -36,16 +38,11 @@ def enter_teaching_area(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         box stacking puzzle. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
         
         print_dialogue(look_around_dialogue_bank["teachingarea"])
@@ -55,14 +52,9 @@ def enter_teaching_area(state: dict) -> str:
         print_current_objective(state)
 
     def handle_help() -> None:
-        """
-        Lists available commands.
+        """Lists available commands.
 
         This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print("Available commands:")

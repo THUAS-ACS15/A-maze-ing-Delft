@@ -1,15 +1,12 @@
+"""Install missing packages from requirements.txt before the game starts."""
+
 def check_dependencies():
-    """
-    Install missing or incompatible packages declared in requirements.txt.
-    
+    """Install missing or incompatible packages declared in requirements.txt.
+
     This function checks the installed packages against the requirements in the requirements.txt file.
     If any required packages are missing or have incompatible versions, it attempts to install them using pip.
-    
+
     If running inside a pyinstaller exe, this function is skipped fully.
-    
-    Inputs: NONE
-    
-    Outputs: NONE
     """
 
     import platform

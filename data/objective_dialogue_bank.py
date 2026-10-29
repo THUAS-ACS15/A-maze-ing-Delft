@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Objective text keyed by objective ID."""
+
 
 # ^ disable ruff checking long lines, as this is dialogue
 

@@ -6,6 +6,8 @@
 # Date: October 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""ASCII art renders for inventory items."""
+
 
 # ^ disable ruff checking long lines
 
