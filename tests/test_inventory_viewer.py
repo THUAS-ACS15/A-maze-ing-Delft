@@ -26,6 +26,7 @@ from utilities import inventory_viewer
 # tests for: inventory_viewer.py
 
 def test_create_list_panel_highlights_selected_item() -> None:
+	"""Highlight the selected inventory item in the list panel."""
 	panel = inventory_viewer.create_list_panel(["key", "map"], selected=1, panel_height=6)
 
 	assert panel.title == "[bold]Items[/bold]"
@@ -39,6 +40,7 @@ def test_create_list_panel_highlights_selected_item() -> None:
 
 
 def test_create_list_panel_scrolls_correctly():
+	"""Scroll the list panel to keep the selected item visible."""
 	inventory = [f"item-{index}" for index in range(8)]
 
 	panel = inventory_viewer.create_list_panel(inventory, selected=6, panel_height=5)
@@ -48,6 +50,7 @@ def test_create_list_panel_scrolls_correctly():
 
 
 def test_create_item_details_panel_uses_known_item_data():
+	"""Show the known render and description for an inventory item."""
 	item_name = next(iter(inventory_viewer.item_description_bank))
 
 	panel = inventory_viewer.create_item_details_panel(item_name, panel_height=20)
@@ -57,6 +60,7 @@ def test_create_item_details_panel_uses_known_item_data():
 
 
 def test_create_item_details_uses_fallback_for_missing_item():
+	"""Use placeholder render and description for an unknown item."""
 	panel = inventory_viewer.create_item_details_panel("missing item", panel_height=20)
 
 	assert panel.title == "[bold]missing item[/bold]"
@@ -65,6 +69,7 @@ def test_create_item_details_uses_fallback_for_missing_item():
 
 
 def test_create_item_details_handles_empty_selection():
+	"""Show the empty-selection state when no item is highlighted."""
 	panel = inventory_viewer.create_item_details_panel(None, panel_height=20)
 
 	assert panel.title == "[dim]No item selected[/dim]"
@@ -73,6 +78,7 @@ def test_create_item_details_handles_empty_selection():
 
 def test_display_inventory_moves_selection(monkeypatch):
 	# monkeypatch is used here to simulate a keypress using read_key
+	"""Move the inventory selection with the arrow keys."""
 	rendered_selections: list[int] = []
 	keys = iter(["down", "up", "enter"])
 

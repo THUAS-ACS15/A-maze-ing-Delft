@@ -25,6 +25,7 @@ from utilities import display_menu
 
 
 def test_render_command_options_renders_correctly(monkeypatch):
+	"""Render the selected command with its description and marker."""
 	output = StringIO()
 	console = Console(file=output, force_terminal=False)
 
@@ -44,6 +45,7 @@ def test_render_command_options_renders_correctly(monkeypatch):
 
 
 def test_render_command_options_aligns_correctly(monkeypatch):
+	"""Align command names and descriptions in fixed-width columns."""
 	output = StringIO()
 	console = Console(file=output, force_terminal=False)
 
@@ -62,6 +64,7 @@ def test_render_command_options_aligns_correctly(monkeypatch):
 
 
 def test_display_selection_menu_moves_and_returns_correctly(monkeypatch):
+	"""Move through the selection menu and return the highlighted option."""
 	rendered_selections = []
 	keys = iter(["down", "up", "enter"])
 
@@ -83,6 +86,7 @@ def test_display_selection_menu_moves_and_returns_correctly(monkeypatch):
 
 
 def test_display_menu_lists_command_descriptions():
+	"""List every command with its description in the menu output."""
 	output = StringIO()
 	console = Console(file=output, force_terminal=False)
 

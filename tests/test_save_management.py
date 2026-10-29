@@ -6,6 +6,7 @@ from utilities.save_management import recreate_db_table
 
 
 def test_recreate_db_table_creates_all_tables():
+    """Create every table required by the save database schema."""
     db = sqlite3.connect(":memory:")
     try:
         recreate_db_table(db)

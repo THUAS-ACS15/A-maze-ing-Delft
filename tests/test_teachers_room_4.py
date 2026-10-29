@@ -32,18 +32,21 @@ def run_session(state, commands):
 
 
 def test_secret_directory_hidden_from_plain_ls():
+    """Hide the secret directory from plain ls but show it with ls -a."""
     shell = VirtualShell(teachers_room_4.FILESYSTEM)
     assert ".secret" not in shell.execute("ls").output
     assert ".secret" in shell.execute("ls -a").output
 
 
 def test_cat_secret_file_reports_read_path():
+    """Record the secret file path when it is read."""
     shell = VirtualShell(teachers_room_4.FILESYSTEM)
     result = shell.execute(f"cat {teachers_room_4.SECRET_PATH}")
     assert result.read_paths == (teachers_room_4.SECRET_PATH,)
 
 
 def test_run_shell_awards_usb_on_secret_read():
+    """Award the USB and advance the objective after reading the secret."""
     state = make_state()
     run_session(state, [f"cat {teachers_room_4.SECRET_PATH}", "exit"])
 
@@ -53,6 +56,7 @@ def test_run_shell_awards_usb_on_secret_read():
 
 
 def test_run_shell_awards_usb_only_once():
+    """Award the USB at most once across repeated shell sessions."""
     state = make_state()
     for _ in range(2):
         run_session(state, [f"cat {teachers_room_4.SECRET_PATH}", "exit"])
@@ -62,6 +66,7 @@ def test_run_shell_awards_usb_only_once():
 
 
 def test_run_shell_exits_cleanly():
+    """Leave inventory and objectives unchanged when exiting without the secret."""
     state = make_state()
     run_session(state, ["exit"])
 
@@ -70,10 +75,12 @@ def test_run_shell_exits_cleanly():
 
 
 def test_enter_teachers_room_4_is_callable():
+    """Expose the room entry point as a callable."""
     assert callable(teachers_room_4.enter_teachers_room_4)
 
 
 def test_enter_room_boots_computer_and_leaves(monkeypatch):
+    """Boot the computer on entry and return to the corridor on leave."""
     state = make_state()
     state.update({
         "previous_room": None,
