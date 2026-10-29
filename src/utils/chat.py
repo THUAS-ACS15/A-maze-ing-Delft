@@ -1,3 +1,13 @@
+"""Chat-with-the-robot streaming for the final phase.
+
+Wraps a LangChain chat model (see :mod:`src.langchain`) with a persona prompt and a short rolling history. When no
+model is available a canned offline reply is streamed instead.
+
+Attributes:
+    _MAX_HISTORY: Maximum number of messages kept as conversation context.
+    _history: Conversation so far (alternating human/AI messages), shared across calls for the session.
+"""
+
 from collections.abc import Iterator
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
@@ -9,9 +19,11 @@ _MAX_HISTORY = 10
 _history: list = []
 
 def _name():
+    """Return the robot's current name from the game state."""
     return state["game_state"]["phases"]["chat"]["robot"]["name"]
 
 def _prompt() -> str:
+    """Build the system prompt for the robot persona, using its current name."""
     return f"""
         You are {_name()} (Autonomous Intellect & Generalized Interface System), a highly advanced AI core recently 
         activated inside THUAS Lab D 2001.
@@ -28,6 +40,7 @@ def _prompt() -> str:
         """
 
 def _template():
+    """Build the chat prompt template: system persona, rolling history, then the user's input."""
     return ChatPromptTemplate.from_messages(
     [
         ("system", _prompt()),
@@ -67,6 +80,20 @@ def _content_to_text(content: object | str) -> str:
 
 
 def stream(user_input: str) -> Iterator[str]:
+    """Stream the robot's reply to ``user_input`` token by token.
+
+    Falls back to a canned offline reply when no model could be created or the input is empty. A provider error
+    mid-stream is yielded as a final error message instead of raising. The exchange is appended to the history
+    afterwards (even after an error, with whatever text was received) and the history is trimmed to the last
+    ``_MAX_HISTORY`` messages.
+
+    Args:
+        user_input: What the player typed.
+
+    Yields:
+        Text fragments of the reply.
+    """
+    # langchain() itself falls back to other providers if no Gemini key is configured.
     llm = langchain("gemini")
     if llm is None:
         yield from _mock()
@@ -105,6 +132,11 @@ def stream(user_input: str) -> Iterator[str]:
     _history[:] = _history[-_MAX_HISTORY:]
 
 def respond(user_input: str) -> None:
+    """Print the robot's reply to ``user_input`` as it streams, without a trailing newline.
+
+    Args:
+        user_input: What the player typed.
+    """
     response = stream(user_input)
     for chunk in response:
         print(chunk, end="", flush=True)

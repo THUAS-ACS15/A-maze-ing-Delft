@@ -1,5 +1,10 @@
 """SQLite persistence for users, saves, and the scoreboard.
 
+The database lives at ``data/game.db`` and is created lazily on first connect. Foreign keys are enforced and rows
+are returned as :class:`sqlite3.Row`. Higher-level queries live in :mod:`src.model`.
+
+Attributes:
+    DATABASE_PATH: Default location of the SQLite database file.
 """
 
 from __future__ import annotations
@@ -39,7 +44,14 @@ CREATE TABLE IF NOT EXISTS scoreboard (
 
 
 def connect(db_path: Path | None = None) -> sqlite3.Connection:
-    """Open a connection with FK enforcement and ``sqlite3.Row`` access."""
+    """Open a connection with FK enforcement and ``sqlite3.Row`` access.
+
+    Args:
+        db_path: Database file to open. Defaults to :data:`DATABASE_PATH`. Parent directories are created if missing.
+
+    Returns:
+        An open connection. The caller is responsible for closing it; prefer :func:`connection`.
+    """
     path = Path(db_path) if db_path is not None else DATABASE_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
@@ -50,7 +62,17 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
 
 @contextmanager
 def connection(db_path: Path | None = None) -> Iterator[sqlite3.Connection]:
-    """Yield a connection that commits on success and always closes."""
+    """Yield a connection that commits on success and always closes.
+
+    Args:
+        db_path: Database file to open. Defaults to :data:`DATABASE_PATH`.
+
+    Yields:
+        An open connection. The transaction is committed when the block exits normally and rolled back if it raises.
+
+    Raises:
+        Exception: Any exception raised inside the ``with`` block is re-raised after the rollback.
+    """
     conn = connect(db_path)
     try:
         yield conn
@@ -63,7 +85,11 @@ def connection(db_path: Path | None = None) -> Iterator[sqlite3.Connection]:
 
 
 def init(db_path: Path | None = None) -> None:
-    """Create the tables idempotently."""
+    """Create the tables idempotently.
+
+    Args:
+        db_path: Database file to initialise. Defaults to :data:`DATABASE_PATH`.
+    """
     with connection(db_path) as conn:
         conn.executescript(_SCHEMA)
 

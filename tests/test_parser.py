@@ -31,6 +31,11 @@ def test_normalize_room_key(raw, expected):
         pytest.param("D  2015", "classroom_d_2015", id="normalized-room-alias"),
         pytest.param("teachers room 1", "teachers_room_1", id="multiword-room"),
         pytest.param("lab_d2_001", "lab_d2_001", id="underscored-fallback"),
+        pytest.param("teachers_room_4", "teachers_room_4", id="plural-underscored"),
+        pytest.param("teachers room 4", "teachers_room_4", id="plural-spaced"),
+        pytest.param("teacher room 4", "teachers_room_4", id="singular-spaced"),
+        pytest.param("teacher_room_4", "teachers_room_4", id="legacy-singular"),
+        pytest.param("tr4", "teachers_room_4", id="short-alias"),
         pytest.param("some unknown room", "some_unknown_room", id="unknown-fallback"),
     ],
 )

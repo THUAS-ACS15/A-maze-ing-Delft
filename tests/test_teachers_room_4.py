@@ -142,3 +142,15 @@ def test_shell_output_is_rendered_literally(monkeypatch, terminal_state):
     teachers_room_4.run_shell(shell, read_input=lambda _: next(commands), clear_screen=lambda: None)
 
     assert "[binary data omitted]" in buffer.getvalue()
+
+
+def test_shell_output_has_no_emoji_conversion(monkeypatch, terminal_state):
+    buffer = StringIO()
+    monkeypatch.setattr(teachers_room_4, "console", Console(file=buffer, force_terminal=False, width=200))
+    commands = iter(["cat /etc/passwd", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+
+    teachers_room_4.run_shell(shell, read_input=lambda _: next(commands), clear_screen=lambda: None)
+
+    assert "root:x:0:0" in buffer.getvalue()
+    assert "❌" not in buffer.getvalue()

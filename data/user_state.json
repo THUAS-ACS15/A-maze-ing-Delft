@@ -3,31 +3,25 @@
     "enable_colors": true,
     "terminal_width": 120,
     "player": {
-        "id": 7,
-        "name": "dominik",
-        "current_room": "teacher_room_4",
+        "id": 8,
+        "name": "Gift",
+        "current_room": "teachers_room_4",
         "inventory": [
-            "paper_clip",
-            "coffee_cup",
-            "blueprint",
-            "keycard_lvl1"
+            "secret_key",
+            "paper_clip"
         ],
         "move": [
             "lobby",
-            "classroom_d_2015",
-            "classroom_d_2035",
-            "classroom_d_2015",
-            "lobby",
             "front_desk",
             "lobby",
-            "classroom_d_2015",
-            "classroom_d_2035",
             "teachers_room_1",
+            "classroom_d_2035",
+            "classroom_d_2015",
             "classroom_d_2035",
             "project_room_1",
             "teachers_room_2",
             "project_room_2",
-            "teacher_room_4",
+            "teachers_room_4",
             "lab_d2_001"
         ],
         "forward": []
@@ -60,9 +54,16 @@
         "tr1_desk_unlocked": true,
         "tr2_whiteboard_inspected": true,
         "tr4_drawer_decrypted": false,
+        "tr4_secret_key_copied": true,
         "lab_power_on": false
     },
     "items": {
+        "secret_key": {
+            "id": "secret_key",
+            "name": "Secret Key",
+            "description": "Encrypted schematic detailing the 8 requisite hardware modules needed to assemble the A-maze-ing-Delft prototype.",
+            "is_assembly_part": false
+        },
         "blueprint": {
             "id": "robot_assembly_blueprint",
             "name": "Robot Assembly Blueprint",
@@ -250,12 +251,12 @@
             "requires": null,
             "exits": {
                 "west": "teachers_room_2",
-                "south": "teacher_room_4"
+                "south": "teachers_room_4"
             },
             "items": [],
             "interactables": {}
         },
-        "teacher_room_4": {
+        "teachers_room_4": {
             "id": "teachers_room_4",
             "name": "Teacher Room 4",
             "description": "The senior faculty office. Papers cover the desk.",
@@ -265,7 +266,11 @@
                 "north": "project_room_2",
                 "west": "lab_d2_001"
             },
-            "items": [],
+            "items": [
+                "coffee_cup",
+                "blueprint",
+                "keycard_lvl1"
+            ],
             "interactables": {
                 "computer": "Nix OS computer"
             }
@@ -277,7 +282,7 @@
             "restricted": false,
             "requires": null,
             "exits": {
-                "east": "teacher_room_4"
+                "east": "teachers_room_4"
             },
             "items": [],
             "interactables": {
@@ -290,28 +295,46 @@
     },
     "game_state": {
         "save_version": "1.0.0",
-        "timestamp": "2026-10-28T10:44:46.566810+00:00",
+        "timestamp": "2026-10-28T18:40:42.867213+00:00",
         "duration": {
-            "last_write": "2026-10-28T13:56:12.607768+00:00",
-            "value": "0:21:44",
+            "last_write": "2026-10-28T23:10:41.296252+00:00",
+            "value": "0:19:54",
             "pause": false
         },
         "phase": "CHAT",
         "phases": {
             "exploration": {
-                "activated": false
+                "activated": false,
+                "timestamp": null,
+                "duration": {
+                    "last_write": null,
+                    "value": "00:00:00",
+                    "pause": false
+                }
             },
             "assembly": {
                 "activated": true,
-                "wifi_password": "Tr0janH0rse!"
+                "timestamp": null,
+                "wifi_password": "Tr0janH0rse!",
+                "duration": {
+                    "last_write": "2026-10-28T18:52:49.520348+00:00",
+                    "value": "0:00:00",
+                    "pause": false
+                }
             },
             "chat": {
                 "activated": true,
                 "mock": false,
+                "timestamp": null,
                 "robot": {
                     "name": "Tony",
                     "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
                     "history": []
+                },
+                "duration": {
+                    "last_write": null,
+                    "value": "00:00:00",
+                    "pause": false
                 }
             }
         }

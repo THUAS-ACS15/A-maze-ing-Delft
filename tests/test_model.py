@@ -58,7 +58,9 @@ def test_get_user_saves_filters_by_user(database):
 def test_create_scoreboard_entry_persists_row(database):
     user_id = model.create_user("Alice")
 
-    entry_id = model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+    entry_id = model.create_scoreboard_entry(
+        user_id, 100, "0:00:30", "0:01:00", "0:00:45"
+    )
 
     with db.connection() as conn:
         row = conn.execute(
@@ -66,39 +68,43 @@ def test_create_scoreboard_entry_persists_row(database):
         ).fetchone()
     assert row["user_id"] == user_id
     assert row["score"] == 100
-    assert row["assembly_time"] == "0:45"
+    assert row["assembly_time"] == "0:00:45"
 
 
 def test_get_scoreboard_entries_returns_rows(database):
     user_id = model.create_user("Alice")
-    model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+    model.create_scoreboard_entry(user_id, 100, "0:00:30", "0:01:00", "0:00:45")
 
     entries = model.get_scoreboard_entries()
 
     assert len(entries) == 1
     assert entries[0]["score"] == 100
-    assert entries[0]["exploration_time"] == "1:00"
+    assert entries[0]["exploration_time"] == "0:01:00"
 
 
 def test_get_scoreboard_entries_orders_by_score_desc(database):
     user_id = model.create_user("Alice")
-    model.create_scoreboard_entry(user_id, 50, "0:30", "1:00", "0:45")
-    model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
-    model.create_scoreboard_entry(user_id, 75, "0:30", "1:00", "0:45")
+    model.create_scoreboard_entry(user_id, 50, "0:00:30", "0:01:00", "0:00:45")
+    model.create_scoreboard_entry(user_id, 100, "0:00:30", "0:01:00", "0:00:45")
+    model.create_scoreboard_entry(user_id, 75, "0:00:30", "0:01:00", "0:00:45")
 
     entries = model.get_scoreboard_entries()
 
     assert [entry["score"] for entry in entries] == [100, 75, 50]
 
 
-def test_get_scoreboard_entries_ties_keep_id_order(database):
+def test_get_scoreboard_entries_ties_put_fastest_total_first(database):
     user_id = model.create_user("Alice")
-    first_id = model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
-    second_id = model.create_scoreboard_entry(user_id, 100, "0:30", "1:00", "0:45")
+    slow_id = model.create_scoreboard_entry(
+        user_id, 100, "0:00:30", "2:00:00", "1:00:00"
+    )
+    fast_id = model.create_scoreboard_entry(
+        user_id, 100, "0:00:30", "1:00:00", "0:45:00"
+    )
 
     entries = model.get_scoreboard_entries()
 
-    assert [entry["id"] for entry in entries] == [first_id, second_id]
+    assert [entry["id"] for entry in entries] == [fast_id, slow_id]
 
 
 def test_create_save_with_unknown_user_raises(database):

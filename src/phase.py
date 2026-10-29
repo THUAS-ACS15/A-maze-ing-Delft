@@ -1,3 +1,13 @@
+"""Per-phase prompt cycles for the game loop.
+
+``run()`` in :mod:`src.engine` calls exactly one of :func:`exploration`, :func:`assembly` or :func:`chat` per loop
+iteration depending on ``state["game_state"]["phase"]`` (``EXPLORATION`` -> ``ASSEMBLY`` -> ``CHAT``). Each function
+reads one line, parses it, clears the screen and dispatches the command; invalid input re-renders with an error.
+
+Attributes:
+    LAST_ROOM_ID: Unused placeholder kept for compatibility.
+"""
+
 from .utils.chat import respond
 from .display import clear, header, out, colorize
 from .engine import  prompt, commands
@@ -10,7 +20,11 @@ from .rooms.lab_d2_001 import activate, workbench
 LAST_ROOM_ID: str | None = None
 
 def exploration() -> None:
-    """Single prompt cycle; run() owns the while loop (lobby spawn)."""
+    """Run one exploration prompt cycle.
+
+    Reads a command, dispatches it, and prints an error for ``UNKNOWN``/``INVALID``/``EMPTY`` verbs. The caller
+    (:func:`src.engine.run`) owns the loop.
+    """
     raw = prompt()
     verb, details = parse(raw)
     clear()
@@ -25,7 +39,13 @@ def exploration() -> None:
 
 
 def assembly() -> None:
-    """Locked in lab_d2_001 until 'activate'. Single prompt cycle."""
+    """Run one assembly-phase cycle.
+
+    On the first call after the phase starts it shows the workbench and sets ``activated`` instead of prompting. On
+    later calls it reads a command, dispatches it, handles ``activate`` (which may switch the phase to ``CHAT``) and
+    prints an error for unknown input.
+    """
+    # First assembly tick only shows the workbench intro; the prompt starts on the next loop iteration.
     if not state["game_state"]["phases"]["assembly"]["activated"]:
         clear()
         workbench(
@@ -47,7 +67,12 @@ def assembly() -> None:
     return
 
 def chat() -> None:
-    """Finale: freeform chat via AIClient. Single prompt cycle."""
+    """Run one chat-phase cycle.
+
+    The first call prints a welcome message and sets ``activated``. After that, a command is dispatched normally; text
+    that is not a command is sent to the robot via :func:`src.utils.chat.respond` when the player is in ``lab_d2_001``
+    and reported as invalid elsewhere.
+    """
     if not state["game_state"]["phases"]["chat"]["activated"]:
         clear()
         render(
@@ -60,6 +85,7 @@ def chat() -> None:
     verb, details = parse(raw)
     clear()
     commands(verb, details)
+    # In the lab, anything that is not a game command is treated as chat with the robot.
     if verb in ("UNKNOWN", "INVALID", "EMPTY") and state["player"]["current_room"] == "lab_d2_001":
         header()
         out()

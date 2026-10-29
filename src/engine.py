@@ -1,3 +1,18 @@
+"""Command engine: handlers for every player verb and the main game loop.
+
+:func:`run` loops while ``state["running"]`` is true, calling :func:`src.state.auto` (clock + autosave) and then the
+prompt cycle of the current phase (see :mod:`src.phase`). Each cycle parses input with :func:`src.parser.parse` and
+hands the result to :func:`commands`, which dispatches to the handlers below.
+
+Handler contract: handlers take the ``details`` dict produced by the parser, mutate :data:`src.state.state`, and
+report to the player by rendering text. They return ``None`` and do not raise for ordinary bad input (wrong room,
+missing item, locked door). Screens that show information without a room view (inventory, help, status, scoreboard)
+pause the game clock; the next :func:`src.room.render` resumes it.
+
+Attributes:
+    STATUS_FLAG_LABELS: Player-facing names for the progress flags listed on the status screen.
+"""
+
 from datetime import timezone, datetime
 import json
 import copy
@@ -38,12 +53,23 @@ STATUS_FLAG_LABELS = {
 
 
 def prompt(message: str | None = None) -> str:
+    """Read one line of player input.
+
+    Args:
+        message: Optional label shown before the ``>`` marker. Defaults to a bare ``>`` prompt.
+
+    Returns:
+        The input with surrounding whitespace stripped.
+
+    Raises:
+        EOFError: If standard input is closed.
+    """
     if message is None:
         return input("\n> ").strip()
     return input(f"\n{message} >").strip()
 
 def inventory() -> None:
-    """Renders carried items and displays total core assembly parts held."""
+    """Show carried items and how many assembly parts are held. Pauses the game clock."""
     width = int(state["terminal_width"])
     state["game_state"]["duration"]["pause"] = True
     header(colorize(text="INVENTORY", color_code=BRIGHT_CYAN + BOLD))
@@ -75,6 +101,11 @@ def inventory() -> None:
     out()
 
 def helper() -> None:
+    """Show the help menu. Pauses the game clock.
+
+    Uses ``rich`` tables when available and plain text otherwise. The ``Assembly`` command group is hidden until the
+    ``ASSEMBLY`` phase.
+    """
     state["game_state"]["duration"]["pause"] = True
     groups = [
         group for group in help_commands
@@ -106,6 +137,16 @@ def helper() -> None:
         return None
 
 def inspect(details) -> None:
+    """Inspect an interactable in the current room.
+
+    Only a few targets are valid, each in one specific room (lobby ``terminal``, ``teachers_room_1`` ``desk``,
+    ``lab_d2_001`` ``workbench``, ``teachers_room_2`` ``whiteboard``, ``front_desk`` ``receptionist``,
+    ``teachers_room_4`` ``computer``). Anything else renders a "not in this room" error. Inspecting the whiteboard
+    sets the ``tr2_whiteboard_inspected`` flag.
+
+    Args:
+        details: Parsed details with ``"target"``.
+    """
     target = details["target"]
     current_room = state["player"]["current_room"]
     if target == "terminal" and state["player"]["current_room"] == "lobby":
@@ -144,6 +185,14 @@ def inspect(details) -> None:
         return None
 
 def use(details: Any) -> None:
+    """Use an item, with behaviour depending on the room.
+
+    In ``teachers_room_1`` the item is treated as a desk code, in ``lab_d2_001`` it is installed on the workbench, and
+    elsewhere nothing can be used (the player is told whether the item is missing or simply useless there).
+
+    Args:
+        details: Parsed details with ``"target"`` (item) and ``"indirect"`` (optional target).
+    """
     item = details["target"]
     target = details["indirect"]
     if state["player"]["current_room"] == "teachers_room_1":
@@ -170,6 +219,11 @@ def use(details: Any) -> None:
         return None
 
 def take(details: Any) -> None:
+    """Move an item from the current room into the inventory.
+
+    Args:
+        details: Parsed details with ``"target"`` (item id). Renders an error if the item is not in the room.
+    """
     item = details["target"]
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
@@ -183,6 +237,14 @@ def take(details: Any) -> None:
     return None
 
 def drop(details: Any) -> None:
+    """Move an item from the inventory into the current room.
+
+    Args:
+        details: Parsed details with ``"target"`` (item id). Renders an error if the item is not carried.
+
+    Raises:
+        KeyError: If the target is not a known item id.
+    """
     item = details["target"]
     item_data = state["items"][item]
     current_room = state["player"]["current_room"]
@@ -196,12 +258,19 @@ def drop(details: Any) -> None:
     return None
 
 def exit_game() -> None:
+    """Stop the main loop, print the final status screen and a farewell message."""
     state["running"] = False
     status()
     out(colorize(text="Goodbye. see you again soon".center(state["terminal_width"]), color_code=BRIGHT_GREEN))
     return None
 
 def register(details: Any) -> None:
+    """Create a user profile and attach it to the player. Only works in ``front_desk``.
+
+    Args:
+        details: Parsed details with ``"target"`` (desired name). A taken name or database error is rendered,
+            not raised.
+    """
     name = details["target"]
     if not state["player"]["current_room"] == "front_desk":
         render(colorize(text="You can only register at the front desk", color_code=RED))
@@ -221,6 +290,11 @@ def register(details: Any) -> None:
     return None
 
 def login(details: Any) -> None:
+    """Attach an existing user profile to the player. Only works in ``front_desk``.
+
+    Args:
+        details: Parsed details with ``"target"`` (user name).
+    """
     name = details["target"]
     if not state["player"]["current_room"] == "front_desk":
         render(colorize(text="You can only register at the front desk", color_code=RED))
@@ -238,6 +312,10 @@ def login(details: Any) -> None:
     return None
 
 def logout() -> None:
+    """Detach the user profile from the player (back to ``guest``). Only works in ``front_desk`` while logged in.
+
+    Game progress is kept; only the identity changes.
+    """
     if state["player"]["current_room"] != "front_desk":
         render(colorize(text="You can only complete this operation at the front desk", color_code=ERROR))
         return None
@@ -252,7 +330,13 @@ def logout() -> None:
 
 
 def restart() -> None:
+    """Reset the game to the default template, keeping the player's name and id.
+
+    The clock is restarted at ``00:00:00`` and unpaused.
+    """
+    # Keep a copy only to carry the player's identity across the reset below.
     snapshot = copy.deepcopy(state)
+    # Reset in place (clear + update): other modules share a reference to the state dict.
     with open(DEFAULT_GAME_STATE_PATH) as df:
         state.clear()
         state.update(json.load(df))
@@ -267,6 +351,7 @@ def restart() -> None:
     render(text=colorize("New game!", color_code=BRIGHT_GREEN))
 
 def scoreboard() -> None:
+    """Show the ranked scoreboard (best score first, then fastest total time)."""
     width = int(state["terminal_width"])
     entries = get_scoreboard_entries()
     header(colorize(text="GAME SCOREBOARD", color_code=INFO + BOLD))
@@ -295,7 +380,15 @@ def scoreboard() -> None:
     return None
 
 def _wrap_status_text(text: str, width: int) -> list[str]:
-    """Wrap status text, preferring comma-separated item boundaries."""
+    """Wrap status text, preferring comma-separated item boundaries.
+
+    Args:
+        text: Text to wrap.
+        width: Maximum line width.
+
+    Returns:
+        At least one line; items are kept whole where they fit, otherwise long words are broken.
+    """
     if ", " in text:
         lines = []
         current = ""
@@ -324,7 +417,15 @@ def _wrap_status_text(text: str, width: int) -> list[str]:
 
 
 def _print_status_row(label: str, value: str, width: int) -> None:
-    """Print one status row, wrapping long values at ``width``."""
+    """Print one status row, wrapping long values at ``width``.
+
+    Short values are right-aligned; wrapped values continue on indented lines. Multi-line values are wrapped per line.
+
+    Args:
+        label: Row label.
+        value: Row value, possibly containing newlines.
+        width: Total terminal width.
+    """
     prefix = f" {label}:"
     indent = " " * (len(prefix) + 1)
     available = max(1, width - len(prefix) - 2)
@@ -346,6 +447,10 @@ def _print_status_row(label: str, value: str, width: int) -> None:
 
 
 def status() -> None:
+    """Show the status screen: player, room, phase, time, exploration progress, challenges and inventory.
+
+    Pauses the game clock.
+    """
     state["game_state"]["duration"]["pause"] = True
     header(colorize(text="STATUS MENU", color_code=BRIGHT_YELLOW + BOLD))
 
@@ -362,6 +467,7 @@ def status() -> None:
     start_time = format_timestamp(timestamp) if timestamp else "Unknown"
     duration = game_state["duration"]["value"] or "00:00:00"
 
+    # Order-preserving de-duplication of visited rooms (history plus current room).
     visited_ids = list(dict.fromkeys([*player.get("move", []), current_room]))
     visited_names = [
         rooms[room_id]["name"] for room_id in visited_ids
@@ -427,6 +533,15 @@ def status() -> None:
 
 
 def commands(verb, details) -> None:
+    """Dispatch a parsed command to its handler.
+
+    ``clear`` and ``activate`` are handled elsewhere (screen clearing and :mod:`src.phase`), and verbs without a
+    handler (including ``UNKNOWN``, ``INVALID`` and ``EMPTY``) are silently ignored here; callers report those.
+
+    Args:
+        verb: Canonical verb returned by :func:`src.parser.parse`.
+        details: Details dict returned by :func:`src.parser.parse`.
+    """
     if verb == "quit":
         exit_game()
         return
@@ -485,6 +600,7 @@ def commands(verb, details) -> None:
 
 def run() -> None:
     # Imported lazily to break the engine_functional <-> phase circular import.
+    """Run the main game loop until ``state["running"]`` becomes false."""
     from .phase import exploration, assembly, chat
     spawn()
     while state["running"]:

@@ -1,7 +1,14 @@
+"""NixOS terminal challenge in Teacher Room 4.
+
+Inspecting the room computer boots a virtual NixOS shell where the player
+explores an in-memory filesystem and hunts for a hidden secret file. Reading
+that file awards ``secret_key`` to the inventory exactly once and sets the
+``tr4_secret_key_copied`` flag.
+"""
 import time
 
 from rich.console import Console
-from rich.markup import escape
+from rich.text import Text
 
 from ..utils.colors import CYAN, BLUE, BOLD, RESET
 from ..display import clear
@@ -12,6 +19,7 @@ from ..utils.loader import loader
 from src.assets.nixos import nixos as nixos_logo
 
 
+# Boot log lines shown by the loader before the terminal opens.
 computer_sequence = [
     "systemd-boot → NixOS Generation 42",
     "<<< NixOS Stage 1 >>> loading kernel modules",
@@ -22,8 +30,10 @@ computer_sequence = [
     "Reached graphical.target",
 ]
 
+# Absolute virtual path of the only file that grants the secret key.
 SECRET_PATH = "/home/teacher/.secret/super_secret_file.txt"
 
+# Virtual filesystem: dicts are directories, strings are file contents.
 FILESYSTEM = {
     "etc": {
         "hostname": "teacher-pc\n",
@@ -40,6 +50,10 @@ FILESYSTEM = {
             "Documents": {
                 "grading_notes.txt": "Grade fairly. Coffee first.\n",
                 "exam_draft.txt": "Question 1: Why is the maze so confusing?\n",
+                ".notes.txt": (
+                    "I moved the schematic somewhere out of sight.\n"
+                    "Hidden things tend to live in hidden places.\n"
+                ),
             },
             "Downloads": {
                 "lecture_slides.pdf": "[binary data omitted]\n",
@@ -60,7 +74,10 @@ FILESYSTEM = {
                 ),
             },
             ".bashrc": "# ~/.bashrc\nalias ll='ls -l'\n",
-            "README.txt": "Welcome to teacher-pc. Type 'help' to see the available commands.\n",
+            "README.txt": (
+                "Welcome to teacher-pc. Type 'help' to see the available commands.\n"
+                "Tip: not every file shows up in a plain ls. Try 'ls -a' or 'find'.\n"
+            ),
         },
     },
     "nix": {
@@ -77,16 +94,34 @@ FILESYSTEM = {
     },
 }
 
+# Shared console used for boot output and the default shell writer.
 console = Console()
 
 
 def _prompt_text(shell: VirtualShell) -> str:
+    """Build the two-line colored terminal prompt.
+
+    Args:
+        shell: Shell providing the user, host, and display directory.
+
+    Returns:
+        The prompt string passed to the input reader.
+    """
     top_line = f"{CYAN}┌──({BLUE}{shell.user}㉿{shell.hostname}{CYAN})-[{BOLD}{shell.display_cwd}{RESET}{CYAN}]{RESET}"
     bottom_line = f"{CYAN}└─{BLUE}${RESET} "
     return f"{top_line}\n{bottom_line}"
 
 
 def _award_secret_key(write_output=None) -> None:
+    """Grant the secret key on first read of the secret file.
+
+    Always sets the ``tr4_secret_key_copied`` flag; appends ``secret_key``
+    to the inventory only when it is not already there.
+
+    Args:
+        write_output: Callable receiving the status message. Defaults to
+            the module console printer.
+    """
     write_output = write_output or console.print
     inventory = state["player"]["inventory"]
     state["flags"]["tr4_secret_key_copied"] = True
@@ -99,6 +134,21 @@ def _award_secret_key(write_output=None) -> None:
 
 
 def run_shell(shell: VirtualShell, read_input=input, write_output=None, clear_screen=clear) -> None:
+    """Run the interactive read-execute loop until exit or interrupt.
+
+    Command output is printed literally so shell text is never interpreted
+    as Rich markup. Reading the secret file triggers the key reward.
+
+    Args:
+        shell: Virtual shell executing each input line.
+        read_input: Callable reading one line with the prompt.
+        write_output: Callable receiving output text. Defaults to the
+            module console printer.
+        clear_screen: Callable clearing the screen on ``clear``.
+
+    Returns:
+        None. Terminates on ``exit`` or on EOF/KeyboardInterrupt.
+    """
     write_output = write_output or console.print
     while True:
         try:
@@ -110,7 +160,7 @@ def run_shell(shell: VirtualShell, read_input=input, write_output=None, clear_sc
         if result.clear_requested:
             clear_screen()
         if result.output:
-            write_output(escape(result.output))
+            write_output(Text(result.output))
         if SECRET_PATH in result.read_paths:
             _award_secret_key(write_output)
         if result.exit_requested:
@@ -118,6 +168,15 @@ def run_shell(shell: VirtualShell, read_input=input, write_output=None, clear_sc
 
 
 def inspect_computer() -> None:
+    """Boot the NixOS computer and open the terminal session.
+
+    Pauses the game timer, plays the boot sequence and logo, runs the
+    shell, then rebases the timer while still paused so terminal time is
+    never charged before resuming, clearing, and re-rendering the room.
+
+    Returns:
+        None.
+    """
     state["game_state"]["duration"]["pause"] = True
     try:
         loader(
@@ -129,11 +188,12 @@ def inspect_computer() -> None:
         )
         clear()
         time.sleep(1)
-        console.print(nixos_logo)
+        console.print(nixos_logo())
         time.sleep(2)
         clear()
         console.print(
-            "Viola! you are half way in! Now explore the file system to see if you find anything interesting."
+            "Viola! you are half way in! Now explore the file system to see if you find anything interesting. "
+            "Type 'help' to list the available commands."
         )
         time.sleep(1)
         console.print("[bold green]NIXOS // teacher-pc[/]")

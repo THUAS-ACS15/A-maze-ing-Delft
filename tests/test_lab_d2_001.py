@@ -16,7 +16,16 @@ ITEM_NAMES = {
 WIFI_PASSWORD = "Tr0janH0rse!"
 
 
-def _make_state(installed, inventory=None, phase="EXPLORATION", robot_name="Jarvis"):
+def _make_state(
+    installed,
+    inventory=None,
+    phase="EXPLORATION",
+    robot_name="Jarvis",
+    player_id=1,
+    room_count=2,
+    total_time="0:00:00",
+    assembly_time="0:00:00",
+):
     return {
         "workbench": {
             "installed_parts": list(installed),
@@ -24,16 +33,27 @@ def _make_state(installed, inventory=None, phase="EXPLORATION", robot_name="Jarv
             "is_ready": False,
         },
         "items": {part: {"name": name} for part, name in ITEM_NAMES.items()},
-        "player": {"inventory": list(inventory) if inventory is not None else []},
+        "player": {
+            "id": player_id,
+            "inventory": list(inventory) if inventory is not None else [],
+        },
+        "rooms": {f"room_{index}": {} for index in range(room_count)},
         "game_state": {
             "phase": phase,
             "duration": {
                 "last_write": None,
-                "value": "00:00:00",
+                "value": total_time,
                 "pause": False,
             },
             "phases": {
-                "assembly": {"wifi_password": WIFI_PASSWORD},
+                "assembly": {
+                    "wifi_password": WIFI_PASSWORD,
+                    "duration": {
+                        "last_write": None,
+                        "value": assembly_time,
+                        "pause": False,
+                    },
+                },
                 "chat": {"robot": {"name": robot_name}},
             },
         },
@@ -83,12 +103,14 @@ def activate_env(monkeypatch):
     clear_mock = Mock()
     render_mock = Mock()
     time_mock = Mock()
+    scoreboard_mock = Mock()
 
     monkeypatch.setattr(lab_d2_001, "workbench", workbench_mock)
     monkeypatch.setattr(lab_d2_001, "colorize", lambda text, color_code=None: text)
     monkeypatch.setattr(lab_d2_001, "clear", clear_mock)
     monkeypatch.setattr(lab_d2_001, "render", render_mock)
     monkeypatch.setattr(lab_d2_001, "time", time_mock)
+    monkeypatch.setattr(lab_d2_001, "create_scoreboard_entry", scoreboard_mock)
     monkeypatch.setattr(engine, "prompt", prompt_mock)
 
     return {
@@ -97,6 +119,7 @@ def activate_env(monkeypatch):
         "clear": clear_mock,
         "render": render_mock,
         "time": time_mock,
+        "create_scoreboard_entry": scoreboard_mock,
     }
 
 
@@ -299,3 +322,40 @@ def test_activate_success(monkeypatch, activate_env, name_input, expected_name):
     messages = _wb_messages(activate_env["workbench"])
     assert messages[0] == "Enter wifi password to continue."
     assert messages[1] == "Give your robot a name. Default name is Jarvis."
+
+
+def test_activate_records_weighted_score(monkeypatch, activate_env):
+    state = _make_state(
+        installed=REQUIRED_PARTS,
+        player_id=7,
+        room_count=5,
+        total_time="0:30:00",
+        assembly_time="0:05:00",
+    )
+    monkeypatch.setattr(lab_d2_001, "state", state)
+    activate_env["prompt"].side_effect = [WIFI_PASSWORD, "Bob"]
+
+    lab_d2_001.activate()
+
+    activate_env["create_scoreboard_entry"].assert_called_once_with(
+        user_id=7,
+        score=680,
+        avg_room_time="0:05:00",
+        exploration_time="0:25:00",
+        assembly_time="0:05:00",
+    )
+
+
+def test_activate_skips_scoreboard_for_guest(monkeypatch, activate_env):
+    state = _make_state(
+        installed=REQUIRED_PARTS,
+        player_id=None,
+        total_time="0:10:00",
+        assembly_time="0:01:00",
+    )
+    monkeypatch.setattr(lab_d2_001, "state", state)
+    activate_env["prompt"].side_effect = [WIFI_PASSWORD, "Bob"]
+
+    lab_d2_001.activate()
+
+    activate_env["create_scoreboard_entry"].assert_not_called()

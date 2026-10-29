@@ -2,7 +2,7 @@
 
 import json
 from datetime import timedelta
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -36,7 +36,16 @@ def _make_state(
                 "pause": False,
             },
             "phase": phase,
-            "phases": {"assembly": {"activated": False}},
+            "phases": {
+                "assembly": {
+                    "activated": False,
+                    "duration": {
+                        "last_write": timestamp,
+                        "value": "00:00:00",
+                        "pause": False,
+                    },
+                }
+            },
         },
         "workbench": {"is_ready": is_ready},
     }
@@ -213,6 +222,57 @@ def test_auto_updates_duration(
     assert duration["value"] == expected_duration
     assert duration["last_write"] is not None
     assert json.loads(user_path.read_text()) == game_state
+
+
+def test_auto_initializes_assembly_timer(monkeypatch, tmp_path):
+    game_state = _make_state(phase="ASSEMBLY")
+    assembly_duration = game_state["game_state"]["phases"]["assembly"]["duration"]
+    assembly_duration["last_write"] = None
+    monkeypatch.setattr(state_module, "state", game_state)
+    monkeypatch.setattr(state_module, "USER_STATE_PATH", tmp_path / "user_state.json")
+    monkeypatch.setattr(
+        state_module, "calculate_duration", Mock(return_value=timedelta(minutes=1))
+    )
+
+    state_module.auto()
+
+    assert assembly_duration["last_write"] is not None
+    assert assembly_duration["value"] == "00:00:00"
+
+
+def test_auto_starts_assembly_timer_when_phase_begins(monkeypatch, tmp_path):
+    game_state = _make_state(is_ready=True, phase="EXPLORATION")
+    assembly_duration = game_state["game_state"]["phases"]["assembly"]["duration"]
+    assembly_duration["last_write"] = None
+    monkeypatch.setattr(state_module, "state", game_state)
+    monkeypatch.setattr(state_module, "USER_STATE_PATH", tmp_path / "user_state.json")
+    monkeypatch.setattr(
+        state_module, "calculate_duration", Mock(return_value=timedelta(0))
+    )
+
+    state_module.auto()
+
+    assembly_duration = game_state["game_state"]["phases"]["assembly"]["duration"]
+    assert game_state["game_state"]["phase"] == "ASSEMBLY"
+    assert assembly_duration["last_write"] is not None
+
+
+def test_auto_refreshes_assembly_timer(monkeypatch, tmp_path):
+    game_state = _make_state(phase="ASSEMBLY")
+    original_last_write = (
+        game_state["game_state"]["phases"]["assembly"]["duration"]["last_write"]
+    )
+    monkeypatch.setattr(state_module, "state", game_state)
+    monkeypatch.setattr(state_module, "USER_STATE_PATH", tmp_path / "user_state.json")
+    monkeypatch.setattr(
+        state_module, "calculate_duration", Mock(return_value=timedelta(minutes=1))
+    )
+
+    state_module.auto()
+
+    assembly_duration = game_state["game_state"]["phases"]["assembly"]["duration"]
+    assert assembly_duration["last_write"] != original_last_write
+    assert assembly_duration["value"] == "0:01:00"
 
 
 def test_auto_skips_write_when_paused(monkeypatch, tmp_path):
@@ -410,7 +470,7 @@ def test_list_saves_requires_registration(monkeypatch):
     assert "register" in out.call_args.args[0].lower()
 
 
-def test_list_saves_prints_rows(monkeypatch, capsys):
+def test_list_saves_prints_rows(monkeypatch):
     out = Mock()
     rows = [
         {"slot": "slot1", "created_at": "2026-10-24T10:30:43.756Z"},
@@ -429,11 +489,19 @@ def test_list_saves_prints_rows(monkeypatch, capsys):
     state_module.list_saves()
 
     get_user_saves.assert_called_once_with(7)
-    printed = capsys.readouterr().out
-    assert "slot1" in printed
-    assert "slot2" in printed
-    assert "2026-10-24" in printed
-    out.assert_called_once_with()
+    assert out.call_args_list[0] == call()
+    slot_calls = [
+        c.args[0]
+        for c in out.call_args_list
+        if c.args and c.args[0] in ("slot1", "slot2")
+    ]
+    assert slot_calls == ["slot1", "slot2"]
+    date_calls = [
+        c.args[0]
+        for c in out.call_args_list
+        if c.args and str(c.args[0]).startswith("2026-10-")
+    ]
+    assert date_calls == ["2026-10-24", "2026-10-25"]
 
 
 def test_list_saves_reports_empty(monkeypatch):
@@ -872,3 +940,78 @@ def test_move_forward_bypasses_locked_door(monkeypatch, move_env):
     assert game_state["player"]["current_room"] == "restricted_room"
     assert game_state["player"]["move"] == ["lobby"]
     move_env.assert_called_once_with()
+
+
+def test_normalize_state_migrates_legacy_teacher_room_id():
+    state_data = {
+        "player": {
+            "current_room": "teacher_room_4",
+            "move": ["teacher_room_4", "lobby"],
+            "forward": ["teacher_room_4"],
+        },
+        "rooms": {
+            "teacher_room_4": {
+                "id": "teachers_room_4",
+                "exits": {"north": "project_room_2"},
+            },
+            "project_room_2": {"exits": {"south": "teacher_room_4"}},
+            "lab_d2_001": {"exits": {"east": "teacher_room_4"}},
+        },
+        "game_state": {},
+    }
+
+    state_module.normalize_state(state_data)
+
+    assert "teacher_room_4" not in state_data["rooms"]
+    assert "teachers_room_4" in state_data["rooms"]
+    assert state_data["player"]["current_room"] == "teachers_room_4"
+    assert state_data["player"]["move"] == ["teachers_room_4", "lobby"]
+    assert state_data["player"]["forward"] == ["teachers_room_4"]
+    assert (
+        state_data["rooms"]["project_room_2"]["exits"]["south"]
+        == "teachers_room_4"
+    )
+    assert (
+        state_data["rooms"]["lab_d2_001"]["exits"]["east"]
+        == "teachers_room_4"
+    )
+
+
+def test_normalize_state_backfills_terminal_data():
+    state_data = {
+        "player": {"inventory": []},
+        "rooms": {"teachers_room_4": {"interactables": {}}},
+        "game_state": {},
+    }
+
+    state_module.normalize_state(state_data)
+
+    assert state_data["items"]["secret_key"]["name"] == "Secret Key"
+    assert state_data["flags"]["tr4_secret_key_copied"] is False
+    assert (
+        state_data["rooms"]["teachers_room_4"]["interactables"]["computer"]
+        == "Nix OS computer"
+    )
+    assert state_data["player"]["inventory"] == []
+
+
+def test_normalize_state_does_not_overwrite_terminal_data():
+    state_data = {
+        "items": {"secret_key": {"id": "secret_key", "name": "Custom Key"}},
+        "flags": {"tr4_secret_key_copied": True},
+        "rooms": {
+            "teachers_room_4": {
+                "interactables": {"computer": "Custom PC"}
+            }
+        },
+        "game_state": {},
+    }
+
+    state_module.normalize_state(state_data)
+
+    assert state_data["items"]["secret_key"]["name"] == "Custom Key"
+    assert state_data["flags"]["tr4_secret_key_copied"] is True
+    assert (
+        state_data["rooms"]["teachers_room_4"]["interactables"]["computer"]
+        == "Custom PC"
+    )

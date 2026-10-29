@@ -1,7 +1,7 @@
 {
     "running": true,
     "enable_colors": true,
-    "terminal_width":  120,
+    "terminal_width": 120,
     "player": {
         "id": null,
         "name": "guest",
@@ -29,9 +29,16 @@
         "tr1_desk_unlocked": false,
         "tr2_whiteboard_inspected": false,
         "tr4_drawer_decrypted": false,
+        "tr4_secret_key_copied": false,
         "lab_power_on": false
     },
     "items": {
+        "secret_key": {
+            "id": "secret_key",
+            "name": "Secret Key",
+            "description": "Encrypted schematic detailing the 8 requisite hardware modules needed to assemble the A-maze-ing-Delft prototype.",
+            "is_assembly_part": false
+        },
         "blueprint": {
             "id": "robot_assembly_blueprint",
             "name": "Robot Assembly Blueprint",
@@ -195,11 +202,11 @@
             "description": "A robotics testing arena containing component crates.",
             "restricted": false,
             "requires": null,
-            "exits": {"west": "teachers_room_2", "south": "teacher_room_4"},
+            "exits": {"west": "teachers_room_2", "south": "teachers_room_4"},
             "items": ["motors_speakers"],
             "interactables": {}
         },
-        "teacher_room_4": {
+        "teachers_room_4": {
             "id": "teachers_room_4",
             "name": "Teacher Room 4",
             "description": "The senior faculty office. Papers cover the desk.",
@@ -208,7 +215,8 @@
             "exits": {"north": "project_room_2", "west": "lab_d2_001"},
             "items": ["api_usb"],
             "interactables": {
-                "computer": "Nix OS computer"
+                "computer": "Nix OS computer",
+                "note": "On the note it says 'Explore the computer file system to see if you find anything interesting. \n hint: its super secret'"
             }
         },
         "lab_d2_001": {
@@ -217,7 +225,7 @@
             "description": "The final assembly lab equipped with an industrial workbench.",
             "restricted": false,
             "requires": null,
-            "exits": {"east": "teacher_room_4"},
+            "exits": {"east": "teachers_room_4"},
             "items": [],
             "interactables": {
                 "workbench": "A heavy metal table connected to a main server terminal."
@@ -238,19 +246,37 @@
         "phase": "EXPLORATION",
         "phases": {
             "exploration": {
-                "activated": false
+                "activated": false,
+                "timestamp": null,
+                "duration": {
+                    "last_write": null,
+                    "value": "00:00:00",
+                    "pause": false
+                }
             },
             "assembly": {
                 "activated": false,
-                "wifi_password": "Tr0janH0rse!"
+                "timestamp": null,
+                "wifi_password": "Tr0janH0rse!",
+                "duration": {
+                    "last_write": null,
+                    "value": "00:00:00",
+                    "pause": false
+                }
             },
             "chat": {
                 "activated": false,
                 "mock": false,
+                "timestamp": null,
                 "robot": {
                     "name": "Jarvis",
                     "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
                     "history": []
+                },
+                "duration": {
+                    "last_write": null,
+                    "value": "00:00:00",
+                    "pause": false
                 }
             }
         }

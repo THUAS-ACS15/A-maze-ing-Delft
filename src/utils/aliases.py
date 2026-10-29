@@ -1,4 +1,13 @@
 
+"""Synonym tables used by the parser.
+
+Attributes:
+    ROOM_ALIASES: Direction/history words mapped to ``north``/``south``/``east``/``west``/``back``/``forward``.
+    ROOM_NAME_ALIASES: Lower-case room names and abbreviations mapped to canonical room ids.
+    VERB_ALIASES: Command words and phrases mapped to canonical verbs.
+    ITEM_ALIASES: Item display names and nicknames mapped to canonical item ids.
+"""
+
 ROOM_ALIASES = {
     "n": "north",
     "s": "south",
@@ -46,10 +55,11 @@ ROOM_NAME_ALIASES = {
     "project_room_2": "project_room_2",
     "project room 2": "project_room_2",
     "pr2": "project_room_2",
-    "teacher_room_4": "teacher_room_4",
-    "teacher room 4": "teacher_room_4",
-    "teachers room 4": "teacher_room_4",
-    "tr4": "teacher_room_4",
+    "teachers_room_4": "teachers_room_4",
+    "teacher_room_4": "teachers_room_4",
+    "teacher room 4": "teachers_room_4",
+    "teachers room 4": "teachers_room_4",
+    "tr4": "teachers_room_4",
     "lab_d2_001": "lab_d2_001",
     "lab d2001": "lab_d2_001",
     "lab d 2001": "lab_d2_001",

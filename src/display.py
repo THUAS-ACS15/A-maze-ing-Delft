@@ -1,3 +1,10 @@
+"""Terminal output helpers: colouring, safe printing, screen clearing, and the header/footer chrome.
+
+All game output should go through :func:`out` so text is downgraded to what the Windows ``cp1252`` console can
+display. Colouring honours ``state["enable_colors"]``. ``state`` is imported lazily inside functions to avoid a
+circular import with :mod:`src.state`, which itself uses this module.
+"""
+
 import re
 
 from subprocess import run
@@ -7,20 +14,52 @@ from .utils.colors import BOLD, BRIGHT_MAGENTA, BRIGHT_YELLOW, DIM, BRIGHT_GREEN
 
 
 def colorize(text: str, color_code: str) -> str:
+    """Wrap ``text`` in an ANSI colour code and reset sequence.
+
+    Args:
+        text: Text to colour.
+        color_code: ANSI escape sequence (see :mod:`src.utils.colors`).
+
+    Returns:
+        The coloured text, or ``text`` unchanged when ``state["enable_colors"]`` is falsy.
+    """
     from .state import state
     return f"{color_code}{text}\033[0m" if state["enable_colors"] else text
 
 def out(text: str = "", end: str | None = None) -> None:
+    """Print ``text`` after making it safe for the console encoding.
+
+    Args:
+        text: Text to print.
+        end: Line terminator passed to ``print``; ``None`` means the default newline.
+    """
     import builtins
 
     builtins.print(safe(text), end=end)
 
 def draw_line(char: str = "-") -> None:
+    """Print a dimmed horizontal rule spanning ``state["terminal_width"]``.
+
+    Args:
+        char: Character repeated to build the line.
+    """
     from .state import state
 
     out(colorize(char * state["terminal_width"], "\033[2m"))
 
 def safe(text: str) -> str:
+    """Make ``text`` printable on a ``cp1252`` console.
+
+    Box-drawing and arrow characters are first transliterated to ASCII; any remaining unencodable character is
+    replaced with ``?`` rather than raising.
+
+    Args:
+        text: Text that may contain non-cp1252 characters.
+
+    Returns:
+        Text that can always be encoded as ``cp1252``.
+    """
+    # Transliterate the glyphs the game uses that cp1252 cannot encode.
     table = str.maketrans({"─": "-", "═": "=", "•": "*", "→": "->", "←": "<-"})
     text = text.translate(table)
     try:
@@ -46,6 +85,12 @@ def clear() -> None:
             run(["cls" if os.name == "nt" else "clear"], shell=True)
 
 def header(content: str | None = None) -> None:
+    """Print the top banner: phase, location (or custom ``content``), player name, elapsed time and pause marker.
+
+    Args:
+        content: Optional title shown instead of ``LOCATION: <room name>`` (e.g. ``"INVENTORY"``).
+            May contain ANSI codes.
+    """
     from .state import state
 
     current_room = state["player"]["current_room"]
@@ -58,6 +103,7 @@ def header(content: str | None = None) -> None:
     )
 
     if content:
+        # Strip ANSI colour codes so padding is computed from the visible width only.
         visible_len = len(re.sub(r"\x1b\[[0-9;]*m", "", content))
         space_needed = max(1, state["terminal_width"] - visible_len - len(state["player"]["name"]))
         out(content, end=f"{' ' * space_needed}")
@@ -80,6 +126,10 @@ def header(content: str | None = None) -> None:
     draw_line("═")
 
 def footer():
+    """Print the exits, loose items and interactables of the current room.
+
+    The room's ``interactables`` key is read with a fallback to the legacy singular ``interactable`` spelling.
+    """
     from .state import state
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]

@@ -1,3 +1,19 @@
+"""Natural-language command parser.
+
+Turns a raw input line into a ``(verb, details)`` pair that :func:`src.engine.commands` can dispatch. Parsing is
+purely lexical and case-insensitive; it never touches game state and never raises for user input. Verb, direction,
+room and item synonyms come from :mod:`src.utils.aliases`.
+
+Result contract of :func:`parse`:
+
+* Blank input -> ``("EMPTY", {})``.
+* Unrecognised verb -> ``("UNKNOWN", {"raw": <original, un-lowercased input>})``.
+* Recognised verb with missing required argument (``go``, ``inspect``, ``take``, ``drop``, ``use``, ``login``,
+  ``load``) -> ``("INVALID", {"message": <hint for the player>})``.
+* Otherwise ``(<canonical verb>, details)`` where ``details`` has ``"raw"`` (the argument string) and, depending on
+  the verb, ``"target"`` and ``"indirect"``.
+"""
+
 import re
 
 from .utils.aliases import ROOM_ALIASES, ROOM_NAME_ALIASES, VERB_ALIASES, ITEM_ALIASES
@@ -5,13 +21,28 @@ from .utils.username_generator import generate_random_username as random_name_ge
 
 
 def normalize_room_key(raw: str) -> str:
+    """Normalise a room reference for alias lookup.
+
+    Args:
+        raw: User text such as ``"Lab_D2_001"``.
+
+    Returns:
+        Lower-cased text with underscores turned into spaces and whitespace collapsed to single spaces.
+    """
     return " ".join(raw.strip().lower().replace("_", " ").split())
 
 def resolve_room_target(raw: str) -> str:
-    """Resolve user input to a direction ('north') or room_id ('lobby').
+    """Resolve user input to a direction (``"north"``) or room id (``"lobby"``).
 
-    Direction aliases take precedence; otherwise room name/alias map;
-    falls back to the normalized raw string.
+    Direction aliases take precedence; otherwise the room name/alias map is consulted (also with spaces turned into
+    underscores); unknown input falls back to the normalised string with underscores, which the caller then fails to
+    find in the exits.
+
+    Args:
+        raw: User text naming a direction or room.
+
+    Returns:
+        A canonical direction, ``"back"``/``"forward"``, a room id, or the underscored fallback string.
     """
     key = normalize_room_key(raw)
     if key in ROOM_ALIASES:
@@ -24,16 +55,21 @@ def resolve_room_target(raw: str) -> str:
     return underscored
 
 def parse(raw_input: str) -> tuple[str, dict]:
-    """
-    Parses a raw command string.
+    """Parse a raw command line.
+
+    See the module docstring for the full result contract.
+
+    Args:
+        raw_input: The line typed by the player.
 
     Returns:
-        Tuple[str, dict]: (action_verb, details_dict)
+        ``(verb, details)``. ``verb`` is a canonical verb or one of ``"EMPTY"``, ``"UNKNOWN"``, ``"INVALID"``.
+        ``details`` may contain:
 
-        Details dict contains keys like:
-        - "target": primary target (room, item, object, or code)
-        - "indirect": secondary target (e.g. "workbench", "door")
-        - "raw": unmodified argument string
+        * ``"target"``: primary target (room, item, object, slot, user name or code).
+        * ``"indirect"``: secondary target for ``use`` (e.g. ``"workbench"``), or ``None``.
+        * ``"raw"``: unmodified argument string.
+        * ``"message"``: player-facing hint (``INVALID`` only).
     """
     cleaned = raw_input.strip().lower()
     if not cleaned:
@@ -50,6 +86,8 @@ def parse(raw_input: str) -> tuple[str, dict]:
 
     # Resolve primary verb. Prefer an exact multi-word alias when it maps to
     # a different action than the first token (e.g. "check status").
+    # A multi-word alias (e.g. "check status") beats the first token alone when it maps to a different verb;
+    # in that case the remaining words are treated as part of the alias, not as arguments.
     verb = VERB_ALIASES.get(first_token)
     exact_verb = VERB_ALIASES.get(cleaned) if " " in cleaned else None
     if exact_verb is not None and exact_verb != verb:
@@ -81,6 +119,7 @@ def parse(raw_input: str) -> tuple[str, dict]:
         return "clear", {"raw": arg_str}
 
     if verb == "register":
+        # Registering without a name picks a random unused one (this hits the database).
         username = args[0] if args else random_name_generator()
         return "register", {"target": username, "raw": arg_str}
 
@@ -136,6 +175,7 @@ def parse(raw_input: str) -> tuple[str, dict]:
             return ("INVALID", {
                 "message": "Take what? Specify an item (e.g., 'take battery_pack')."})
         # Handle "pick up <item>"
+        # "pick up <item>" is a two-word verb: drop the "up" so only the item name is looked up.
         if first_token == "pick" and args and args[0] == "up":
             item_tokens = args[1:]
             arg_str = " ".join(item_tokens)
@@ -155,6 +195,8 @@ def parse(raw_input: str) -> tuple[str, dict]:
                 "message": "Use what? Syntax: 'use <item>' or 'use <item> on <target>'."})
 
         # Pattern matching for "use <item> on/with <target>" or "put <item> on <workbench>"
+        # Lazy first group splits at the FIRST preposition: "use key on door with lock" -> item "key",
+        # indirect "door with lock".
         use_pattern = re.match(r"^(.*?)\s+(?:on|with|in|onto)\s+(.*)$", arg_str)
         if use_pattern:
             item_raw = use_pattern.group(1).strip()

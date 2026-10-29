@@ -1,3 +1,5 @@
+"""Teachers Room 1: the keypad desk that holds the Level-1 staff keycard."""
+
 from ..display import colorize
 from ..room import render
 from ..utils.colors import RED, GREEN
@@ -5,6 +7,16 @@ from ..state import state
 
 
 def use_desk_code(item: str, target: str | None = None) -> None:
+    """Try ``item`` as the desk code.
+
+    A correct code sets the ``tr1_desk_unlocked`` flag and, if not already held, gives the player the desk's reward
+    item. The stored code is compared lower-cased because parser input is already lower-case. Results are rendered,
+    not returned.
+
+    Args:
+        item: The code the player typed (the ``use`` target).
+        target: What the code is used on; anything other than ``None`` or ``"desk"`` does nothing.
+    """
     desk = state["rooms"]["teachers_room_1"]["interactables"]["desk"]
     desk_code = desk["code"]
     flags = state["flags"]

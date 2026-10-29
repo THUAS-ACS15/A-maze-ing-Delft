@@ -1,5 +1,8 @@
 import pytest
 
+from unittest.mock import Mock
+
+import src.utils.shell as shell_module
 from src.utils.shell import ShellResult, VirtualShell
 
 
@@ -38,7 +41,7 @@ def test_prompt_in_subdirectory(shell):
 
 def test_help_lists_core_commands(shell):
     output = shell.execute("help").output
-    for command in ("ls", "cd", "pwd", "cat", "find", "tree", "exit"):
+    for command in ("ls", "cd", "pwd", "cat", "find", "tree", "clear", "whoami", "exit"):
         assert command in output
 
 
@@ -190,3 +193,115 @@ def test_clear_whoami_and_exit(shell):
     assert shell.execute("clear").clear_requested is True
     for command in ("exit", "logout", "shutdown"):
         assert shell.execute(command).exit_requested is True
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        ("ls --bogus", "ls: unrecognized option '--bogus'"),
+        ("ls -z", "ls: invalid option -- 'z'"),
+        ("cd a b", "cd: too many arguments"),
+        ("cat", "cat: missing operand"),
+        ("find . -name", "find: missing argument to '-name'"),
+        ("find . -type x", "find: unknown argument to -type: x"),
+        ("find . -bogus", "find: unknown predicate '-bogus'"),
+        ("tree a b", "tree: too many arguments"),
+        ("tree --bogus", "tree: unrecognized option '--bogus'"),
+        ("tree /missing", "tree: /missing: No such file or directory"),
+        ("frobnicate --verbose", "bash: frobnicate: command not found"),
+    ],
+)
+def test_command_error_messages(shell, command, expected):
+    assert shell.execute(command).output == expected
+
+
+@pytest.mark.parametrize(
+    ("start", "command", "expected"),
+    [
+        ("/home/teacher", "cd Documents", "/home/teacher/Documents"),
+        ("/home/teacher/Documents", "cd ..", "/home/teacher"),
+        ("/home/teacher", "cd /etc", "/etc"),
+        ("/etc", "cd", "/home/teacher"),
+        ("/etc", "cd ~", "/home/teacher"),
+        ("/home/teacher", "cd ~/Downloads", "/home/teacher/Downloads"),
+        ("/home/teacher", "cd .", "/home/teacher"),
+    ],
+)
+def test_cd_navigation(shell, start, command, expected):
+    shell.cwd = start
+    shell.execute(command)
+    assert shell.execute("pwd").output == expected
+
+
+@pytest.mark.parametrize(
+    ("filesystem", "command", "expected_lines"),
+    [
+        ({"a": "1", "b": "2"}, "ls", ["a", "b"]),
+        ({"dir": {"f.txt": "x"}}, "ls dir", ["f.txt"]),
+        ({"dir": {"f.txt": "x"}}, "ls -a dir", [".", "..", "f.txt"]),
+        ({}, "ls", []),
+    ],
+)
+def test_ls_over_filesystems(filesystem, command, expected_lines):
+    custom = VirtualShell(filesystem, cwd="/", home="/")
+    assert custom.execute(command).output.splitlines() == expected_lines
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "",
+        "   ",
+        "cd",
+        "cd a b c",
+        "cd -",
+        "ls -z",
+        "ls --bogus",
+        "ls > out.txt",
+        "cat",
+        "cat /",
+        "find",
+        "find . -name",
+        "find . -type z",
+        "find . --bogus",
+        "tree a b",
+        "tree --bogus",
+        "HELP",
+        "Exit",
+        "sudo ls",
+        "echo hello | cat",
+        "cat 'unclosed",
+        'cat "unclosed',
+        "~root",
+        "$HOME",
+    ],
+)
+def test_execute_never_raises(shell, command):
+    assert isinstance(shell.execute(command), ShellResult)
+
+
+@pytest.mark.parametrize("command", ["exit", "logout", "shutdown"])
+def test_exit_aliases_request_exit(shell, command):
+    result = shell.execute(command)
+    assert result.exit_requested is True
+    assert result.output == ""
+
+
+def test_prompt_reflects_patched_identity(monkeypatch, shell):
+    monkeypatch.setattr(shell, "user", "root")
+    monkeypatch.setattr(shell, "hostname", "nixos")
+    assert shell.prompt == "root@nixos:~$"
+
+
+def test_display_cwd_outside_home(monkeypatch, shell):
+    monkeypatch.setattr(shell, "cwd", "/etc")
+    assert shell.display_cwd == "/etc"
+
+
+def test_execute_reports_syntax_error_when_split_fails(monkeypatch, shell):
+    monkeypatch.setattr(
+        shell_module.shlex, "split", Mock(side_effect=ValueError("no closing quotation"))
+    )
+    assert (
+        shell.execute("cat 'oops").output == "bash: syntax error: unmatched quote"
+    )

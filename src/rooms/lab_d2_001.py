@@ -1,14 +1,27 @@
+"""Lab D 2001: the workbench where the robot is assembled and activated.
+
+Installing every required part flips the phase to ``ASSEMBLY``; :func:`activate` then asks for the Wi-Fi password and
+a robot name, records the player's score on the scoreboard and switches the game to the ``CHAT`` phase.
+"""
+
 import time
 
+from ..model import create_scoreboard_entry
 from ..room import render
 from ..utils.colors import BRIGHT_MAGENTA, BOLD, BRIGHT_GREEN, RED, DIM, BRIGHT_YELLOW
+from ..utils.parse_time import parse_time_str
+from ..utils.score import calculate_score
 from ..display import out, draw_line, colorize, clear
 from ..state import state
 
 
 def workbench(text: str | None = None) -> None:
-    """Displays workbench assembly status in Lab D 2001."""
+    """Display the workbench: installed vs. missing parts and what to do next.
 
+    Args:
+        text: Optional message shown under the part list (feedback from the last action, or a custom activation hint
+            once all parts are installed).
+    """
     installed_parts = state["workbench"]["installed_parts"]
     required_parts = state["workbench"]["required_parts"]
 
@@ -71,6 +84,14 @@ def workbench(text: str | None = None) -> None:
     return
 
 def use_on_workbench(item: str) -> None:
+    """Install an inventory item on the workbench.
+
+    Rejects unknown items, items not carried, non-components and already installed parts, re-showing the workbench with
+    an error. Installing the last required part sets ``workbench["is_ready"]`` and moves the phase to ``ASSEMBLY``.
+
+    Args:
+        item: Item id the player wants to install.
+    """
     wb = state["workbench"]
     required_parts = wb["required_parts"]
     installed_parts = wb["installed_parts"]
@@ -104,6 +125,7 @@ def use_on_workbench(item: str) -> None:
     inventory.remove(item)
     installed_parts.append(item)
 
+    # Last part installed: the workbench is ready and the phase advances immediately.
     if len(installed_parts) >= len(required_parts):
         wb["is_ready"] = True
         state["game_state"]["phase"] = "ASSEMBLY"
@@ -122,6 +144,12 @@ def use_on_workbench(item: str) -> None:
     return None
 
 def activate() -> None:
+    """Run the activation sequence once all parts are installed.
+
+    Asks for the Wi-Fi password and a robot name, and records a scoreboard row if the player is registered. Phase is
+    set to ``CHAT`` only after a correct password; a wrong password or missing parts just re-renders the workbench.
+    Blocks for two seconds during the "initialising" splash.
+    """
     from ..engine import prompt
 
     required_parts = state["workbench"]["required_parts"]
@@ -140,6 +168,25 @@ def activate() -> None:
         text=f"Give your robot a name. Default name is {state['game_state']['phases']['chat']['robot']['name']}."
         )
     name = prompt()
+
+    user_id = state["player"].get("id")
+    if user_id:
+        total = parse_time_str(state["game_state"]["duration"]["value"])
+        assembly = parse_time_str(
+            state["game_state"]["phases"]["assembly"]["duration"]["value"]
+        )
+        # The total clock runs through both phases, so exploration time is whatever the assembly timer excludes.
+        exploration = total - assembly
+        # Guard against division by zero when computing the average time per room.
+        room_count = len(state["rooms"]) or 1
+
+        create_scoreboard_entry(
+            user_id=user_id,
+            score=calculate_score(exploration, assembly),
+            avg_room_time=str(exploration / room_count),
+            exploration_time=str(exploration),
+            assembly_time=str(assembly),
+        )
 
     robot = state["game_state"]["phases"]["chat"]["robot"]
     if name and name.strip():

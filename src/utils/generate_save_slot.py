@@ -1,7 +1,19 @@
+"""Automatic save-slot naming."""
+
 import re
 
 def next_save_slot(name: str) -> str:
-    """Return the next unused auto-save slot for ``name``."""
+    """Return the next unused auto-save slot for ``name``.
+
+    Slots are named ``<name>_save_slot_<n>``; ``n`` is one more than the highest number found in ``data/saves``, so
+    gaps from deleted files are not reused.
+
+    Args:
+        name: Player name used as the slot prefix.
+
+    Returns:
+        The next slot name (without the ``.json`` extension).
+    """
     from src.state import SAVE_DIR
 
     prefix = f"{name}_save_slot_"

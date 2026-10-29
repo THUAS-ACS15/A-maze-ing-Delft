@@ -45,7 +45,8 @@ Dictionary of boolean keys used for tracking non-item progression events.
 | -------------------------- | ------- | ------- | ------------------------------------------------------------------- |
 | `tr1_desk_unlocked`        | boolean | false   | true when the desk keypad code (2015) in teachers_room_1 is solved. |
 | `tr2_whiteboard_inspected` | boolean | false   | true when inspect whiteboard is issued in teachers_room_2.          |
-| `tr4_drawer_decrypted`     | boolean | false   | true when the desk in teacher_room_4 is searched/decrypted.         |
+| `tr4_drawer_decrypted`     | boolean | false   | true when the desk in teachers_room_4 is searched/decrypted.        |
+| `tr4_secret_key_copied`    | boolean | false   | true when the secret file in teachers_room_4 is read; key copied.   |
 | `lab_power_on`             | boolean | false   | true when power is restored to the workbench terminal in lab_d2001. |
 
 ### Item Entities (`items`)
@@ -111,9 +112,15 @@ Below is the baseline `default_state.json` template file:
     "tr1_desk_unlocked": false,
     "tr2_whiteboard_inspected": false,
     "tr4_drawer_decrypted": false,
+    "tr4_secret_key_copied": false,
     "lab_power_on": false
   },
   "items": {
+    "secret_key": {
+      "name": "Secret Key",
+      "description": "Encrypted schematic detailing the 8 requisite hardware modules needed to assemble the A-maze-ing-Delft prototype.",
+      "is_assembly_part": false
+    },
     "blueprint": {
       "name": "Robot Assembly Blueprint",
       "description": "Schematic diagram outlining all 7 sub-assemblies needed for Project A.I.G.I.S.",
@@ -254,12 +261,12 @@ Below is the baseline `default_state.json` template file:
       "required_item": null,
       "exits": {
         "west": "teachers_room_2",
-        "south": "teacher_room_4"
+        "south": "teachers_room_4"
       },
       "items": ["motors_speakers"],
       "interactables": {}
     },
-    "teacher_room_4": {
+    "teachers_room_4": {
       "name": "Teacher Room 4",
       "description": "The senior professor's office. Research notes cover the desk.",
       "is_locked": true,
@@ -269,7 +276,9 @@ Below is the baseline `default_state.json` template file:
         "west": "lab_d2001"
       },
       "items": ["api_usb"],
-      "interactables": {}
+      "interactables": {
+        "computer": "Nix OS computer"
+      }
     },
     "lab_d2001": {
       "name": "Lab D 2001",
@@ -277,7 +286,7 @@ Below is the baseline `default_state.json` template file:
       "is_locked": false,
       "required_item": null,
       "exits": {
-        "east": "teacher_room_4"
+        "east": "teachers_room_4"
       },
       "items": [],
       "interactables": {

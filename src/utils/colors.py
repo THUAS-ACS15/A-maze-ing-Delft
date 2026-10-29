@@ -1,3 +1,5 @@
+"""ANSI escape sequences for terminal colours and styles, plus semantic aliases (ERROR, SUCCESS, ...)."""
+
 BLACK = "\033[30m"
 RED = "\033[31m"
 DIM = "\033[2m"
@@ -23,3 +25,4 @@ WARNING = BRIGHT_YELLOW
 INFO = BRIGHT_BLUE
 
 BOLD = "\033[1m"
+RESET = "\033[0m"

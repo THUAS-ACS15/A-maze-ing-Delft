@@ -1,10 +1,20 @@
+"""Human-readable formatting of ISO 8601 timestamps."""
+
 from datetime import datetime
 
 
 def format_timestamp(iso_str: str, fmt: str = "%Y-%m-%d %H:%M") -> str:
-    """
-    Parses an ISO 8601 string (e.g., '2026-10-24T10:30:43.756Z')
-    and returns a clean formatted date string.
+    """Format an ISO 8601 string (e.g. ``'2026-10-24T10:30:43.756Z'``) as a clean date string.
+
+    Args:
+        iso_str: ISO 8601 timestamp; a trailing ``Z`` is accepted.
+        fmt: ``strftime`` format for the result.
+
+    Returns:
+        The formatted timestamp, or ``""`` if ``iso_str`` is empty.
+
+    Raises:
+        ValueError: If ``iso_str`` is not a valid ISO 8601 timestamp.
     """
     if not iso_str:
         return ""
