@@ -1,289 +1,228 @@
-# A-maze-ing-Delft - Game State Schema Specification
+# Game State & Persistence Schema
 
-This document defines the data structure, schema definitions, validation rules, and default JSON representation for the `game_state` object in A-maze-ing-Delft.
+This document describes the runtime state dictionary created in `main.py` and the SQLite files used to save progress and scores.
 
-## 1. Schema Overview & Data Integrity Rules
+The old `game_state` JSON template, JSON save-slot files, and `StateManager` design no longer exist. The current game uses a plain Python dictionary plus `saves.db` and `scoreboard.db`.
 
-The `game_state` object is the single source of truth for the game runtime. It tracks game progression, world topology, item ownership, and assembly triggers across three distinct execution phases.
+## Contents
 
-### Data Integrity Rules
+- [Runtime state](#runtime-state)
+- [Room key sets](#room-key-sets)
+- [Objective state](#objective-state)
+- [Transient and missing fields](#transient-and-missing-fields)
+- [SQLite saves](#sqlite-saves)
+- [SQLite scoreboard](#sqlite-scoreboard)
+- [Save/load behaviour](#saveload-behaviour)
+- [Data integrity rules](#data-integrity-rules)
+- [Known gaps](#known-gaps)
 
-- **Strict JSON Serialization:** Only primitive types (`string`, `number`, `boolean`), arrays (`list`), and key-value objects (`dict`) are permitted. Custom class instances, function pointers, or lambda expressions are strictly forbidden.
-- **Canonical Identifiers:** All lookups for rooms, items, and flags must use canonical snake_case keys (e.g., `teachers_room_1`, `battery_pack`). Never use human-readable display names in conditional logic or state lookups.
-- **Template Immutability:** `data/game_state.json` serves as the read-only initial world state. Runtime mutations must occur solely on the in-memory state dictionary and be saved to `saves/save_slot_1.json`.
+## Runtime state
 
-## 2. Root Structure & Key Specifications
+`main.py` initializes this dictionary:
 
-The root object contains `game_phase`, `running`, `player`, `workbench`, `flags`, `items`, and `rooms`. See detailed definitions below and the full template in Section 4.
-
-## 3. Detailed Field Definitions
-
-### Player State (`player`)
-
-```json
-"player": {
-    "current_room": "string",
-    "inventory": ["string"]
-}
-```
-
-### Workbench Tracker (`workbench`)
-
-```json
-"workbench": {
-    "installed_parts": ["string"],
-    "required_parts": ["string"],
-    "is_ready": "boolean"
-}
-```
-
-### Story Flags (`flags`)
-
-Dictionary of boolean keys used for tracking non-item progression events.
-
-| Flag Key                   | Type    | Default | Trigger Condition / Meaning                                         |
-| -------------------------- | ------- | ------- | ------------------------------------------------------------------- |
-| `tr1_desk_unlocked`        | boolean | false   | true when the desk keypad code (2015) in teachers_room_1 is solved. |
-| `tr2_whiteboard_inspected` | boolean | false   | true when inspect whiteboard is issued in teachers_room_2.          |
-| `tr4_drawer_decrypted`     | boolean | false   | true when the desk in teacher_room_4 is searched/decrypted.         |
-| `lab_power_on`             | boolean | false   | true when power is restored to the workbench terminal in lab_d2001. |
-
-### Item Entities (`items`)
-
-```json
-"items": {
-    "item_id": {
-        "name": "string",
-        "description": "string",
-        "is_assembly_part": "boolean"
-    }
-}
-```
-
-### Room Graph Entities (`rooms`)
-
-Dictionary mapping unique room_id strings to room definition objects.
-
-```json
-"rooms": {
-    "room_id": {
-        "name": "string",
-        "description": "string",
-        "is_locked": "boolean",
-        "required_item": "string | null",
-        "exits": {
-            "direction": "room_id"
-        },
-        "items": ["string"],
-        "interactables": {
-            "object_name": "string | object"
-        }
-    }
-}
-```
-
-## 4. Master Template JSON (`data/game_state.json`)
-
-Below is the baseline `game_state.json` template file:
-
-```json
-{
-  "game_phase": "EXPLORATION",
-  "running": true,
-  "player": {
+```python
+state: dict = {
+    "player_name": "",
     "current_room": "lobby",
-    "inventory": []
-  },
-  "workbench": {
-    "installed_parts": [],
-    "required_parts": [
-      "chassis_frame",
-      "battery_pack",
-      "mainboard",
-      "sensory_module",
-      "wifi_credentials",
-      "motors_speakers",
-      "api_usb"
-    ],
-    "is_ready": false
-  },
-  "flags": {
-    "tr1_desk_unlocked": false,
-    "tr2_whiteboard_inspected": false,
-    "tr4_drawer_decrypted": false,
-    "lab_power_on": false
-  },
-  "items": {
-    "blueprint": {
-      "name": "Robot Assembly Blueprint",
-      "description": "Schematic diagram outlining all 7 sub-assemblies needed for Project A.I.G.I.S.",
-      "is_assembly_part": false
-    },
-    "chassis_frame": {
-      "name": "Robot Chassis Frame",
-      "description": "An aluminum structural frame equipped with component mounting brackets.",
-      "is_assembly_part": true
-    },
-    "battery_pack": {
-      "name": "High-Capacity Battery Pack",
-      "description": "A heavy 24V lithium-ion battery array delivering high power output.",
-      "is_assembly_part": true
-    },
-    "keycard_lvl1": {
-      "name": "Level-1 Staff Keycard",
-      "description": "A magnetic keycard. Grants access to restricted project rooms.",
-      "is_assembly_part": false
-    },
-    "mainboard": {
-      "name": "Microcontroller / Mainboard",
-      "description": "High-performance mainboard integrated with neural co-processing units.",
-      "is_assembly_part": true
-    },
-    "sensory_module": {
-      "name": "Sensory Module (Cam/Mic)",
-      "description": "Combined hardware housing a high-resolution camera and dual-microphone array.",
-      "is_assembly_part": true
-    },
-    "wifi_credentials": {
-      "name": "Wi-Fi Credentials Note",
-      "description": "Paper note listing network ID 'CS_LAB_NET' and WPA2 passkey 'Tr0janH0rse!'.",
-      "is_assembly_part": true
-    },
-    "motors_speakers": {
-      "name": "Servo Motors & Speakers",
-      "description": "High-torque precision servos paired with an integrated audio driver unit.",
-      "is_assembly_part": true
-    },
-    "api_usb": {
-      "name": "Encrypted API & Prompt USB",
-      "description": "Flash drive containing encrypted OpenAI API authentication keys and system persona prompts.",
-      "is_assembly_part": true
-    }
-  },
-  "rooms": {
-    "lobby": {
-      "name": "Floor Lobby",
-      "description": "The main floor lobby. An emergency bulletin terminal blinks near the entrance.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "north": "classroom_d2015",
-        "east": "teachers_room_1"
-      },
-      "items": ["blueprint", "chassis_frame"],
-      "interactables": {
-        "terminal": "System display blinks: 'PROJECT A.I.G.I.S. ASSEMBLY REQUIRED FOR OVERRIDE.'"
-      }
-    },
-    "classroom_d2015": {
-      "name": "Classroom D 2015",
-      "description": "A large lecture room with rows of empty desks and whiteboards.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "south": "lobby",
-        "east": "classroom_d2035"
-      },
-      "items": ["battery_pack"],
-      "interactables": {
-        "podium": "A wooden podium with a sign reading 'CS101 - Intro to Systems Mechanics'."
-      }
-    },
-    "teachers_room_1": {
-      "name": "Teachers Room 1",
-      "description": "A faculty office crowded with filing cabinets and a locked desk.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "west": "lobby",
-        "north": "classroom_d2035"
-      },
-      "items": [],
-      "interactables": {
-        "desk": {
-          "is_locked": true,
-          "code": "2015",
-          "reward_item": "keycard_lvl1",
-          "hint": "Keypad note reads: 'Code is the room number where CS101 was held.'"
-        }
-      }
-    },
-    "classroom_d2035": {
-      "name": "Classroom D 2035",
-      "description": "An advanced computing lab with workbenches and workstation monitors.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "west": "classroom_d2015",
-        "south": "teachers_room_1",
-        "east": "project_room_1"
-      },
-      "items": ["mainboard"],
-      "interactables": {}
-    },
-    "project_room_1": {
-      "name": "Project Room 1",
-      "description": "A high-security hardware testing bay containing robotics testing rigs.",
-      "is_locked": true,
-      "required_item": "keycard_lvl1",
-      "exits": {
-        "west": "classroom_d2035",
-        "south": "teachers_room_2"
-      },
-      "items": ["sensory_module"],
-      "interactables": {}
-    },
-    "teachers_room_2": {
-      "name": "Teachers Room 2",
-      "description": "An administrative staff office with a large floor-to-ceiling whiteboard.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "north": "project_room_1",
-        "east": "project_room_2"
-      },
-      "items": ["wifi_credentials"],
-      "interactables": {
-        "whiteboard": "Written in marker: 'Lab Network Pass: Tr0janH0rse! - Do not erase!'"
-      }
-    },
-    "project_room_2": {
-      "name": "Project Room 2",
-      "description": "A mechanical assembly shop filled with component crates and tool racks.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "west": "teachers_room_2",
-        "south": "teacher_room_4"
-      },
-      "items": ["motors_speakers"],
-      "interactables": {}
-    },
-    "teacher_room_4": {
-      "name": "Teacher Room 4",
-      "description": "The senior professor's office. Research notes cover the desk.",
-      "is_locked": true,
-      "required_item": "keycard_lvl1",
-      "exits": {
-        "north": "project_room_2",
-        "west": "lab_d2001"
-      },
-      "items": ["api_usb"],
-      "interactables": {}
-    },
-    "lab_d2001": {
-      "name": "Lab D 2001",
-      "description": "The primary robotics lab equipped with a central industrial assembly workbench.",
-      "is_locked": false,
-      "required_item": null,
-      "exits": {
-        "east": "teacher_room_4"
-      },
-      "items": [],
-      "interactables": {
-        "workbench": "An industrial metal table wired directly into the main server terminal."
-      }
-    }
-  }
+    "previous_room": None,
+    "time_elapsed": 0.0,
+    "start_time": time.time(),
+    "has_intro_played": False,
+    "is_gametime_paused": False,
+    "current_objective_id": 0,
+    "student_id_obtained": False,
+    "visited": { ... },
+    "completed": { ... },
+    "inventory": [],
 }
 ```
+
+| Field | Type | Initial value | Persisted? | Purpose |
+| --- | --- | --- | --- | --- |
+| `player_name` | `str` | `""` | Yes — `general.player_name` | Name entered at the Front Desk; used by the scoreboard. |
+| `current_room` | `str` | `"lobby"` | Yes — `general.current_room` | Room ID currently being executed. |
+| `previous_room` | `str \| None` | `None` | Yes — `general.previous_room` | Room to return to when a gate rejects the player. Most room handlers set it to their own ID on entry; Project Room 1 leaves the previous value unchanged. |
+| `time_elapsed` | `float` | `0.0` | Yes — `general.time_elapsed` | Accumulated active play time in seconds. |
+| `start_time` | `float` | `time.time()` | No | Start of the current active session. Reset on load. |
+| `has_intro_played` | `bool` | `False` | Yes — `general.has_intro_played` | Prevents the intro from replaying after a load. |
+| `is_gametime_paused` | `bool` | `False` | No | Pauses play-time accounting while the intro, status screen, map, or virtual shell is open. Save/load menus do not toggle it. Reset to `False` on load. |
+| `current_objective_id` | `int` | `0` | Yes — `general.current_objective_id` | Main progression counter, `0`–`8`; also used by room gates and the Lab assembly check. |
+| `student_id_obtained` | `bool` | `False` | Yes — `general.student_id_obtained` | Special flag used by the Lobby's opening message. |
+| `visited` | `dict[str, bool]` | Eleven `False` values | Yes — `room_visited_status` | Challenge-room visit flags used by the map. |
+| `completed` | `dict[str, bool]` | Eleven `False` values | Yes — `room_completed_status` | Challenge-room completion flags used by the status screen, map, and exploration percentage. |
+| `inventory` | `list[str]` | `[]` | Yes — `inventory` | Display names of collected items. |
+
+The state is passed by reference to every room handler. There is no `StateManager`, no `load_default_state()`, and no `game_phase` field.
+
+## Room key sets
+
+`visited` and `completed` contain exactly these eleven challenge rooms:
+
+```text
+labd2001
+projectroom1
+projectroom2
+teachersroom1
+teachersroom2
+teachersroom4
+frontdesk
+equinoxstudentsociety
+classroomd2015
+classroomd2031
+classroomd2035
+```
+
+The Lobby, East Corridor, Student Wing, and Teaching Area are not in these dictionaries. The status bar treats them as special rooms, and the map always displays their names.
+
+The store is not in either dictionary because `rooms/store.py` is not registered in `ROOM_HANDLERS`.
+
+## Objective state
+
+`current_objective_id` is the single progression counter. The main chain is:
+
+```text
+0 start
+1 Robot Chassis Frame (Lobby)
+2 Student ID card (Front Desk)
+3 Staff Keycard (Teacher's Room 1)
+4 Wi-Fi Credentials (Teacher's Room 2)
+5 Encrypted API & Prompt USB (Teacher's Room 4)
+6 Makeshift Mic and Speaker Combo (Project Room 2)
+7 A.I.G.I.S. Motherboard (Classroom D2.035)
+8 Memory Sticks (Classroom D2.015)
+```
+
+Room gates in `rooms/dispatcher.py` compare this value with a minimum. For example, `teachersroom2` requires at least 3 and `teachingarea` requires at least 6.
+
+The value is persisted in `general.current_objective_id`. The objective text itself is not stored in the state; it is looked up from `data/objective_dialogue_bank.py` by ID.
+
+## Transient and missing fields
+
+These fields are created or used at runtime but are not part of the initial state or the save schema:
+
+| Field | Where it comes from | Persisted? | Notes |
+| --- | --- | --- | --- |
+| `projectroom1_progress` | Created by `rooms/project_room_1.py` on entry. | No | `{"opened": [...]}` for the five lockers. Re-entering the room resets it. |
+| `d2015_progress` | Created by `rooms/classroom_d2015.py` on entry. | No | `{"power_set": bool, "rover_calibrated": bool}`. Re-entering resets it. |
+| `seating_done` | Module-level global in `rooms/classroom_d2035.py`. | No | Skips part 1 after a successful seating answer within the same process. |
+| `colors_on_projector` | Module-level global in `rooms/project_room_2.py`. | No | The current colour order; reset when the process restarts. |
+| `coin_balance` | Read by `utilities/check_status.py` and `rooms/store.py`. | No | Not initialized in `main.py`; `check_status()` uses `state.get("coin_balance", 0)`. |
+| `store_available_items` | Read by `rooms/store.py`. | No | Not initialized; the store is unreachable. |
+
+The Lab box puzzle uses module-level `available_boxes` and `platforms` as well. Those are not part of `state` and are not saved.
+
+## SQLite saves
+
+`utilities/save_management.py` creates `saves.db` in the working directory.
+
+### Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS general (
+    save_slot INTEGER PRIMARY KEY,
+    player_name TEXT NOT NULL,
+    current_room TEXT NOT NULL,
+    previous_room TEXT,
+    time_elapsed REAL NOT NULL,
+    has_intro_played INTEGER NOT NULL,
+    current_objective_id INTEGER NOT NULL,
+    student_id_obtained INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS room_visited_status (
+    save_slot INTEGER NOT NULL,
+    room_name TEXT NOT NULL,
+    is_visited INTEGER NOT NULL,
+    PRIMARY KEY (save_slot, room_name)
+);
+
+CREATE TABLE IF NOT EXISTS room_completed_status (
+    save_slot INTEGER NOT NULL,
+    room_name TEXT NOT NULL,
+    is_complete INTEGER NOT NULL,
+    PRIMARY KEY (save_slot, room_name)
+);
+
+CREATE TABLE IF NOT EXISTS inventory (
+    save_slot INTEGER NOT NULL,
+    item TEXT NOT NULL,
+    PRIMARY KEY (save_slot, item)
+);
+
+CREATE TABLE IF NOT EXISTS store_items (
+    save_slot INTEGER NOT NULL,
+    item TEXT NOT NULL,
+    PRIMARY KEY (save_slot, item)
+);
+```
+
+`store_items` is created by the schema but is not read or written by the current save/load code.
+
+### Slot model
+
+- Slots are integers `1`, `2`, and `3`.
+- `general` has one row per used slot.
+- `room_visited_status` and `room_completed_status` have one row per room per slot.
+- `inventory` has one row per item per slot.
+- There is no JSON column and no serialized blob.
+
+### Save functions
+
+- `save_game(state, slot)` calls `update_elapsed_time(state)`, writes the general row, and upserts room and inventory rows.
+- `load_save(slot)` reads the general row and reconstructs `visited`, `completed`, and `inventory`. It sets `start_time` to `time.time()` and `is_gametime_paused` to `False`.
+- `get_save_info(slot)` reads preview data for the save/load screen: player name, current room, previous room, time, visited percentage, and completion percentage.
+- `recreate_db_table()` runs the `CREATE TABLE IF NOT EXISTS` script. There is no migration system for changing existing columns.
+
+If a slot has no `general` row, `load_save()` returns `None` and `get_save_info()` returns `None`.
+
+## SQLite scoreboard
+
+`utilities/scoreboard.py` creates `scoreboard.db` in the working directory.
+
+```sql
+CREATE TABLE IF NOT EXISTS scoreboard (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_name TEXT NOT NULL,
+    exploration_percent REAL NOT NULL,
+    time_elapsed REAL NOT NULL
+);
+```
+
+`add_scoreboard_entry()` inserts a row when the player opts in at the ending. `get_scoreboard_entries()` orders rows by:
+
+```sql
+ORDER BY exploration_percent DESC, time_elapsed ASC
+```
+
+The scoreboard display paginates ten entries at a time. The ending stores the player name, exploration percentage, and elapsed time.
+
+## Save/load behaviour
+
+1. The player opens the save menu with `save` or `pause`.
+2. `display_save_menu()` accepts slot `1`, `2`, or `3`, or `quit`.
+3. `save_game()` calls `update_elapsed_time()` before writing. That function adds the active session time unless `is_gametime_paused` is true; the save menu itself does not toggle the pause flag.
+4. `CONTINUE` opens `display_load_menu()`, which accepts `1`, `2`, `3`, `quit`, `exit`, or `back`.
+5. A successful load replaces the module-level `state` in `main.py` with the reconstructed dictionary.
+6. The intro runs only if `has_intro_played` is `False`.
+
+`time_elapsed` is accumulated in seconds. `start_time` is not saved because it is only meaningful for the current process.
+
+## Data integrity rules
+
+- Keep state values to plain Python types: `str`, `int`, `float`, `bool`, `list`, and `dict`.
+- Do not attach classes, functions, or lambdas to state.
+- Use the compact room IDs already used by the dispatcher and map (`teachersroom1`, `classroomd2015`, etc.).
+- Inventory values are display strings such as `"Student ID card"` and `"Memory Sticks"`, not canonical item IDs.
+- The state is not a JSON document. Do not add a `data/game_state.json` template or a JSON save path.
+- When adding a persisted field, update `main.py`, `utilities/save_management.py`, this document, and the tests.
+- When adding a transient field, document it here and make sure a reload cannot leave the game in a broken state.
+
+## Known gaps
+
+- **Transient puzzle progress is lost on load.** Opened lockers, rover stages, the seating flag, and the Project Room 2 colour order are not saved.
+- **Stale rows can remain.** `save_game()` uses `INSERT OR REPLACE` but does not delete rows for items or room flags that were removed from the state.
+- **No schema versioning.** `CREATE TABLE IF NOT EXISTS` cannot add columns to an existing `saves.db`; a schema change needs a migration or a fresh database.
+- **Store fields are missing.** `coin_balance` and `store_available_items` are referenced by the store and status code but are not initialized or persisted.
+- **The store table is unused.** `store_items` exists in `saves.db` but nothing reads or writes it.
+- **The visited map is not fully represented in status.** `check_status()` uses `completed` for its "Rooms Explored" section instead of `visited`.
+- **The AI history is not saved.** `utilities/chat.py` keeps conversation history in a process-local list; it is not part of `saves.db`.

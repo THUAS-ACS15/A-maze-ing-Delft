@@ -20,9 +20,6 @@ from utilities.print_helpers import print_line
 # Consistent text style
 HEADER_STYLE = "bold green"
 
-# Consistent delay
-DELAY=0.0025
-
 def _format_time_played(start_time: float, time_elapsed: float) -> str:
     """Format elapsed seconds since start_time as 'Xs' / 'Ym Zs' / 'Xh Ym Zs'."""
     import math
@@ -111,55 +108,46 @@ def check_status(
 
         print_line(
             text=f"Current room: {current_room}",
-            delay=DELAY
 
         )
         print_line(
             text=f"Previous room: {previous_room}",
-            delay=DELAY
         )
         print_line(
             text=f"Time played: {time_played_str}",
-            delay=DELAY
         )
         console.print()
 
         print_line(
             text=f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):",
-            delay=DELAY
         )
-        print_line(text=explored_str, delay=DELAY)
+        print_line(text=explored_str)
         console.print()
 
         print_line(
             text=f"Not yet explored ({len(unexplored)}):",
-            delay=DELAY
         )
-        print_line(unexplored_str, delay=DELAY)
+        print_line(unexplored_str)
         console.print()
 
         print_line(
             f"Challenges completed ({len(completed_rooms)}):",
-            delay=DELAY
         )
-        print_line(text=completed_str, delay=DELAY)
+        print_line(text=completed_str)
         console.print()
 
         print_line(
             text=f"Coin balance: {coin_balance}",
-            delay=DELAY
         )
         print_line(
             text=f"Student ID: {id_str}",
-            delay=DELAY
         )
         console.print()
 
         print_line(
             text=f"Inventory ({len(inventory)}):",
-            delay=DELAY
         )
-        print_line(text=inventory_str, delay=DELAY)
+        print_line(text=inventory_str)
 
         if pause:
             print_line("\n \n Available commands:")
