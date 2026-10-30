@@ -238,7 +238,7 @@ def inspect_computer(state: dict) -> None:
         time.sleep(2)
         clear_screen()
         console.print(
-            "Viola! you are half way in! Now explore the file system to see if you find anything interesting. "
+            "Voila! you are half way in! Now explore the file system to see if you find anything interesting. "
             "Type 'help' to list the available commands."
         )
         time.sleep(1)

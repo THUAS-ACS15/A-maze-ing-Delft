@@ -87,7 +87,7 @@ def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elap
         db.commit()
 
 def display_scoreboard() -> None:
-    """Displays the scoreboard on the screen, in increments of 10 entries.
+    """Displays the scoreboard on the screen, in increments of 5 entries.
 
     The scoreboard is displayed in a table format, with the player's name and time elapsed.
     The player can navigate through the pages using the arrow keys for prev/next page.
@@ -98,7 +98,7 @@ def display_scoreboard() -> None:
 
     console = Console()
     page = 0
-    page_count = max(1, (len(entries) + 9) // 10)
+    page_count = max(1, (len(entries) + 4) // 5)
 
     while True:
         table = Table(title = "ordered by exploration percent, then time played\n\n\n\n", width = 80)
@@ -110,8 +110,8 @@ def display_scoreboard() -> None:
             table.add_column(Align.center("Explored %"), width=20)
             table.add_column(Align.center("Time elapsed"), width=20)
 
-            start = page * 10
-            for place, entry in enumerate(entries[start:start + 10], start=start + 1):
+            start = page * 5
+            for place, entry in enumerate(entries[start:start + 5], start=start + 1):
                 # Get special style if #1 to #3
                 style = {1: "bold yellow", 2: "bold white", 3: "bold red"}.get(place)
                 table.add_row(
