@@ -1,3 +1,4 @@
+# ruff: noqa: E402 -- dependencies must be installed before these imports.
 # -----------------------------------------------------------------------------
 # File: main.py
 # ACS Q1 Project - A-maze-ing Delft
@@ -5,6 +6,8 @@
 # Location: Delft
 # Date: October 2026
 # -----------------------------------------------------------------------------
+"""Game entry point: dependency check, menus, and the room dispatch loop."""
+
 
 # this prevents ruff from erroring because of the below dependency check.
 # it's necessary to check deps before running any of the below imports
@@ -65,17 +68,12 @@ state: dict = {
 }
 
 def main() -> None:
-    """
-    Entry point of the game.
+    """Entry point of the game.
 
     Shows the main menu in a loop. NEW GAME and CONTINUE both go through a
     save-slot selection screen first, then start the Engine with the right
     state. CREDITS shows the credits and returns to the menu. EXIT stops
     the loop. Picking "BACK" on the slot screen also returns to the menu.
-
-    Inputs: NONE
-
-    Outputs: NONE
     """
     global state
 

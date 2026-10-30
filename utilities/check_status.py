@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Gift Odigwe
 # -----------------------------------------------------------------------------
+"""Player status report covering objective, inventory, time, and exploration."""
+
 import time
 
 from rich.console import Console
@@ -14,12 +16,10 @@ from rich.prompt import Prompt
 from utilities.clear_screen import clear_screen
 from utilities.loader import loader
 from utilities.print_helpers import print_line
+from utilities.inventory_viewer import display_inventory
 
 # Consistent text style
 HEADER_STYLE = "bold green"
-
-# Consistent delay
-DELAY=0.0025
 
 def _format_time_played(start_time: float, time_elapsed: float) -> str:
     """Format elapsed seconds since start_time as 'Xs' / 'Ym Zs' / 'Xh Ym Zs'."""
@@ -47,18 +47,17 @@ def check_status(
     stream_delay: float = 0.015,
     pause: bool = True,
 ) -> None:
-    """
-    Display the player's overall status with loading + streaming effect.
+    """Display the player's overall status with loading + streaming effect.
 
-    Inputs:
-        - state (dict): game state with visited/completed/coin_balance/student_id_obtained/
-        inventory/current_room/previous_room/start_time
-        - loading_time (float): seconds for the loading spinner (0 skips it, for tests)
-        - stream_delay (float): pause between lines (0 = instant, for tests)
-        - pause (bool): if True, wait for Enter at the end so clearScreen() doesn't wipe output
+    Shifts state["start_time"] forward by the time the status screen was open,
+    pausing game time while viewing status.
 
-    Outputs: NONE (but shifts state["start_time"] forward by the time the
-        status screen was open, pausing game time while viewing status)
+    Args:
+        state: game state with visited/completed/coin_balance/student_id_obtained/
+            inventory/current_room/previous_room/start_time
+        loading_time: seconds for the loading spinner (0 skips it, for tests)
+        stream_delay: pause between lines (0 = instant, for tests)
+        pause: if True, wait for Enter at the end so clearScreen() doesn't wipe output
     """
     enter_time = time.time()
     state["is_gametime_paused"] = True
@@ -110,71 +109,63 @@ def check_status(
 
         print_line(
             text=f"Current room: {current_room}",
-            delay=DELAY
 
         )
         print_line(
             text=f"Previous room: {previous_room}",
-            delay=DELAY
         )
         print_line(
             text=f"Time played: {time_played_str}",
-            delay=DELAY
         )
         console.print()
 
         print_line(
             text=f"Rooms Explored ({len(explored)}/{total_rooms} - {explored_percent}%):",
-            delay=DELAY
         )
-        print_line(text=explored_str, delay=DELAY)
+        print_line(text=explored_str)
         console.print()
 
         print_line(
             text=f"Not yet explored ({len(unexplored)}):",
-            delay=DELAY
         )
-        print_line(unexplored_str, delay=DELAY)
+        print_line(unexplored_str)
         console.print()
 
         print_line(
             f"Challenges completed ({len(completed_rooms)}):",
-            delay=DELAY
         )
-        print_line(text=completed_str, delay=DELAY)
+        print_line(text=completed_str)
         console.print()
 
         print_line(
             text=f"Coin balance: {coin_balance}",
-            delay=DELAY
         )
         print_line(
             text=f"Student ID: {id_str}",
-            delay=DELAY
         )
         console.print()
 
         print_line(
             text=f"Inventory ({len(inventory)}):",
-            delay=DELAY
         )
-        print_line(text=inventory_str, delay=DELAY)
+        print_line(text=inventory_str)
 
         if pause:
             print_line("\n \n Available commands:")
-            choices = ["exit"]
+            choices = ["exit", "inventory"]
             console.print(f"- exit      : Back to {current_room}")
-            while (
-                Prompt.ask(
+            console.print("- inventory : View your inventory")
+            while True:
+                command = Prompt.ask(
                     "Command",
                     choices=choices,
                     default="exit",
                     show_choices=True,
                     console=console,
                 )
-                == "exit"
-            ):
-                break
+                if command == "exit":
+                    break
+                display_inventory(inventory)
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)

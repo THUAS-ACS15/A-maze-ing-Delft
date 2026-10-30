@@ -18,6 +18,4 @@ jobs:
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
         with:
-          github_access_token: ${{ secrets.ORG_READ_TOKEN }}
-          # Checks that assigned owners and teams actually exist in GitHub
           checks: 'files,owners'

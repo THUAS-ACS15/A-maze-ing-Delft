@@ -7,6 +7,8 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+"""Frame-by-frame terminal animations for puzzle outcomes."""
+
 from time import sleep
 
 from art import text2art  # type: ignore[import-untyped]
@@ -20,18 +22,15 @@ QTE_FINAL_TEXT = "QUICK TIME!"
 
 
 def show_activity_animation(type: str, text_delay: float = 0.002, final_delay: float = 2.0) -> None:
-    """
-    Clears the screen and displays the specified animation, frame-by-frame.
+    """Clears the screen and displays the specified animation, frame-by-frame.
 
     This function takes the specified type, clears the screen and prints
     that animation in the CLI, with a delay between each line and a final delay after the animation is fully printed.
 
-    Inputs:
-        - type (str): "puzzle", "quiz" or "qte"
-        - text_delay (float): delay between printing each line of the animation
-        - final_delay (float): delay after the animation is fully printed
-
-    Outputs: NONE
+    Args:
+        type: "puzzle", "quiz" or "qte"
+        text_delay: delay between printing each line of the animation
+        final_delay: delay after the animation is fully printed
     """
     console = Console(legacy_windows=False)
 

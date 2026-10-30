@@ -6,6 +6,8 @@
 # Date: September 2026
 # -----------------------------------------------------------------------------
 
+"""Classroom D2.035: seating and sequence puzzles awarding the A.I.G.I.S. motherboard."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -15,6 +17,7 @@ from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
+from utilities.centralized_commands import display_help
 from utilities.print_helpers import (
     print_assembly_part_obtained,
     print_current_objective,
@@ -34,6 +37,17 @@ valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2035"]
 
 seating_done = False
+
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def enter_classroom_d2035(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
@@ -55,17 +69,6 @@ def enter_classroom_d2035(state):
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)
-
-    def handle_help():
-        """Print the list of commands."""
-        print("Available commands:")
-        print("- look around         : Describe the room.")
-        print("- inspect <object>    : Look closer (try the podium).")
-        print("- take <item>         : Pick up an item.")
-        print("- go [room]           : Leave the room.")
-        print("- status / save       : Show your status / open the save menu.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game entirely.")
 
     def show_seating_clues():
         """Print the lecturer's note with the seating clues."""
@@ -159,9 +162,9 @@ def enter_classroom_d2035(state):
             clear_screen()
             handle_look(state)
         
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
         
         elif command.startswith("inspect "):
             clear_screen()

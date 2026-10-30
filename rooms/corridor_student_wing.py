@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Student wing: connects the lobby to Project Rooms 1-2, Lab D2.001, and Equinox."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -18,6 +20,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.centralized_commands import display_help
 
 valid_destinations = ["lobby", "projectroom1", "projectroom2", "labd2001", "equinoxstudentsociety"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["studentwing"]
@@ -36,16 +39,11 @@ def enter_student_wing(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         box stacking puzzle. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
         
         print_dialogue(look_around_dialogue_bank["studentwing"])
@@ -53,25 +51,6 @@ def enter_student_wing(state: dict) -> str:
         print(f"- Your current inventory: {state['inventory']}")
         print()
         print_current_objective(state)
-
-    def handle_help() -> None:
-        """
-        Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-
-        print("Available commands:")
-        print("- ?                : Show this help message.")
-        print("- look around      : Examine the room for clues.")
-        print("- go [room]        : Leave the room and return to the corridor.")
-        print("- quit             : Quit the game completely or exit a puzzle if in progress.")
-        print("- status           : Show current game status.")
-        print("- save             : Save the current game state.")
 
     # +--------------+
     # | Command loop |
@@ -84,9 +63,9 @@ def enter_student_wing(state: dict) -> str:
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help()
 
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

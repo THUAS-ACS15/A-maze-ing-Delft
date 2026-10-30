@@ -7,6 +7,8 @@
 # Contributors: Dominik
 # -----------------------------------------------------------------------------
 
+"""Teacher Room 1: code-snippet puzzle awarding the staff keycard."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -18,10 +20,17 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
-from utilities.scoreboard import display_scoreboard
+from utilities.centralized_commands import display_help
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
+
+room_commands = [
+    (
+        "answer <answer>",
+        "Answer the teacher's question."
+    )
+]
 
 def enter_teachers_room1(state: dict) -> str:
     """Starter function for Teachers Room 1."""
@@ -34,6 +43,7 @@ def enter_teachers_room1(state: dict) -> str:
     print_dialogue(room_dialogue_bank["enter"], print_newline_after = False)
 
     def handle_look():
+        """Describe the room and show the code puzzle until it is solved."""
         print_dialogue(look_around_dialogue_bank["teachersroom1"])
         if not state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_not_complete"])
@@ -41,20 +51,8 @@ def enter_teachers_room1(state: dict) -> str:
         print()
         print_current_objective(state)
 
-    def handle_help():
-        print("\nAvailable commands:")
-        print("- ?                   : Show this help message.")
-        print("- look around         : Examine the room and the code on screen.")
-        print("- inventory           : Show what items are in your inventory.")
-        print("- save                : Save the current game state.")
-        print("- status              : Show current game status.")
-        if not state["completed"]["teachersroom1"]:
-            print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        print("- go                  : Leave the room and return to the corridor.")
-        print("- scoreboard          : Opens the ranking of the current players in the game.")
-        print("- quit                : Quit the game entirely.")
-
     def handle_answer(answer):
+        """Check the code snippet and award the staff keycard on success."""
         if state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_already_complete"])
             return
@@ -80,7 +78,7 @@ def enter_teachers_room1(state: dict) -> str:
 
         elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
@@ -98,10 +96,6 @@ def enter_teachers_room1(state: dict) -> str:
         elif command in ["inv", "inventory"]:
             clear_screen()
             display_inventory(state["inventory"])
-
-
-        elif command in ["scoreboard", "sb"]:
-            display_scoreboard()
     
         elif command in ["status", "check status"]:
             clear_screen()

@@ -6,8 +6,8 @@
 # Date: October 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""ASCII art renders for inventory items."""
 
-# ^ disable ruff checking long lines
 
 item_render_bank: dict[str, str] = {
 	# Compact terminal renders: each combines a small label with an item silhouette.

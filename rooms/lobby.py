@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Lobby: starting room and central hub for campus navigation."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -16,13 +18,13 @@ from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
+from utilities.centralized_commands import display_help
 from utilities.print_helpers import (
     print_assembly_part_obtained,
     print_current_objective,
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
-from utilities.scoreboard import display_scoreboard
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
 valid_destinations = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
@@ -39,15 +41,10 @@ def enter_lobby(state):
         print_dialogue(room_dialogue_bank["no_student_id"], print_newline_after = False)
 
     def handle_look():
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player which
         rooms they can go to.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         clear_screen()
@@ -64,27 +61,6 @@ def enter_lobby(state):
         print()
         print_current_objective(state)
 
-    def handle_help():
-        """
-        Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
-        """
-        clear_screen()
-        print("Available commands:")
-        print("- look around         : See what's in the corridor and where you can go.")
-        print("- go <room name>      : Move to another room.'")
-        print("- scoreboard          : Opens the ranking of the current players in the game.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game.")
-        print("- inventory           : Show what items are in your inventory.")
-        print("- status              : Show current game status.")
-        print("- save                : Save the current game state.")
-
         print()
         print_current_objective(state)
 
@@ -95,7 +71,8 @@ def enter_lobby(state):
             handle_look()
 
         elif command in ["?", "help"]:
-            handle_help()
+            clear_screen()
+            display_help()
 
         elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
@@ -115,9 +92,6 @@ def enter_lobby(state):
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
-
-        elif command in ["scoreboard", "sb"]:
-            display_scoreboard()
 
         elif command == "quit":
             clear_screen()

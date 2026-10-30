@@ -7,6 +7,8 @@
 # Contributors: Dominik, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Teacher Room 2: database puzzle awarding the Wi-Fi credentials."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -22,7 +24,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
-from utilities.scoreboard import display_scoreboard
+from utilities.centralized_commands import display_help
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom2"]
@@ -52,6 +54,25 @@ Enrollments table:
 | 3          | 12        |
 """
 
+room_commands = [
+    (
+        "talk to teacher",
+        "Talk to the teacher."
+    )
+    (
+        "answer <answer>",
+        "Answer the teacher's question."
+    ),
+    (
+        "look at database",
+        "See what the database schema looks like."
+    )
+    (
+        "take credentials",
+        "Take the credentials after helping the teacher."
+    )
+]
+
 def enter_teachers_room2(state):
     """Starter function for Teachers Room 2."""
 
@@ -63,6 +84,7 @@ def enter_teachers_room2(state):
     print_dialogue(room_dialogue_bank["enter"])
 
     def handle_look():
+        """Describe the room and the teacher's database puzzle."""
         clear_screen()
         print("You take a look around.")
         if not state["completed"]["teachersroom2"]:
@@ -77,24 +99,8 @@ def enter_teachers_room2(state):
         print()
         print_current_objective(state)
 
-    def handle_help():
-        clear_screen()
-        print("Available commands:")
-        print("- look around         : See what the teacher needs help with.")
-        print("- status              : Show current game status.")
-        print("- save                : Save the current game state.")
-        if not state["completed"]["teachersroom2"]:
-            print("- look at database    : See the tables the teacher is working with.")
-            print("- talk to teacher     : Ask the teacher what they need help with.")
-            print("- answer <name>       : Tell the teacher the student's name.")
-        if state["visited"]["teachersroom2"] and "Wi-Fi Credentials" not in state["inventory"]:
-            print("- take credentials    : Pick up the Wi-Fi credentials.")
-        print("- go                      : Leave the room and return to the lobby.")
-        print("- scoreboard          : Opens the ranking of the current players in the game.")
-        print("- ?                       : Show this help message.")
-        print("- quit                    : Quit the game entirely.")
-
     def handle_take(item):
+        """Pick up the Wi-Fi credentials once the puzzle is solved."""
         if item == "credentials":
             if not state["completed"]["teachersroom2"]:
                 print("There's nothing to take yet. Maybe help the teacher first.")
@@ -109,6 +115,7 @@ def enter_teachers_room2(state):
             print(f"There is no '{item}' here to take.")
 
     def handle_answer(answer):
+        """Check the student name answer and mark the puzzle complete."""
         if state["completed"]["teachersroom2"]:
             print("You've already solved this challenge.")
             return
@@ -124,13 +131,13 @@ def enter_teachers_room2(state):
     while True:
         command = input("\n> ").lower()
 
-        if command in ["look around", "lk", "look", "l", "la"]:
+        if command == "look around":
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command.startswith("take "):
             clear_screen()
@@ -165,9 +172,6 @@ def enter_teachers_room2(state):
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
-
-        elif command in ["scoreboard", "sb"]:
-            display_scoreboard()
 
         elif command in ["pause", "save"]:
             display_save_menu(state)

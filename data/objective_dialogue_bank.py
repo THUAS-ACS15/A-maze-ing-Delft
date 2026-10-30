@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- dialogue and item descriptions are intentionally long prose.
 # -----------------------------------------------------------------------------
 # File: objective_dialogue_bank.py
 # ACS Q1 Project - A-maze-ing Delft
@@ -6,8 +7,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Objective text keyed by objective ID."""
 
-# ^ disable ruff checking long lines, as this is dialogue
 
 objective_dialogue_bank: dict = {
     0: "None",

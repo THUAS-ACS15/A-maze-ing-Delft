@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Project Room 1: locker puzzle with random loot."""
+
 # Project Room 1. Professor Vance's locker room.
 # The player needs the Classroom 2.021 key (from D2.031) or a staff keycard to get in.
 # The puzzle: open five lockers with codes. The codes are maths sums hidden in the room (BODMAS).
@@ -21,6 +23,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.centralized_commands import display_help
 
 # The five lockers. For each locker: its code, the coins inside and the item inside.
 # A code of 0 means the locker has no code. It opens with the brass key instead.
@@ -37,16 +40,16 @@ room_loot: list[str] = []
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom1"]
 
-def show_help():
-    """Print the list of commands."""
-    print("Available commands:")
-    print("- look around         : Describe the room.")
-    print("- inspect <object>    : Look closer (try the lockers).")
-    print("- take <item>         : Pick up an item.")
-    print("- go lobby / back     : Leave the room.")
-    print("- status / save       : Show your status / open the save menu.")
-    print("- ?                   : Show this help message.")
-    print("- quit                : Quit the game entirely.")
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def handle_look(state):
     """Describe the room and what the player can do here."""
@@ -88,7 +91,7 @@ def play_lockers(state):
         if locker["code"] == 0:
             # This locker has an old padlock and needs the brass key.
             if "brass key" not in state["inventory"]:
-                print("Locker 2 has an old brass padlock. The key must be in the pile in the corner.")
+                print("Locker 2 has an old brass padlock. The key must be in another room.")
                 continue
             print("You try the brass key. Click, it turns.")
         else:
@@ -123,7 +126,6 @@ def inspect_object(state, name):
     elif name == "pile":
         print_dialogue(room_dialogue_bank["pile_intro"])
         print('    "LOCKER 5:  2 ** 4 + 3 * 10"')
-        print_dialogue(room_dialogue_bank["pile_hint"])
     elif name == "vance":
         print_dialogue(room_dialogue_bank["vance_first"])
         print_dialogue(room_dialogue_bank["vance_second"])
@@ -166,9 +168,9 @@ def enter_project_room1(state):
             clear_screen()
             handle_look(state)
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            show_help()
+            display_help(room_commands)
 
         elif command.startswith("inspect "):
             clear_screen()

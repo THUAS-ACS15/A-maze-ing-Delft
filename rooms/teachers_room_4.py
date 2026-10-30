@@ -1,297 +1,296 @@
+# -----------------------------------------------------------------------------
+# File: teachers_room_4.py
     # -----------------------------------------------------------------------------
 # File: teachersroom4.py
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
+# Contributor: Gift Odigwe
 # -----------------------------------------------------------------------------
+"""Teacher Room 4: desk interaction plus a NixOS terminal challenge.
+
+Inspecting the room computer boots a virtual NixOS shell where the player
+explores an in-memory filesystem and hunts for a hidden secret file. Reading
+that file awards the Encrypted API & Prompt USB to the inventory exactly once,
+marks the room as completed and advances the objective.
+"""
 import time
-from textwrap import dedent
 
-from art import text2art  # type: ignore[import-untyped]
 from rich.console import Console
-from rich.panel import Panel
-from rich.syntax import Syntax
+from rich.text import Text
 
-from data.look_around_dialogue_bank import look_around_dialogue_bank
+from assets.nixos import nixos as nixos_logo
+
 from data.story_dialogue_bank import story_dialogue_bank
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 from utilities.clear_screen import clear_screen
-from utilities.display_menu import display_menu
+from utilities.display_menu import display_selection_menu
+from utilities.colors import CYAN, BLUE, BOLD, RESET
+from utilities.centralized_commands import display_help
 from utilities.game_map import display_map
-from utilities.inventory_viewer import display_inventory
 from utilities.loader import loader
 from utilities.print_helpers import (
     print_assembly_part_obtained,
     print_current_objective,
     print_dialogue,
-    print_line,
 )
 from utilities.save_gui import display_save_menu
+from utilities.shell import VirtualShell
+from utilities.centralized_commands import display_help
 
 header_style = "bold green"
-
-items = ["computer", "paperclip", "note", "mug"]
+valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom4"]
 
-file_system_without_secret = dedent("""\
-.     [blue]just_another_folder[/]           
-""")
+# Absolute virtual path of the only file that grants the USB reward.
+SECRET_PATH = "/home/teacher/.secret/super_secret_file.txt"
 
-file_system_with_secret = dedent("""\
-.     .azure         .bashrc           .config    .local      .zprofile           super_secret_file.txt
-..    .bash_history  .bashrc.original  .docker   .java        .profile           .sudo_as_admin_successful 
-.aws  .bash_logout   .cache            .emacs.d  .lesshst     
-""").strip()
+# Item awarded on the first read of the secret file.
+REWARD_ITEM = "Encrypted API & Prompt USB"
+
+# Boot log lines shown by the loader before the terminal opens.
+computer_sequence = [
+    "systemd-boot → NixOS Generation 42",
+    "<<< NixOS Stage 1 >>> loading kernel modules",
+    "LUKS unlock… skipped (no secrets here. Probably.)",
+    "Mounting /nix/store from /dev/sda1",
+    "Stage 2 activation: /etc, users, secrets",
+    "starting systemd... (PID 1)",
+    "Reached graphical.target",
+]
+
+# Virtual filesystem: dicts are directories, strings are file contents.
+FILESYSTEM = {
+    "etc": {
+        "hostname": "teacher-pc\n",
+        "passwd": "root:x:0:0:root:/root:/bin/bash\nteacher:x:1000:100:Teacher:/home/teacher:/bin/bash\n",
+        "nixos": {
+            "configuration.nix": (
+                "{ config, pkgs, ... }:\n{\n  networking.hostName = \"teacher-pc\";\n"
+                "  users.users.teacher.isNormalUser = true;\n  system.stateVersion = \"26.05\";\n}\n"
+            ),
+        },
+    },
+    "home": {
+        "teacher": {
+            "Documents": {
+                "grading_notes.txt": "Grade fairly. Coffee first.\n",
+                "exam_draft.txt": "Question 1: Why is the maze so confusing?\n",
+                ".notes.txt": (
+                    "I moved the schematic somewhere out of sight.\n"
+                    "Hidden things tend to live in hidden places.\n"
+                ),
+            },
+            "Downloads": {
+                "lecture_slides.pdf": "[binary data omitted]\n",
+            },
+            "Projects": {
+                "maze_generator": {
+                    "README.md": "A tiny maze generator. Work in progress.\n",
+                },
+            },
+            ".config": {
+                "nixpkgs": {"config.nix": "{ allowUnfree = true; }\n"},
+            },
+            ".secret": {
+                "super_secret_file.txt": (
+                    "Congratulations!\n"
+                    "You found the A-maze-ing Delft schematic.\n"
+                    "The Encrypted API & Prompt USB has been copied to your inventory.\n"
+                ),
+            },
+            ".bashrc": "# ~/.bashrc\nalias ll='ls -l'\n",
+            "README.txt": (
+                "Welcome to teacher-pc. Type 'help' to see the available commands.\n"
+                "Tip: not every file shows up in a plain ls. Try 'ls -a' or 'find'.\n"
+            ),
+        },
+    },
+    "nix": {
+        "store": {
+            "nixos-system": {
+                "README": "This is the NixOS system closure. Nothing to see here.\n",
+            },
+        },
+    },
+    "var": {
+        "log": {
+            "nixos.log": "activating the configuration...\nsetting up /etc...\nsystem activated.\n",
+        },
+    },
+}
+
+console = Console()
 
 room_commands = [
     (
-        "look around",
-        "Nose around the abandoned desk. The mug is off-limits. Everything else… gray area.",
-    ),
-    (
-        "get comfortable",
-        "Sink into the teacher's spinny chair. Spin tax: zero.",
-    ),
-    (
-        "help/?",
-        "Lost? Here's the map. Don't tell the teacher you needed it.",
-    ),
-    (
-        "pause/save",
-        "Pause the game or save your progress.",
-    ),
-    (
-        "leave/exit",
-        "Slip back to the lobby before the footsteps return.",
-    ),
+        "use computer",
+        "Boot the teacher's computer and explore the NixOS terminal.",
+    )
 ]
 
-commands = [
-    "look around",
-    "get comfortable",
-    "?",
-    "help",
-    "leave",
-    "exit",
-]
 
-computer_commands = [
-    (
-        "shutdown",
-        "Check the abandoned desk. The mug is off-limits—everything else is fair game.",
-    ),
-    (
-        "help/?",
-        "Need a hint? Here's the map. And no, you didn't need to ask the teacher.",
-    ),
-]
+def _prompt_text(shell: VirtualShell) -> str:
+    """Build the two-line colored terminal prompt.
 
-position_commands = [
-    (
-        "stand up",
-        "Abandon the spinny chair. It will miss you.",
-    ),
-    (
-        "pick up",
-        "Pocket something from the desk. The teacher is gone — probably.",
-    ),
-    (
-        "boot computer",
-        "Snoop on the teacher's unfinished work. Password willing.",
-    ),
-    (
-        "help/?",
-        "Lost in comfort? Here's the map.",
-    ),
-]
+    Args:
+        shell: Shell providing the user, host, and display directory.
 
-# Style & Color definitions
-RESET = "\033[0m"
-CYAN = "\033[36m"
-BLUE = "\033[34m"
-BOLD = "\033[1m"
-
-
-def get_prompt(username: str = "username", hostname: str = "teacher4", path: str = "~") -> str:
-    # Top line: ┌──(username㉿hostname)-[path]
-    top_line = f"{CYAN}┌──({BLUE}{username}㉿{hostname}{CYAN})-[{BOLD}{path}{RESET}" f"{CYAN}]{RESET}"
-
-    # Bottom line: └─$
+    Returns:
+        The prompt string passed to the input reader.
+    """
+    top_line = f"{CYAN}┌──({BLUE}{shell.user}㉿{shell.hostname}{CYAN})-[{BOLD}{shell.display_cwd}{RESET}{CYAN}]{RESET}"
     bottom_line = f"{CYAN}└─{BLUE}${RESET} "
-
     return f"{top_line}\n{bottom_line}"
 
 
-def remaining_items(state: dict) -> list:
-    """Items still on the desk (taken ones stay in the inventory)."""
-    return [item for item in items if item not in state.get("inventory", [])]
+def _reward(state: dict, write_output=None) -> None:
+    """Grant the USB reward on first read of the secret file.
+
+    Always marks the room as completed; appends the reward to the inventory
+    and advances the objective only when it is not already there.
+
+    Args:
+        state: The current game state.
+        write_output: Callable receiving the status message. Defaults to
+            the module console printer.
+    """
+    write_output = write_output or console.print
+    inventory = state["inventory"]
+    state["completed"]["teachersroom4"] = True
+    if REWARD_ITEM in inventory:
+        write_output(f"[dim]The {REWARD_ITEM} is already in your inventory.[/]")
+        return
+    inventory.append(REWARD_ITEM)
+    state["current_objective_id"] += 1
+    write_output(f"[bold green]{REWARD_ITEM} added to your inventory![/]")
+    print_assembly_part_obtained(f"(+ {REWARD_ITEM})")
+    print_current_objective(state)
 
 
-def show_desk(console: Console, state: dict) -> None:
-    """Show the desk contents in a panel."""
+def run_shell(state: dict, shell: VirtualShell, read_input=input, write_output=None, clear_screen=clear_screen) -> None:
+    """Run the interactive read-execute loop until exit or interrupt.
+
+    Command output is printed literally so shell text is never interpreted
+    as Rich markup. Reading the secret file triggers the USB reward.
+
+    Args:
+        state: The current game state.
+        shell: Virtual shell executing each input line.
+        read_input: Callable reading one line with the prompt.
+        write_output: Callable receiving output text. Defaults to the
+            module console printer.
+        clear_screen: Callable clearing the screen on ``clear``.
+
+    Returns:
+        None. Terminates on ``exit`` or on EOF/KeyboardInterrupt.
+    """
+    write_output = write_output or console.print
+    while True:
+        try:
+            raw = read_input(_prompt_text(shell))
+        except (EOFError, KeyboardInterrupt):
+            write_output("")
+            break
+        result = shell.execute(raw)
+        if result.clear_requested:
+            clear_screen()
+        if result.output:
+            write_output(Text(result.output))
+        if SECRET_PATH in result.read_paths:
+            _reward(state, write_output)
+        if result.exit_requested:
+            break
+
+def handle_look(state: dict):
+    """Describe the room and give clues."""
+    clear_screen()
+    print("You take a look around.")
     print_dialogue(look_around_dialogue_bank["teachersroom4"])
-    remaining = remaining_items(state)
-    if remaining:
-        console.print(
-            Panel(
-                "\n".join(f"- {item}" for item in remaining),
-                title="On the desk",
-            )
+    print(f"- Possible exits: {', '.join(valid_destinations)}")
+    print()
+    print_current_objective(state)
+
+
+def inspect_computer(state: dict) -> None:
+    """Boot the NixOS computer and open the terminal session.
+
+    Pauses the game timer, plays the boot sequence and logo, then runs the
+    shell. The timer stays paused for the whole session and resumes when the
+    player leaves the terminal.
+
+    Args:
+        state: The current game state.
+
+    Returns:
+        None.
+    """
+    state["is_gametime_paused"] = True
+    try:
+        loader(
+            loading_time=1.2,
+            label="Booting up the computer...",
+            console=console,
+            mode="PROGRESS",
+            sequence=computer_sequence,
         )
-    else:
+        clear_screen()
+        time.sleep(1)
+        nixos_logo()
+        time.sleep(2)
+        clear_screen()
         console.print(
-            Panel(
-                "Picked clean. The teacher will notice. Probably.",
-                title="On the desk",
-            )
+            "Viola! you are half way in! Now explore the file system to see if you find anything interesting. "
+            "Type 'help' to list the available commands."
         )
+        time.sleep(1)
+        console.print("[bold green]NIXOS // teacher-pc[/]")
+        console.print("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
+        run_shell(state, VirtualShell(FILESYSTEM))
+    finally:
+        state["is_gametime_paused"] = False
+        clear_screen()
 
 
-def show_goodbye() -> None:
-    """Splash shown when leaving the computer (shutdown or logout)."""
-    clear_screen()
-    message = text2art("Good bye!", font="univers", chr_ignore=True)
-    print_line(message, delay=0.002)
-    time.sleep(1)
-    clear_screen()
-
-def enter_teachers_room4(state: dict) -> str:
-    """Greet the player in Teachers Room 4 and send them back to the Lobby."""
+def enter_teachers_room_4(state: dict) -> str:
+    """Enter Teacher's Room 4; the computer is the only interactable."""
 
     state["previous_room"] = "teachersroom4"
-    
+
     clear_screen()
     state["visited"]["teachersroom4"] = True
-    console = Console(legacy_windows=False)
 
     # Display loading state
     loader(label="Loading teachers room...")
 
+    print_dialogue(room_dialogue_bank["header"])
     print_dialogue(room_dialogue_bank["enter"])
     state["current_room"] = "teachersroom4"
 
-    choice = input(">")
-    while choice not in ("leave", "exit"):
-        match choice:
-            case "?" | "help":
-                display_menu(console, room_commands)
-            case "pause" | "save":
-                display_save_menu(state)
-            case "get comfortable":
-                loader(label="taking a sit...")
-                print_line("You made a good choice. The chair spins. Life is good. ☕")
-                seated = input(">")
-                while seated != "stand up":
-                    match seated:
-                        case "?" | "help":
-                            display_menu(
-                                console,
-                                position_commands,
-                            )
-                        case "look around":
-                            show_desk(console, state)
-                        case "pick up":
-                            remaining = remaining_items(state)
-                            if not remaining:
-                                print_line("Nothing left but crumbs. Leave those too.")
-                            else:
-                                taken = input(">")
-                                if taken in items:
-                                    if taken in state.get("inventory", []):
-                                        print_line(f"You already took the {taken}.")
-                                    else:
-                                        print_line(f"You pocket the {taken}. The teacher will never know.")
-                                        state.setdefault(
-                                            "inventory",
-                                            [],
-                                        ).append(taken)
-                                        print_line(f"You pocket the {taken}. The teacher will never know.")
-                        case "boot computer":
-                            clear_screen()
-                            sequence = [
-                                "systemd-boot → NixOS Generation 42",
-                                "<<< NixOS Stage 1 >>> loading kernel modules",
-                                "LUKS unlock… skipped (no secrets here. Probably.)",
-                                "Mounting /nix/store from /dev/sda1",
-                                "Stage 2 activation: /etc, users, secrets",
-                                "starting systemd... (PID 1)",
-                                "Reached graphical.target",
-                            ]
-                            loader(
-                                loading_time=1.2,
-                                label="Booting up the computer...",
-                                console=console,
-                                mode="PROGRESS",
-                                sequence=sequence,
-                            )
-                            clear_screen()
-                            time.sleep(1)
-                            print_line(
-                                text2art(
-                                    "NIX OS",
-                                    font="univers",
-                                    chr_ignore=True,
-                                ),
-                                delay=0.002,
-                            )
-                            time.sleep(2)
-                            clear_screen()
-                            print_line(
-                                "Voila! you are half way in! Now explore the file system to see if you find "
-                                "anything interesting.",
-                                delay=0.015,
-                            )
-                            time.sleep(1)
-                            print_line(text="[bold green]NIXOS // teacher-pc[/]")
-                            print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                            computer = input(get_prompt())
-                            while computer != "shutdown":
-                                match computer:
-                                    case "?" | "help":
-                                        display_menu(
-                                            console,
-                                            computer_commands,
-                                        )
-                                    case "ls":
-                                        print_line(file_system_without_secret)
-                                    case "ls -a":
-                                        print_line(file_system_with_secret)
-                                    case "cat super_secret_file.txt":
-                                        state["completed"]["teachersroom4"] = True
-                                        clear_screen()
-                                        syntax_disp = Syntax(
-                                            room_dialogue_bank["puzzle_take_api_and_prompt_usb"],
-                                            "python",
-                                            theme="monokai",
-                                            line_numbers=True,
-                                            highlight_lines={1},  # Highlights line 1
-                                        )
-                                        time.sleep(0.4)
-                                        console.print(syntax_disp)
-                                        time.sleep(0.4)
-                                        if "Encrypted API & Prompt USB" not in state.get("inventory", []):
-                                            state["inventory"].append("Encrypted API & Prompt USB")
-                                            state["current_objective_id"] += 1
-                                            print_assembly_part_obtained("(+ Encrypted API & Prompt USB)")
-                                            print()
-                                            print_current_objective(state)
-                                    case "clear":
-                                        clear_screen()
-                                    case _:
-                                        print_line("[red]You do not have the permission to execute this command.[/]")
+    while True:
+        choice = input("> ").strip().lower()
 
-                                if computer != "shutdown":
-                                    print_line("[bold green]NIXOS // teacher-pc[/]")
-                                    print_line("[dim]NixOS 26.05 (Linux 6.12.1)[/]")
-                                    computer = input(get_prompt())
-                            show_goodbye()
-                    seated = input(">")
-            case "look around":
-                show_desk(console, state)
-            case "map":
-                display_map(state)
-            case "inv" | "inventory":
-                clear_screen()
-                display_inventory(state["inventory"])
-        choice = input("> ")
-    return "eastcorridor"
+        if choice in ("use computer", "inspect computer", "boot computer", "computer"):
+            inspect_computer(state)
+
+        elif choice in ("?", "help"):
+            display_help(room_commands)
+
+        elif choice in ("look around", "look", "lk", "la", 'l'):
+            handle_look(state)
+
+        elif choice in ("pause", "save"):
+            display_save_menu(state)
+
+        elif choice == "map":
+            display_map(state)
+
+        elif choice in ["g", "go", "goto", "move"] or choice.startswith("go "):
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
+            if result:
+                return result
+
+        else:
+            clear_screen()
+            print("Unknown command. Type '?' to see available commands.")

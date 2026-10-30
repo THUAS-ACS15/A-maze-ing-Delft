@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- dialogue and item descriptions are intentionally long prose.
 # -----------------------------------------------------------------------------
 # File: story_dialogue_bank.py
 # ACS Q1 Project - A-maze-ing Delft
@@ -6,15 +7,12 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Story, room, and puzzle dialogue keyed by room."""
 
-# ^ disable ruff checking long lines, as this is dialogue
 
 # story_dialogue_bank is a dictionary that contains all the story-related dialogue and text for the game.
 # "story_important_flags" contains important story flags and their associated text.
 # "rooms" contains the dialogue and text for each room in the game, including headers, descriptions, and any other extra dialogue.
-
-# updated so far with dialogue func: lobby, teachersroom1, teachersroom2, teachersroom4, projectroom2
-# TODO: TO UPDATE AFTER REFACTOR: front desk, classrooms d2015, d2031, d2035, teachersroom4 (partially)
 
 # the rooms are ordered based on their story appearance
 story_dialogue_bank: dict = {
@@ -193,8 +191,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "cipher_intro": "The key box wants the real password. The board only shows it in code.",
             "cipher_read": "Read the board and the working monitor first (inspect board, inspect monitors).",
             "cipher_open": "Click. The key box opens.",
-            "cipher_key": "A tag on the key reads: 'Classroom 2.021. Also fits the Project Room 1 side door.'",
-            "key_pickup": "Inside the key box: the Classroom 2.021 key. Use 'take classroom 2.021 key' to pick it up.",
+            "cipher_key": "A tag on the brass key reads: 'Classroom 2.031. Also fits the Project Room 1 side door.'",
+            "key_pickup": "Inside the key box: the brass key. Use 'take brass key' to pick it up.",
             "quit": "👋 You leave the dark classroom and exit."
         },
         "classroomd2035": {
@@ -222,11 +220,11 @@ Congratulations! You have completed the game and escaped the school building!"""
             "enter": "A project room. Professor Vance stands at the front, capping a whiteboard marker.",
             "lockers": "Five lockers line the back wall.",
             "whiteboard_intro": "You step up to the whiteboard. Vance's handwriting is terrible.",
-            "whiteboard_bodmas": "Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then add/subtract.",
+            "whiteboard_bodmas": "Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then"
+                                 " add/subtract.",
             "whiteboard_more": "(Two more codes are written somewhere else in the room.)",
             "desks_intro": "Between the rows of wooden desks, something is carved into desk #3:",
             "pile_intro": "A pile of broken desks and chairs. A sticker peels off a snapped chair:",
-            "pile_hint": "Something shiny is half buried in the pile (try 'look' and 'take').",
             "vance_first": "Vance: \"Five lockers, five combinations, every number is somewhere in this room.",
             "vance_second": "The USB cable and the keycard for the old Linux room are in there. Earn them.\"",
             "quit": "👋 You leave Project Room 1 and exit."
@@ -268,7 +266,8 @@ Congratulations! You have completed the game and escaped the school building!"""
 
         "eastcorridor": {
             "header": "🚪 You enter the East Corridor.",
-            "enter": "You see a long corridor with many doors and glass walls on both sides. Coffee machines and printers line the walls, along with some houseplants.",
+            "enter": "You see a long corridor with many doors and glass walls on both sides. "
+                     "Coffee machines and printers line the walls, along with some houseplants.",
             "quit": "👋 You decide to turn back ."
         },
         "studentwing": {

@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Front desk: register the player and issue the student ID card."""
+
 # The Front Desk. The player registers here and gets a Student ID card.
 # This room can be entered at any time. Only the printer remembers that the ID was already printed.
 
@@ -19,24 +21,21 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
-from utilities.scoreboard import display_scoreboard
+from utilities.centralized_commands import display_help
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
 valid_destinations = ["lobby"]
 
-def handle_help():
-    """Print the list of commands."""
-    print("Available commands:")
-    print("- look around         : Describe the room.")
-    print("- inspect <object>    : Look closer (try the printer).")
-    print("- go [room]           : Leave the room.")
-    print("- scoreboard          : Opens the ranking of the current players in the game.")
-    print("- inventory           : Show what items are in your inventory.")
-    print("- status              : Show your status.")
-    print("- save                : Save the current game state.")
-    print("- ?                   : Show this help message.")
-    print("- quit                : Quit the game entirely.")
-
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def handle_look(state):
     """Describe the room and what the player can do here."""
@@ -76,6 +75,7 @@ def register(state):
             break
 
     # The quest is done: remember it and put the card in the printer tray.
+    clear_screen()
     state["student_id_obtained"] = True
     state["current_objective_id"] += 1
     state["completed"]["frontdesk"] = True
@@ -126,7 +126,7 @@ def enter_front_desk(state):
 
         elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command in ["inspect", "insp", "check"] or command.startswith ("inspect"):
             clear_screen()
@@ -136,9 +136,6 @@ def enter_front_desk(state):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
-
-        elif command in ["scoreboard", "sb"]:
-            display_scoreboard()
 
         elif command == "map":
             display_map(state)
