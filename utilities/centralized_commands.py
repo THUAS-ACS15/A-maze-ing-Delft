@@ -20,7 +20,7 @@ DEFAULT_COMMANDS = [
         "Show this help message."
     ),
     (
-        "look around/look/ls/lk/l",
+        "look around/look/l",
         "Examine the room for clues.",
     ),
     (
