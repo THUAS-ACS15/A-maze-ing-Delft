@@ -16,6 +16,7 @@ from rich.prompt import Prompt
 from utilities.clear_screen import clear_screen
 from utilities.loader import loader
 from utilities.print_helpers import print_line
+from utilities.inventory_viewer import display_inventory
 
 # Consistent text style
 HEADER_STYLE = "bold green"
@@ -151,19 +152,20 @@ def check_status(
 
         if pause:
             print_line("\n \n Available commands:")
-            choices = ["exit"]
+            choices = ["exit", "inventory"]
             console.print(f"- exit      : Back to {current_room}")
-            while (
-                Prompt.ask(
+            console.print("- inventory : View your inventory")
+            while True:
+                command = Prompt.ask(
                     "Command",
                     choices=choices,
                     default="exit",
                     show_choices=True,
                     console=console,
                 )
-                == "exit"
-            ):
-                break
+                if command == "exit":
+                    break
+                display_inventory(inventory)
     finally:
         # Exclude the whole status screen duration from game time.
         start_time = state.get("start_time", None)
