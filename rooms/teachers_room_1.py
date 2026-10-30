@@ -18,6 +18,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
@@ -50,6 +51,7 @@ def enter_teachers_room1(state: dict) -> str:
         if not state["completed"]["teachersroom1"]:
             print("- answer <snippet>    : Try to fill in the missing piece of code.")
         print("- go                  : Leave the room and return to the corridor.")
+        print("- scoreboard          : Opens the ranking of the current players in the game.")
         print("- quit                : Quit the game entirely.")
 
     def handle_answer(answer):
@@ -96,6 +98,10 @@ def enter_teachers_room1(state: dict) -> str:
         elif command in ["inv", "inventory"]:
             clear_screen()
             display_inventory(state["inventory"])
+
+
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard()
     
         elif command in ["status", "check status"]:
             clear_screen()

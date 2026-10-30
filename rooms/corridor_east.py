@@ -80,7 +80,7 @@ def enter_east_corridor(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look()
 

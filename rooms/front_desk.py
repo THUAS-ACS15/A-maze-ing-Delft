@@ -19,6 +19,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
 valid_destinations = ["lobby"]
@@ -28,10 +29,11 @@ def handle_help():
     print("Available commands:")
     print("- look around         : Describe the room.")
     print("- inspect <object>    : Look closer (try the printer).")
-    print("- take <item>         : Pick up an item.")
     print("- go [room]           : Leave the room.")
+    print("- scoreboard          : Opens the ranking of the current players in the game.")
     print("- inventory           : Show what items are in your inventory.")
-    print("- status / save       : Show your status / open the save menu.")
+    print("- status              : Show your status.")
+    print("- save                : Save the current game state.")
     print("- ?                   : Show this help message.")
     print("- quit                : Quit the game entirely.")
 
@@ -134,6 +136,9 @@ def enter_front_desk(state):
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
+
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard()
 
         elif command == "map":
             display_map(state)

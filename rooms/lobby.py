@@ -22,6 +22,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
 valid_destinations = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
@@ -77,6 +78,7 @@ def enter_lobby(state):
         print("Available commands:")
         print("- look around         : See what's in the corridor and where you can go.")
         print("- go <room name>      : Move to another room.'")
+        print("- scoreboard          : Opens the ranking of the current players in the game.")
         print("- ?                   : Show this help message.")
         print("- quit                : Quit the game.")
         print("- inventory           : Show what items are in your inventory.")
@@ -113,6 +115,9 @@ def enter_lobby(state):
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
+
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard()
 
         elif command == "quit":
             clear_screen()

@@ -22,6 +22,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom2"]
@@ -89,6 +90,7 @@ def enter_teachers_room2(state):
         if state["visited"]["teachersroom2"] and "Wi-Fi Credentials" not in state["inventory"]:
             print("- take credentials    : Pick up the Wi-Fi credentials.")
         print("- go                      : Leave the room and return to the lobby.")
+        print("- scoreboard          : Opens the ranking of the current players in the game.")
         print("- ?                       : Show this help message.")
         print("- quit                    : Quit the game entirely.")
 
@@ -122,7 +124,7 @@ def enter_teachers_room2(state):
     while True:
         command = input("\n> ").lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look()
 
@@ -163,6 +165,9 @@ def enter_teachers_room2(state):
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
+
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard()
 
         elif command in ["pause", "save"]:
             display_save_menu(state)
