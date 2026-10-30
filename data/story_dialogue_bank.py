@@ -10,14 +10,9 @@
 """Story, room, and puzzle dialogue keyed by room."""
 
 
-# ^ disable ruff checking long lines, as this is dialogue
-
 # story_dialogue_bank is a dictionary that contains all the story-related dialogue and text for the game.
 # "story_important_flags" contains important story flags and their associated text.
 # "rooms" contains the dialogue and text for each room in the game, including headers, descriptions, and any other extra dialogue.
-
-# updated so far with dialogue func: lobby, teachersroom1, teachersroom2, teachersroom4, projectroom2
-# TODO: TO UPDATE AFTER REFACTOR: front desk, classrooms d2015, d2031, d2035, teachersroom4 (partially)
 
 # the rooms are ordered based on their story appearance
 story_dialogue_bank: dict = {

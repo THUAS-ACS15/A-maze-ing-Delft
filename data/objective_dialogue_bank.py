@@ -10,8 +10,6 @@
 """Objective text keyed by objective ID."""
 
 
-# ^ disable ruff checking long lines, as this is dialogue
-
 objective_dialogue_bank: dict = {
     0: "None",
     1: "Go to the front desk to register for a new student ID card.", # obtains Student ID card

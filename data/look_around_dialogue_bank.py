@@ -9,7 +9,6 @@
 """Room descriptions shown by the 'look around' command."""
 
 
-# ^ disable ruff checking long lines, as this is dialogue
 
 look_around_dialogue_bank: dict = {
     "lobby": """It's the lobby, the main room of the building.
