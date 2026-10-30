@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- ANSI-colored ASCII-art rows are intentionally long.
 # -----------------------------------------------------------------------------
 # File: game_map.py
 # ACS Q1 Project - A-maze-ing Delft
