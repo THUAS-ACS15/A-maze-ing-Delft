@@ -58,10 +58,6 @@ def enter_lobby(state):
 
         
         print(f"- Possible destinations: {', '.join(valid_destinations)}")
-        print(f"- Your inventory: {state['inventory']}")
-        print()
-        print_current_objective(state)
-
         print()
         print_current_objective(state)
 
