@@ -25,6 +25,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["lobby"]
 valid_destinations = ["frontdesk", "studentwing", "eastcorridor", "teachingarea"]
@@ -90,10 +91,13 @@ def enter_lobby(state):
             clear_screen()
             check_status(state)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+    
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print(room_dialogue_bank["quit"])
             sys.exit()

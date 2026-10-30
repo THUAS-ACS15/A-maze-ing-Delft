@@ -21,6 +21,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.centralized_commands import display_help
+from utilities.scoreboard import display_scoreboard
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
@@ -101,10 +102,13 @@ def enter_teachers_room1(state: dict) -> str:
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+        
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

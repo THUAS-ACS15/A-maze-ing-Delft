@@ -21,6 +21,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 from utilities.story_animations import play_game_complete
 from utilities.centralized_commands import display_help
 
@@ -36,6 +37,10 @@ room_commands = [
     (
         "start stacking",
         "Try your hand at stacking the boxes on the platforms."
+    ),
+    (
+        "reset",
+        "Reset the puzzle if you're struggling. (only while in puzzle)"
     ),
     (
         "assemble",
@@ -136,7 +141,6 @@ def enter_lab_d2001(state: dict) -> str:
     
         print_dialogue(look_around_dialogue_bank["labd2001"])
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print(f"- Your current inventory: {state['inventory']}")
 
     def handle_puzzle_start() -> None:
         """Handles starting the box stacking puzzle.
@@ -214,7 +218,7 @@ def enter_lab_d2001(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look()
 
@@ -261,10 +265,13 @@ def enter_lab_d2001(state: dict) -> str:
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

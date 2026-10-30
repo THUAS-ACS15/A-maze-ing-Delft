@@ -21,6 +21,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.centralized_commands import display_help
+from utilities.scoreboard import display_scoreboard
 
 valid_destinations = ["lobby", "projectroom1", "projectroom2", "labd2001", "equinoxstudentsociety"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["studentwing"]
@@ -48,7 +49,6 @@ def enter_student_wing(state: dict) -> str:
         
         print_dialogue(look_around_dialogue_bank["studentwing"])
         print(f"- Possible exits: {', '.join(valid_destinations)}")
-        print(f"- Your current inventory: {state['inventory']}")
         print()
         print_current_objective(state)
 
@@ -59,7 +59,7 @@ def enter_student_wing(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "look", "ls", "l"]:
             clear_screen()
             handle_look()
 
@@ -76,6 +76,9 @@ def enter_student_wing(state: dict) -> str:
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+    
         elif command == "map":
             display_map(state)
 
@@ -86,7 +89,7 @@ def enter_student_wing(state: dict) -> str:
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

@@ -23,6 +23,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.centralized_commands import display_help
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 # Caesar cipher: every letter of the secret word was moved forward by SHIFT places.
 SHIFT = 3
@@ -135,7 +136,7 @@ def enter_classroom_d2031(state):
     while True:
         command = input("\n> ").lower().strip()
 
-        if command == "look around" or command == "look" or command == "ls":
+        if command in ["look around", "look", "ls", "l"]:
             clear_screen()
             handle_look(state)
     
@@ -167,10 +168,13 @@ def enter_classroom_d2031(state):
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+        
         elif command == "pause" or command == "save":
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

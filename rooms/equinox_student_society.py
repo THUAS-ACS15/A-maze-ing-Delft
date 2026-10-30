@@ -29,6 +29,7 @@ from utilities.game_map import display_map
 
 from data.story_dialogue_bank import story_dialogue_bank
 from data.look_around_dialogue_bank import look_around_dialogue_bank
+from utilities.scoreboard import display_scoreboard
 
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["equinoxstudentsociety"]
@@ -186,11 +187,11 @@ def enter_equinox_student_society(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "look", "ls", "l"]:
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["help", "?"]:
             clear_screen()
             display_help(room_commands)
 
@@ -213,10 +214,13 @@ def enter_equinox_student_society(state: dict) -> str:
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+        
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

@@ -18,6 +18,7 @@ from rich.table import Table
 from utilities.clear_screen import clear_screen
 from utilities.save_management import get_save_info, load_save, save_game
 from utilities.status_bar import display_top_bar
+from utilities.status_bar import time
 
 CHOOSE_SAVE_ART: str = """
 ██▀██ ██ ██ ██▀██ ██▀██ ██▀██ ██▀██      ██▀██ ██▀██ ██ ██ ██▀██      ██▀██ ██    ██▀██ ▀██▀
@@ -69,11 +70,14 @@ def display_save_art(console: Console):
         if save_info is None:
             info_rows = ["", "[dim]Empty[/dim]", "[dim]slot[/dim]", ""]
         else:
+            elapsed_seconds = round(save_info["time_elapsed"])
+            hours, remaining_seconds = divmod(elapsed_seconds, 3600)
+            minutes, seconds = divmod(remaining_seconds, 60)
             info_rows = [
                 f"Player: {save_info['player_name']}",
                 f"Room: {save_info['current_room']}",
                 f"Visited: {save_info['visited_percent']}%, {save_info['completion_percent']}% completed",
-                f"Time: {round(save_info['time_elapsed'], 2)}s",
+                f"Time: {hours}h, {minutes}m, {seconds}s",
             ]
 
         indicator_rows = indicator.strip("\n").splitlines()

@@ -22,6 +22,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.centralized_commands import display_help
+from utilities.scoreboard import display_scoreboard
 
 room_dialogue_bank = story_dialogue_bank["rooms"]["frontdesk"]
 valid_destinations = ["lobby"]
@@ -143,6 +144,9 @@ def enter_front_desk(state):
         elif command == "status" or command == "check status":
             clear_screen()
             check_status(state, pause = True)
+
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
 
         elif command == "pause" or command == "save":
             display_save_menu(state)

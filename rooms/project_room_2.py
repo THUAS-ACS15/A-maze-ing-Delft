@@ -27,6 +27,7 @@ from utilities.print_helpers import (
 )
 from utilities.save_gui import display_save_menu
 from utilities.centralized_commands import display_help
+from utilities.scoreboard import display_scoreboard
 
 rainbow_colors_correct = [
     "Red",
@@ -167,7 +168,7 @@ def enter_project_room2(state: dict) -> str:
     while True:
         command = input("\n> ").strip().lower()
 
-        if command == "look around":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look()
 
@@ -194,15 +195,18 @@ def enter_project_room2(state: dict) -> str:
         elif command in ["inv", "inventory"]:
             clear_screen()
             display_inventory(state["inventory"])
-
+    
         elif command in ["status", "check status"]:
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+        
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

@@ -37,6 +37,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 from utilities.shell import VirtualShell
 
 header_style = "bold green"
@@ -271,25 +272,25 @@ def enter_teachers_room_4(state: dict) -> str:
     while True:
         choice = input("> ").strip().lower()
 
-        if choice in ("use computer", "inspect computer", "boot computer", "computer"):
+        if choice in ["use computer", "inspect computer", "boot computer", "computer"]:
             inspect_computer(state)
 
-        elif choice in ("?", "help"):
+        elif choice in ["?", "help"]:
             display_help(room_commands)
 
-        elif choice in ("look around", "look", "lk", "la", 'l'):
+        elif choice in ["look around", "look", "lk", "la", 'l']:
             handle_look(state)
 
-        elif choice in ("status", "check status"):
+        elif choice in ["status", "check status"]:
             check_status(state)
 
-        elif choice in ("save", "pause"):
-            display_save_menu(state)
+        elif choice in ["scoreboard", "sb"]:
+            display_scoreboard(state)
 
-        elif choice in ("inv", "inventory"):
+        elif choice in ["inv", "inventory"]:
             display_inventory(state["inventory"])
 
-        elif choice in ("pause", "save"):
+        elif choice in ["pause", "save"]:
             display_save_menu(state)
 
         elif choice == "map":
@@ -300,7 +301,7 @@ def enter_teachers_room_4(state: dict) -> str:
             if result:
                 return result
 
-        elif choice in ("quit", "exit"):
+        elif choice in ["quit", "exit"]:
             clear_screen()
             sys.exit()
 

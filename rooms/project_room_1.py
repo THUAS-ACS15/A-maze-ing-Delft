@@ -24,6 +24,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.centralized_commands import display_help
+from utilities.scoreboard import display_scoreboard
 
 # The five lockers. For each locker: its code, the coins inside and the item inside.
 # A code of 0 means the locker has no code. It opens with the brass key instead.
@@ -164,7 +165,7 @@ def enter_project_room1(state):
     while True:
         command = input("\n> ").lower().strip()
 
-        if command == "look around" or command == "look" or command == "ls":
+        if command in ["look around", "lk", "look", "l", "la"]:
             clear_screen()
             handle_look(state)
 
@@ -196,10 +197,13 @@ def enter_project_room1(state):
             clear_screen()
             check_status(state, pause=True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+            
         elif command == "pause" or command == "save":
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

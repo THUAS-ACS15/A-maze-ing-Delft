@@ -24,6 +24,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.scoreboard import display_scoreboard
 
 # Right order of the students: seat 1 (window) to seat 4 (aisle).
 SEATING_ANSWER = ["ana", "chloe", "dev", "ben"]
@@ -158,7 +159,7 @@ def enter_classroom_d2035(state):
     while True:
         command = input("\n> ").lower().strip()
 
-        if command == "look around" or command == "look" or command == "ls":
+        if command in ["look around", "look", "ls", "l"]:
             clear_screen()
             handle_look(state)
         
@@ -190,10 +191,13 @@ def enter_classroom_d2035(state):
             clear_screen()
             check_status(state, pause = True)
 
+        elif command in ["scoreboard", "sb"]:
+            display_scoreboard(state)
+        
         elif command in ["pause", "save"]:
             display_save_menu(state)
 
-        elif command == "quit":
+        elif command in ["quit", "exit"]:
             clear_screen()
             print_dialogue(room_dialogue_bank["quit"])
             sys.exit()

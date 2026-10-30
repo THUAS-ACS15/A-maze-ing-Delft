@@ -48,7 +48,7 @@ DEFAULT_COMMANDS = [
         "Save your progress."
     ),
     (
-        "quit",
+        "quit/exit",
         "Quit the game completely."
     ),
 ]
