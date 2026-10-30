@@ -14,6 +14,7 @@ that file awards the Encrypted API & Prompt USB to the inventory exactly once,
 marks the room as completed and advances the objective.
 """
 import time
+import sys
 
 from rich.console import Console
 from rich.text import Text
@@ -27,6 +28,8 @@ from utilities.display_menu import display_selection_menu
 from utilities.colors import CYAN, BLUE, BOLD, RESET
 from utilities.centralized_commands import display_help
 from utilities.game_map import display_map
+from utilities.inventory_viewer import display_inventory
+from utilities.check_status import check_status
 from utilities.loader import loader
 from utilities.print_helpers import (
     print_assembly_part_obtained,
@@ -277,6 +280,15 @@ def enter_teachers_room_4(state: dict) -> str:
         elif choice in ("look around", "look", "lk", "la", 'l'):
             handle_look(state)
 
+        elif choice in ("status", "check status"):
+            check_status(state)
+
+        elif choice in ("save", "pause"):
+            display_save_menu(state)
+
+        elif choice in ("inv", "inventory"):
+            display_inventory(state["inventory"])
+
         elif choice in ("pause", "save"):
             display_save_menu(state)
 
@@ -287,6 +299,10 @@ def enter_teachers_room_4(state: dict) -> str:
             result = display_selection_menu("Choose room to go to:", valid_destinations)
             if result:
                 return result
+
+        elif choice in ("quit", "exit"):
+            clear_screen()
+            sys.exit()
 
         else:
             clear_screen()
