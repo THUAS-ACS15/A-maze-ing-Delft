@@ -1,3 +1,4 @@
+# ruff: noqa: E402 -- dependencies must be installed before these imports.
 # -----------------------------------------------------------------------------
 # File: main.py
 # ACS Q1 Project - A-maze-ing Delft

@@ -1,3 +1,4 @@
+# ruff: noqa: E402 -- project root must be added to sys.path before these imports.
 # -----------------------------------------------------------------------------
 # File: test_display_menu.py
 # ACS Q1 Project - A-maze-ing Delft

@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- dialogue and item descriptions are intentionally long prose.
 # -----------------------------------------------------------------------------
 # File: item_description_bank.py
 # ACS Q1 Project - A-maze-ing Delft

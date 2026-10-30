@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- ANSI-colored ASCII-art rows are intentionally long.
 # -----------------------------------------------------------------------------
 # File: main_menu.py
 # Project: A-maze-ing Delft
@@ -70,7 +71,8 @@ def display_main_menu() -> str:
         clear_screen("", run_status_bar_update=False)
         display_top_bar(console)
         console.print(Align.center(GAME_TITLE_ART, vertical="middle"))
-        console.print(Align.center("[italic][bold gray]use arrow keys to navigate, enter to select[/bold gray][/italic]"))
+        console.print(Align.center("[italic][bold gray]use arrow keys to navigate, enter to"
+                                   " select[/bold gray][/italic]"))
         console.print('\n\n\n')
         for index, option in enumerate(MENU_OPTIONS):
             if index == selected_index:

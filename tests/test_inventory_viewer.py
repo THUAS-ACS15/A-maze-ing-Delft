@@ -1,3 +1,4 @@
+# ruff: noqa: E402 -- project root must be added to sys.path before these imports.
 # -----------------------------------------------------------------------------
 # File: test_inventory_viewer.py
 # ACS Q1 Project - A-maze-ing Delft
