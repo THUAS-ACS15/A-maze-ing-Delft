@@ -30,10 +30,6 @@ room_commands = [
     (
         "inspect <object>",
         "Look closer (try the printer)."
-    ),
-    (
-        "take <item>",
-        "Pick up an item."
     )
 ]
 
