@@ -3,7 +3,6 @@
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
-# Contributors: Gift Odigwe
 # Date: September 2026
 # -----------------------------------------------------------------------------
 """
@@ -29,14 +28,14 @@ from .project_room_1 import enter_project_room1
 from .project_room_2 import enter_project_room2
 from .teachers_room_1 import enter_teachers_room1
 from .teachers_room_2 import enter_teachers_room2
-from .teachers_room_4 import enter_teachers_room4
+from .teachers_room_4 import enter_teachers_room_4
 
 ROOM_HANDLERS = {
     "lobby": enter_lobby,
     "labd2001": enter_lab_d2001,
     "teachersroom1": enter_teachers_room1,
     "teachersroom2": enter_teachers_room2,
-    "teachersroom4": enter_teachers_room4,
+    "teachersroom4": enter_teachers_room_4,
     "projectroom1": enter_project_room1,
     "projectroom2": enter_project_room2,
     "frontdesk": enter_front_desk,
@@ -75,12 +74,12 @@ ROOM_REQUIREMENTS = {
 def enter_room(room_name: str, state: dict):
     """Run one room visit and return the next room name.
 
-    Inputs:
-        - room_name (str): the room to enter ("quit"/"exit" leaves the game)
-        - state (dict): the game state, passed through to the room handler
+    Args:
+        room_name: the room to enter ("quit"/"exit" leaves the game)
+        state: the game state, passed through to the room handler
 
-    Outputs:
-        - str: the next room name ("quit"/"exit" means the player is leaving)
+    Returns:
+        the next room name ("quit"/"exit" means the player is leaving)
     """
     if room_name in ("quit", "exit"):
         print("Exiting... goodbye and thanks for playing!")

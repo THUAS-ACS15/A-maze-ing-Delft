@@ -7,6 +7,8 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+"""Status bar rendering for room, completion, coins, and play time."""
+
 import math
 import shutil
 import time
@@ -35,19 +37,18 @@ room_fancy_names = {
 }
 
 def calculate_time_played(start_time: float, time_elapsed: float, is_pause: bool) -> str:
-    """
-    Calculates the time played in seconds since the start_time.
+    """Calculates the time played in seconds since the start_time.
 
     If is_pause is true, the function instantly returns "Paused", otherwise
     it calculates the time played in seconds since the start_time. If needed, it also separates by hours and
     minutes, and returns it in string form.
 
-    Inputs:
-        start_time (float): The start time in seconds.
-        is_pause (bool): Whether the game is currently paused
+    Args:
+        start_time: The start time in seconds.
+        is_pause: Whether the game is currently paused
 
-    Outputs:
-        str: The time played, separated if necessary.
+    Returns:
+        The time played, separated if necessary.
     """
     if is_pause:
         return "Paused"
@@ -74,19 +75,17 @@ def calculate_time_played(start_time: float, time_elapsed: float, is_pause: bool
 
 
 def get_exploration_percent(state: dict) -> float:
-    """
-    Calculates the percentage of the map that has been explored.
+    """Calculates the percentage of the map that has been explored.
 
     This function takes the state dict and calculates the percentage of the map that has
     been completed by counting the number of completed rooms and dividing by the total
     number of rooms.
 
-    Inputs:
-        state (dict): The current game state.
+    Args:
+        state: The current game state.
 
-    Outputs:
-        float: The percentage of the map that has been completed, rounded to 2 decimal
-        places.
+    Returns:
+        The percentage of the map that has been completed, rounded to 2 decimal places.
     """
     completed_dict = state["completed"]
 
@@ -99,24 +98,22 @@ def get_exploration_percent(state: dict) -> float:
     return exploration_percent
 
 def display_top_bar(console: Console) -> None:
+    """Print a full-width bar above the status line."""
     terminal_width = shutil.get_terminal_size(fallback=(126, 20)).columns
     console.print(f"{'█' * terminal_width}\n")
 
 def update_status_bar(state: dict, header_message: str = "stuck? use \"quit\" to quit or \"?\" for help") -> None:
-    """
-    Updates the status bar with the current room, completion status, coin balance, and
+    """Updates the status bar with the current room, completion status, coin balance, and
     time played.
 
     This function takes the state dict and uses it to display the current room, the
     total exploration percentage, whether the room is completed, the coin balance, and
     the time played since the start of the game.
 
-    Inputs:
-        - state (dict): The current game state.
-        - custom_header (str): A custom header to display above the status bar. If not specified, 
-        the default "stuck? use \"?\" for help" header will be used.
-
-    Outputs: NONE
+    Args:
+        state: The current game state.
+        header_message: A custom header to display above the status bar. If not
+            specified, the default "stuck? use "?" for help" header will be used.
     """
     current_room = state["current_room"]
 

@@ -5,6 +5,8 @@
 # Location: Delft
 # Date: September 2026
 # -----------------------------------------------------------------------------
+"""Project Room 1: locker puzzle with random loot."""
+
 # Project Room 1. Professor Vance's locker room.
 # The player needs the Classroom 2.021 key (from D2.031) or a staff keycard to get in.
 # The puzzle: open five lockers with codes. The codes are maths sums hidden in the room (BODMAS).

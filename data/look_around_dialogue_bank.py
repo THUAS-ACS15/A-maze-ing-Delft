@@ -6,6 +6,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Room descriptions shown by the 'look around' command."""
+
 
 # ^ disable ruff checking long lines, as this is dialogue
 

@@ -7,6 +7,8 @@
 # Contributors: João, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Project Room 2: projector colour puzzle awarding the mic and speaker combo."""
+
 import random
 import sys
 
@@ -57,15 +59,10 @@ def enter_project_room2(state: dict) -> str:
     # +-------------------------+
 
     def print_puzzle_instructions() -> None:
-        """
-        Helper function to print puzzle instructions.
+        """Helper function to print puzzle instructions.
 
         This function prints the instructions for the color ordering puzzle,
         along with the current order of colors shown on the projector.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         clear_screen()
@@ -75,16 +72,13 @@ def enter_project_room2(state: dict) -> str:
             print(f"    {position}. {color}")
 
     def color_puzzle_check() -> bool:
-        """
-        Checks if the color puzzle is solved correctly. Returns True if solved, False otherwise.
+        """Checks if the color puzzle is solved correctly.
 
         The function checks if the colors on the projector are in the exact
         order of the rainbow (Red, Orange, Yellow, Green, Blue, Indigo, Violet).
 
-        Inputs: NONE
-
-        Outputs:
-            - bool: True if the puzzle is solved correctly, False otherwise.
+        Returns:
+            True if the puzzle is solved correctly, False otherwise.
         """
 
         return colors_on_projector == rainbow_colors_correct
@@ -94,16 +88,11 @@ def enter_project_room2(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         color ordering puzzle. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print_dialogue(look_around_dialogue_bank["projectroom2"])
@@ -116,14 +105,9 @@ def enter_project_room2(state: dict) -> str:
         print_current_objective(state)
 
     def handle_help() -> None:
-        """
-        Lists available commands.
+        """Lists available commands.
 
         This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print("\nAvailable commands:")
@@ -135,17 +119,12 @@ def enter_project_room2(state: dict) -> str:
         print("- quit                : Quit the game completely.")
 
     def handle_puzzle_start() -> None:
-        """
-        Handles starting the color ordering puzzle.
+        """Handles starting the color ordering puzzle.
 
         This function starts the color ordering puzzle by showing an animation, printing the puzzle instructions,
         and allowing the player to swap two positions at a time until the colors are in the correct rainbow order.
 
         Once the puzzle is solved, it updates the state dict to mark the puzzle as completed.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         show_activity_animation("puzzle", text_delay=0.002, final_delay=1.0)

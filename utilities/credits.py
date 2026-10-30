@@ -6,6 +6,8 @@
 # Date: October 2026
 # -----------------------------------------------------------------------------
 
+"""Scrolling end-of-game credits."""
+
 from time import sleep
 
 from rich.align import Align
@@ -40,17 +42,12 @@ CREDITS_LINES = [
 
 
 def display_credits() -> None:
-    """
-    Shows the game credits, scrolling slowly up the screen line by line.
+    """Shows the game credits, scrolling slowly up the screen line by line.
 
     This function prints the CREDITS_LINES list one line at a time, with a
     short pause between each, giving a slow scrolling effect similar to the
     end credits of a game. The player can skip the credits at any point by
     pressing Enter.
-
-    Inputs: NONE
-
-    Outputs: NONE
     """
     console = Console()
     clear_screen("", False)

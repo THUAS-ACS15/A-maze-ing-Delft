@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- dialogue and item descriptions are intentionally long prose.
 # -----------------------------------------------------------------------------
 # File: story_dialogue_bank.py
 # ACS Q1 Project - A-maze-ing Delft
@@ -6,6 +7,8 @@
 # Date: September 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Story, room, and puzzle dialogue keyed by room."""
+
 
 # ^ disable ruff checking long lines, as this is dialogue
 
@@ -222,7 +225,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "enter": "A project room. Professor Vance stands at the front, capping a whiteboard marker.",
             "lockers": "Five lockers line the back wall.",
             "whiteboard_intro": "You step up to the whiteboard. Vance's handwriting is terrible.",
-            "whiteboard_bodmas": "Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then add/subtract.",
+            "whiteboard_bodmas": "Vance has added a reminder: BODMAS. Brackets first, then multiply/divide, then"
+                                 " add/subtract.",
             "whiteboard_more": "(Two more codes are written somewhere else in the room.)",
             "desks_intro": "Between the rows of wooden desks, something is carved into desk #3:",
             "pile_intro": "A pile of broken desks and chairs. A sticker peels off a snapped chair:",
@@ -268,7 +272,8 @@ Congratulations! You have completed the game and escaped the school building!"""
 
         "eastcorridor": {
             "header": "🚪 You enter the East Corridor.",
-            "enter": "You see a long corridor with many doors and glass walls on both sides. Coffee machines and printers line the walls, along with some houseplants.",
+            "enter": "You see a long corridor with many doors and glass walls on both sides. "
+                     "Coffee machines and printers line the walls, along with some houseplants.",
             "quit": "👋 You decide to turn back ."
         },
         "studentwing": {

@@ -7,6 +7,8 @@
 # Contributors: Leon, Gift Odigwe
 # -----------------------------------------------------------------------------
 
+"""Lab D2.001: assemble A.I.G.I.S. at the workbench to finish the game."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -46,9 +48,11 @@ def enter_lab_d2001(state: dict) -> str:
     # +--------------------+
 
     def check_all_assembly_obtained(state: dict):
+        """Return True when every assembly part has been collected."""
         return state["current_objective_id"] >= 8
 
     def handle_assembly_process(state: dict):
+        """Play the ending once all assembly parts are available."""
         if check_all_assembly_obtained(state):
             return play_game_complete(state)
 
@@ -57,15 +61,14 @@ def enter_lab_d2001(state: dict) -> str:
     # +-------------------------+
 
     def print_puzzle_instructions(header_message: str = "stuck? use \"quit\" to quit or \"reset\" to redo",) -> None:
-        """
-        Helper function to print puzzle instructions.
+        """Helper function to print puzzle instructions.
 
         This function prints the instructions for the box stacking puzzle,
         along with the status of the platforms and available boxes.
 
-        Inputs: header_message (str): A message to display at the top of the status bar, passed to clear_screen().
-
-        Outputs: NONE
+        Args:
+            header_message: A message to display at the top of the status bar, passed to
+                clear_screen().
         """
 
         clear_screen(header_message)
@@ -78,18 +81,14 @@ def enter_lab_d2001(state: dict) -> str:
         print(f"    - Platform 3: {', '.join([f'{box}kg' for box in platforms[2]])}")
 
     def box_puzzle_check() -> bool:
-        """
-        Checks if the box puzzle is solved correctly. Returns True if solved, False
-        otherwise.
+        """Checks if the box puzzle is solved correctly.
 
-        The function checks if the puzzle is solved correctly,
-        i.e. if each platform has exactly two boxes and the total
-        weight of the boxes on each platform is exactly 100kg.
+        The function checks if the puzzle is solved correctly, i.e. if each
+        platform has exactly two boxes and the total weight of the boxes on
+        each platform is exactly 100kg.
 
-        Inputs: NONE
-
-        Outputs:
-            - int: The number of correct platforms.
+        Returns:
+            True if the puzzle is solved correctly, False otherwise.
         """
 
         correct_count = 0
@@ -101,15 +100,10 @@ def enter_lab_d2001(state: dict) -> str:
         return correct_count == 3
 
     def box_puzzle_reset() -> None:
-        """
-        Resets the box puzzle to its initial state.
+        """Resets the box puzzle to its initial state.
 
         This function resets the box puzzle by clearing the platforms and restoring the
         available boxes to their original state.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
         global available_boxes, platforms
         available_boxes = [5, 95, 47, 53, 10, 90]
@@ -121,16 +115,11 @@ def enter_lab_d2001(state: dict) -> str:
     # +------------------+
 
     def handle_look() -> None:
-        """
-        Describes the room and gives clues.
+        """Describes the room and gives clues.
 
         This function describes the room and gives clues to the player about the
         box stacking puzzle. It also shows the possible exits and the
         player's current inventory.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
     
         print_dialogue(look_around_dialogue_bank["labd2001"])
@@ -138,14 +127,9 @@ def enter_lab_d2001(state: dict) -> str:
         print(f"- Your current inventory: {state['inventory']}")
 
     def handle_help() -> None:
-        """
-        Lists available commands.
+        """Lists available commands.
 
         This function lists the available commands for the player to use in the room.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         print("Available commands:")
@@ -162,8 +146,7 @@ def enter_lab_d2001(state: dict) -> str:
         print("- save                : Save the current game state.")
 
     def handle_puzzle_start() -> None:
-        """
-        Handles starting the box stacking puzzle.
+        """Handles starting the box stacking puzzle.
 
         This function starts the box stacking puzzle by showing an animation, printing
         the puzzle instructions, and allowing the player to input their choices for
@@ -171,10 +154,6 @@ def enter_lab_d2001(state: dict) -> str:
 
         Once the puzzle is solved, it updates the state dict to mark the puzzle as
         completed.
-
-        Inputs: NONE
-
-        Outputs: NONE
         """
 
         show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)

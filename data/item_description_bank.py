@@ -1,3 +1,4 @@
+# ruff: noqa: E501 -- dialogue and item descriptions are intentionally long prose.
 # -----------------------------------------------------------------------------
 # File: item_description_bank.py
 # ACS Q1 Project - A-maze-ing Delft
@@ -6,6 +7,8 @@
 # Date: October 2026
 # Contributors: Leon
 # -----------------------------------------------------------------------------
+"""Human-readable descriptions for inventory items."""
+
 
 # ^ disable ruff checking long lines
 

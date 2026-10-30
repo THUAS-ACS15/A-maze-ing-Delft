@@ -7,6 +7,8 @@
 # Contributors: Leon
 # -----------------------------------------------------------------------------
 
+"""SQLite persistence for save slots and game state."""
+
 import sqlite3
 import time
 
@@ -64,33 +66,29 @@ def update_elapsed_time(state: dict) -> None:
 
 
 def recreate_db_table(db: sqlite3.Connection) -> None:
-    """
-    Recreates the database 'saves' table.
-    
+    """Recreates the database 'saves' table.
+
     This function ensures that the database table structure is up-to-date,
     by executing the SQL script defined in DB_TABLE_STRUCTURE.
-    
-    Inputs:
-        - db: An active SQLite database connection.
-        
-    Outputs: NONE
+
+    Args:
+        db: An active SQLite database connection.
     """
     cursor = db.cursor()
     cursor.executescript(DB_TABLE_STRUCTURE)
     db.commit()
 
 def get_save_info(slot: int) -> dict | None:
-    """
-    Retrieves some save info from the specified slot, for display in the save GUI.
+    """Retrieves some save info from the specified slot, for display in the save GUI.
 
     This function retrieves the current room, coin balance, exploration percentage,
     and time elapsed from the specified save slot in the database.
 
-    Inputs:
-        - slot: The save slot number (1, 2, or 3).
-    
-    Outputs:
-        - A dict containing current room, exploration % and time played.
+    Args:
+        slot: The save slot number (1, 2, or 3).
+
+    Returns:
+        A dict containing current room, exploration % and time played.
     """
 
     with sqlite3.connect("saves.db", timeout = 5.0) as save_db:
@@ -162,14 +160,11 @@ def get_save_info(slot: int) -> dict | None:
         }
 
 def save_game(state: dict, slot: int) -> None:
-    """
-    Save the game state to the specified slot.
+    """Save the game state to the specified slot.
 
-    Inputs:
-        - slot: The save slot number (1, 2, or 3).
-        - state: The current game state dictionary.
-    
-    Outputs: NONE
+    Args:
+        slot: The save slot number (1, 2, or 3).
+        state: The current game state dictionary.
     """
     if not isinstance(state, dict):
         raise TypeError(
@@ -235,16 +230,13 @@ def save_game(state: dict, slot: int) -> None:
         save_db.commit()
 
 def load_save(slot: int) -> dict | None:
-    """
-    Load the save data from the specified slot.
+    """Load the save data from the specified slot.
 
-    Returns a dictionary with the save data, or None if no save is found.
+    Args:
+        slot: The save slot number (1, 2, or 3).
 
-    Inputs:
-        - slot: The save slot number (1, 2, or 3).
-
-    Outputs:
-        state (dict): the state dict from the last save.
+    Returns:
+        The state dict from the last save, or None if no save is found.
     """
 
     with sqlite3.connect("saves.db", timeout = 5.0) as save_db:

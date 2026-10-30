@@ -7,6 +7,8 @@
 # Contributors: Dominik
 # -----------------------------------------------------------------------------
 
+"""Teacher Room 1: code-snippet puzzle awarding the staff keycard."""
+
 import sys
 
 from data.look_around_dialogue_bank import look_around_dialogue_bank
@@ -33,6 +35,7 @@ def enter_teachers_room1(state: dict) -> str:
     print_dialogue(room_dialogue_bank["enter"], print_newline_after = False)
 
     def handle_look():
+        """Describe the room and show the code puzzle until it is solved."""
         print_dialogue(look_around_dialogue_bank["teachersroom1"])
         if not state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_not_complete"])
@@ -41,6 +44,7 @@ def enter_teachers_room1(state: dict) -> str:
         print_current_objective(state)
 
     def handle_help():
+        """Print the room's available commands."""
         print("\nAvailable commands:")
         print("- ?                   : Show this help message.")
         print("- look around         : Examine the room and the code on screen.")
@@ -53,6 +57,7 @@ def enter_teachers_room1(state: dict) -> str:
         print("- quit                : Quit the game entirely.")
 
     def handle_answer(answer):
+        """Check the code snippet and award the staff keycard on success."""
         if state["completed"]["teachersroom1"]:
             print_dialogue(room_dialogue_bank["puzzle_already_complete"])
             return
