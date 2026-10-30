@@ -58,7 +58,7 @@ room_commands = [
     (
         "talk to teacher",
         "Talk to the teacher."
-    )
+    ),
     (
         "answer <answer>",
         "Answer the teacher's question."
@@ -66,7 +66,7 @@ room_commands = [
     (
         "look at database",
         "See what the database schema looks like."
-    )
+    ),
     (
         "take credentials",
         "Take the credentials after helping the teacher."

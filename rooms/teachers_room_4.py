@@ -1,7 +1,5 @@
 # -----------------------------------------------------------------------------
 # File: teachers_room_4.py
-    # -----------------------------------------------------------------------------
-# File: teachersroom4.py
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
