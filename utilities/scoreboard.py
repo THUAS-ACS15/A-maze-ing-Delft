@@ -14,6 +14,7 @@ from rich.align import Align
 from rich.console import Console, Group
 from rich.table import Table
 
+from utilities.clear_screen import clear_screen
 from utilities.main_menu import read_key
 from utilities.status_bar import display_top_bar
 
@@ -140,6 +141,7 @@ def display_scoreboard() -> None:
 
         key = read_key().lower()
         if key == "enter":
+            clear_screen()
             break
         if key == "up":
             page = max(0, page - 1)
