@@ -1,12 +1,11 @@
 # -----------------------------------------------------------------------------
-# File: centralized_commands.py
+# File: get_help.py
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
 # Date: September 2026
-# Contributor: Gift Odigwe, Leon
+# Contributor: Gift Odigwe
 # -----------------------------------------------------------------------------
-
 """
 Shared help display for rooms.
 
@@ -17,24 +16,28 @@ they use today (e.g. hide a command once its challenge is completed).
 
 DEFAULT_COMMANDS = [
     (
-        "?",
+        "?/help",
         "Show this help message."
     ),
     (
-        "go",
-        "Go to another room.",
-    ),
-    (
-        "look around",
+        "look around/look/ls/lk/l",
         "Examine the room for clues.",
     ),
     (
-        "status/check status", 
+        "status/check status",
         "Show your overall progress."
     ),
     (
-        "inv/inventory",
-        "Show your inventory."
+        "go/g",
+        "Move to another room.",
+    ),
+    (
+        "inventory/inv",
+        "Check your inventory."
+    ),
+    (
+        "scoreboard/sb",
+        "View the fastest runs on the scoreboard."
     ),
     (
         "save/pause",
@@ -46,13 +49,14 @@ DEFAULT_COMMANDS = [
     ),
 ]
 
-def display_help(extra_commands: list[tuple[str, str]] | None = None, include_go_back: bool = True) -> None:
+
+def display_help(extra_commands=None, include_go_back=True):
     """Displays the room's command list: extras first, then the defaults.
 
     Args:
         extra_commands: list of (command, description) tuples with the room-specific
             commands. Pass [] or None when there are none.
-        include_go_back: set to False for rooms where the default "go lobby / back" line
+        include_go_back: set to False for rooms where the default "go" line
             does not apply (e.g. the lobby itself, which passes its own "go <room name>"
             extra instead).
     """
@@ -65,7 +69,3 @@ def display_help(extra_commands: list[tuple[str, str]] | None = None, include_go
     print("Available commands:")
     for command, description in commands:
         print(f"- {command:<18}: {description}")
-
-def display_look_around(state: str):
-    """Placeholder for the shared look-around command."""
-    pass
