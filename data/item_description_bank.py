@@ -10,8 +10,6 @@
 """Human-readable descriptions for inventory items."""
 
 
-# ^ disable ruff checking long lines
-
 item_description_bank = {
     # A.I.G.I.S. Assembly parts
     "Robot Chassis Frame": "One of the components needed to assemble A.I.G.I.S. Made from 100% stainless steel!",

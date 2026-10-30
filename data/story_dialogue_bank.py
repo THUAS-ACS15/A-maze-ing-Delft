@@ -10,14 +10,9 @@
 """Story, room, and puzzle dialogue keyed by room."""
 
 
-# ^ disable ruff checking long lines, as this is dialogue
-
 # story_dialogue_bank is a dictionary that contains all the story-related dialogue and text for the game.
 # "story_important_flags" contains important story flags and their associated text.
 # "rooms" contains the dialogue and text for each room in the game, including headers, descriptions, and any other extra dialogue.
-
-# updated so far with dialogue func: lobby, teachersroom1, teachersroom2, teachersroom4, projectroom2
-# TODO: TO UPDATE AFTER REFACTOR: front desk, classrooms d2015, d2031, d2035, teachersroom4 (partially)
 
 # the rooms are ordered based on their story appearance
 story_dialogue_bank: dict = {
@@ -230,7 +225,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "whiteboard_more": "(Two more codes are written somewhere else in the room.)",
             "desks_intro": "Between the rows of wooden desks, something is carved into desk #3:",
             "pile_intro": "A pile of broken desks and chairs. A sticker peels off a snapped chair:",
-            "pile_hint": "Something shiny is half buried in the pile (try 'look' and 'take').",
             "vance_first": "Vance: \"Five lockers, five combinations, every number is somewhere in this room.",
             "vance_second": "The USB cable and the keycard for the old Linux room are in there. Earn them.\"",
             "quit": "👋 You leave Project Room 1 and exit."

@@ -21,10 +21,11 @@ from rich.text import Text
 from assets.nixos import nixos as nixos_logo
 
 from data.story_dialogue_bank import story_dialogue_bank
-
+from data.look_around_dialogue_bank import look_around_dialogue_bank
 from utilities.clear_screen import clear_screen
+from utilities.display_menu import display_selection_menu
 from utilities.colors import CYAN, BLUE, BOLD, RESET
-from utilities.display_menu import display_menu
+from utilities.centralized_commands import display_help
 from utilities.game_map import display_map
 from utilities.loader import loader
 from utilities.print_helpers import (
@@ -36,7 +37,7 @@ from utilities.save_gui import display_save_menu
 from utilities.shell import VirtualShell
 
 header_style = "bold green"
-
+valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom4"]
 
 # Absolute virtual path of the only file that grants the USB reward.
@@ -123,19 +124,7 @@ room_commands = [
     (
         "use computer",
         "Boot the teacher's computer and explore the NixOS terminal.",
-    ),
-    (
-        "help/?",
-        "Show the available commands.",
-    ),
-    (
-        "pause/save",
-        "Pause the game or save your progress.",
-    ),
-    (
-        "leave/exit",
-        "Return to the East Corridor.",
-    ),
+    )
 ]
 
 
@@ -211,6 +200,15 @@ def run_shell(state: dict, shell: VirtualShell, read_input=input, write_output=N
         if result.exit_requested:
             break
 
+def handle_look(state: dict):
+    """Describe the room and give clues."""
+    clear_screen()
+    print("You take a look around.")
+    print_dialogue(look_around_dialogue_bank["teachersroom4"])
+    print(f"- Possible exits: {', '.join(valid_destinations)}")
+    print()
+    print_current_objective(state)
+
 
 def inspect_computer(state: dict) -> None:
     """Boot the NixOS computer and open the terminal session.
@@ -259,7 +257,6 @@ def enter_teachers_room_4(state: dict) -> str:
 
     clear_screen()
     state["visited"]["teachersroom4"] = True
-    console = Console(legacy_windows=False)
 
     # Display loading state
     loader(label="Loading teachers room...")
@@ -275,16 +272,21 @@ def enter_teachers_room_4(state: dict) -> str:
             inspect_computer(state)
 
         elif choice in ("?", "help"):
-            display_menu(console, room_commands)
+            display_help(room_commands)
 
+        elif choice in ("look around", "look", "lk", "la", 'l'):
+            handle_look(state)
+        
         elif choice in ("pause", "save"):
             display_save_menu(state)
 
         elif choice == "map":
             display_map(state)
 
-        elif choice in ("leave", "exit"):
-            return "eastcorridor"
+        elif choice in ["g", "go", "goto", "move"] or choice.startswith("go "):
+            result = display_selection_menu("Choose room to go to:", valid_destinations)
+            if result:
+                return result
 
         else:
             clear_screen()

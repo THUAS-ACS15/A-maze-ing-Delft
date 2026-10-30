@@ -90,7 +90,7 @@ def play_lockers(state):
         if locker["code"] == 0:
             # This locker has an old padlock and needs the brass key.
             if "brass key" not in state["inventory"]:
-                print("Locker 2 has an old brass padlock. The key must be in the pile in the corner.")
+                print("Locker 2 has an old brass padlock. The key must be in another room.")
                 continue
             print("You try the brass key. Click, it turns.")
         else:
@@ -125,7 +125,6 @@ def inspect_object(state, name):
     elif name == "pile":
         print_dialogue(room_dialogue_bank["pile_intro"])
         print('    "LOCKER 5:  2 ** 4 + 3 * 10"')
-        print_dialogue(room_dialogue_bank["pile_hint"])
     elif name == "vance":
         print_dialogue(room_dialogue_bank["vance_first"])
         print_dialogue(room_dialogue_bank["vance_second"])
