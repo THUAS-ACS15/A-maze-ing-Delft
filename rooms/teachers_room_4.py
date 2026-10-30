@@ -301,6 +301,9 @@ def enter_teachers_room_4(state: dict) -> str:
             if result:
                 return result
 
+        elif choice == "leave":
+            return valid_destinations[0]
+
         elif choice in ["quit", "exit"]:
             clear_screen()
             sys.exit()
