@@ -3,7 +3,6 @@
 # ACS Q1 Project - A-maze-ing Delft
 # Organization: THUAS (The Hague University of Applied Sciences)
 # Location: Delft
-# Contributors: Gift Odigwe
 # Date: September 2026
 # -----------------------------------------------------------------------------
 """
