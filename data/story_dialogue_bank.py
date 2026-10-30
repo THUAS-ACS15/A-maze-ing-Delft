@@ -191,8 +191,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "cipher_intro": "The key box wants the real password. The board only shows it in code.",
             "cipher_read": "Read the board and the working monitor first (inspect board, inspect monitors).",
             "cipher_open": "Click. The key box opens.",
-            "cipher_key": "A tag on the key reads: 'Classroom 2.021. Also fits the Project Room 1 side door.'",
-            "key_pickup": "Inside the key box: the Classroom 2.021 key. Use 'take classroom 2.021 key' to pick it up.",
+            "cipher_key": "A tag on the brass key reads: 'Classroom 2.031. Also fits the Project Room 1 side door.'",
+            "key_pickup": "Inside the key box: the brass key. Use 'take brass key' to pick it up.",
             "quit": "👋 You leave the dark classroom and exit."
         },
         "classroomd2035": {
@@ -225,7 +225,6 @@ Congratulations! You have completed the game and escaped the school building!"""
             "whiteboard_more": "(Two more codes are written somewhere else in the room.)",
             "desks_intro": "Between the rows of wooden desks, something is carved into desk #3:",
             "pile_intro": "A pile of broken desks and chairs. A sticker peels off a snapped chair:",
-            "pile_hint": "Something shiny is half buried in the pile (try 'look' and 'take').",
             "vance_first": "Vance: \"Five lockers, five combinations, every number is somewhere in this room.",
             "vance_second": "The USB cable and the keycard for the old Linux room are in there. Earn them.\"",
             "quit": "👋 You leave Project Room 1 and exit."
