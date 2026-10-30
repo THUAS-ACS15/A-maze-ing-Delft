@@ -32,6 +32,10 @@ DEFAULT_COMMANDS = [
         "Move to another room.",
     ),
     (
+        "map",
+        "View the school's floor map."
+    )
+    (
         "inventory/inv",
         "Check your inventory."
     ),
