@@ -31,7 +31,7 @@ SEATING_ANSWER = ["ana", "chloe", "dev", "ben"]
 SEQUENCE = [2, 6, 12, 20, 30]
 SEQUENCE_ANSWER = 42
 
-room_loot: list[str] = []
+room_loot: dict[str, str] = {}
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2035"]
 
@@ -53,7 +53,7 @@ def enter_classroom_d2035(state):
         print("You take a look around.")
         print_dialogue(look_around_dialogue_bank["classroomd2035"])
         if len(loot) > 0:
-            print("In the podium drawer:", ", ".join(loot))
+            print("In the podium drawer:", ", ".join([item for item in loot.keys()]))
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)
@@ -105,7 +105,7 @@ def enter_classroom_d2035(state):
             if answer == str(SEQUENCE_ANSWER):
                 print_dialogue(room_dialogue_bank["podium_success"])
                 return True
-            print("Wrong. Look at the gaps between the numbers: 4, 6, 8, 10 ... The gap grows by 2 each time.")
+            print("Wrong. Look at the gaps between the numbers: 4, 6, 8, 10.")
         return False
 
     def play_podium(state):
@@ -128,7 +128,7 @@ def enter_classroom_d2035(state):
                 print("You have already completed this room. There is nothing else to do here.")
             elif play_podium(state):
                 state["completed"]["classroomd2035"] = True
-                loot.append("A.I.G.I.S.  ")
+                loot["motherboard"] = "A.I.G.I.S. Motherboard"
                 print_dialogue(room_dialogue_bank["drawer"])
                 print_dialogue(room_dialogue_bank["drawer_pickup"])
             else:
@@ -139,12 +139,12 @@ def enter_classroom_d2035(state):
     def take_item(state, item_name):
         """Move an item from the podium drawer into the inventory."""
         loot = room_loot
-        for thing in loot:
-            if item_name != "" and item_name in thing.lower():
-                loot.remove(thing)
-                print("You took the " + thing + ".")
-                state["inventory"].append(thing)
-                if thing == "A.I.G.I.S. Motherboard":
+        for shortcut, name in loot.items():
+            if item_name != "" and item_name in name.lower():
+                del loot[shortcut]
+                print("You took the " + name + ".")
+                state["inventory"].append(name)
+                if name == "A.I.G.I.S. Motherboard":
                     state["current_objective_id"] += 1
                     state["completed"]["classroomd2035"] = True
                     print_assembly_part_obtained("(+ A.I.G.I.S. Motherboard)")

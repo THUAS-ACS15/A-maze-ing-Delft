@@ -70,9 +70,9 @@ def display_save_art(console: Console):
             info_rows = ["", "[dim]Empty[/dim]", "[dim]slot[/dim]", ""]
         else:
             info_rows = [
+                f"Player: {save_info['player_name']}",
                 f"Room: {save_info['current_room']}",
-                f"Visited: {save_info['visited_percent']}%",
-                f"Completed: {save_info['completion_percent']}%",
+                f"Visited: {save_info['visited_percent']}%, {save_info['completion_percent']}% completed",
                 f"Time: {round(save_info['time_elapsed'], 2)}s",
             ]
 

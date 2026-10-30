@@ -47,7 +47,7 @@ def _format_time_played(time: float) -> str:
     return f"{time}s"
 
 def recreate_scoreboard_table() -> None:
-    """Recreates the database 'saves' table."""
+    """Recreates the database 'scoreboard' table."""
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
         cursor.executescript(SCOREBOARD_DB_STRUCTURE)
@@ -77,6 +77,7 @@ def add_scoreboard_entry(player_name: str, exploration_percent: float, time_elap
         exploration_percent: The percentage of the map explored by the player.
         time_elapsed: The time elapsed during the game in seconds.
     """
+    recreate_scoreboard_table()
     with sqlite3.connect("scoreboard.db") as db:
         cursor = db.cursor()
         cursor.execute("INSERT OR REPLACE INTO scoreboard \
