@@ -20,9 +20,17 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.centralized_commands import display_help
 
 valid_destinations = ["eastcorridor"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["teachersroom1"]
+
+room_commands = [
+    (
+        "answer <answer>",
+        "Answer the teacher's question."
+    )
+]
 
 def enter_teachers_room1(state: dict) -> str:
     """Starter function for Teachers Room 1."""
@@ -42,19 +50,6 @@ def enter_teachers_room1(state: dict) -> str:
         print(f"- Possible exits: {','.join(valid_destinations)}")
         print()
         print_current_objective(state)
-
-    def handle_help():
-        """Print the room's available commands."""
-        print("\nAvailable commands:")
-        print("- ?                   : Show this help message.")
-        print("- look around         : Examine the room and the code on screen.")
-        print("- inventory           : Show what items are in your inventory.")
-        print("- save                : Save the current game state.")
-        print("- status              : Show current game status.")
-        if not state["completed"]["teachersroom1"]:
-            print("- answer <snippet>    : Try to fill in the missing piece of code.")
-        print("- go                  : Leave the room and return to the corridor.")
-        print("- quit                : Quit the game entirely.")
 
     def handle_answer(answer):
         """Check the code snippet and award the staff keycard on success."""
@@ -83,7 +78,7 @@ def enter_teachers_room1(state: dict) -> str:
 
         elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

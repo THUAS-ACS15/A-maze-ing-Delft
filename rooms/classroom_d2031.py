@@ -21,6 +21,7 @@ from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
+from utilities.centralized_commands import display_help
 from utilities.save_gui import display_save_menu
 
 # Caesar cipher: every letter of the secret word was moved forward by SHIFT places.
@@ -30,6 +31,17 @@ SECRET_WORD = "sesame"
 room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2031"]
+
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def enter_classroom_d2031(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
@@ -51,17 +63,6 @@ def enter_classroom_d2031(state):
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)
-
-    def handle_help():
-        """Print the list of commands."""
-        print("Available commands:")
-        print("- look around         : Describe the room.")
-        print("- inspect <object>    : Look closer (try the keybox).")
-        print("- take <item>         : Pick up an item.")
-        print("- go [room]           : Leave the room.")
-        print("- status / save       : Show your status / open the save menu.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game entirely.")
 
     def encrypt(word):
         """Turn a word into its secret form, for example sesame becomes VHVDPH."""
@@ -138,9 +139,9 @@ def enter_classroom_d2031(state):
             clear_screen()
             handle_look(state)
     
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
     
         elif command.startswith("inspect "):
             clear_screen()

@@ -19,6 +19,7 @@ from utilities.check_status import check_status
 from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
+from utilities.centralized_commands import display_help
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import (
     print_assembly_part_obtained,
@@ -41,6 +42,17 @@ room_loot: list[str] = []
 valid_destinations = ["teachingarea"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["classroomd2015"]
 seating_done = False
+
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def enter_classroom_d2015(state):
     """Called by the dispatcher. Runs the room until the player leaves."""
@@ -68,17 +80,6 @@ def enter_classroom_d2015(state):
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print()
         print_current_objective(state)
-
-    def handle_help():
-        """Print the list of commands."""
-        print("Available commands:")
-        print("- look around         : Describe the room.")
-        print("- inspect <object>    : Look closer (try the track).")
-        print("- take <item>         : Pick up an item.")
-        print("- go [room]           : Leave the room.")
-        print("- status / save       : Show your status / open the save menu.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game entirely.")
 
     def play_rover(state):
         """Two stages. Returns True when the rover is fully calibrated."""
@@ -162,10 +163,10 @@ def enter_classroom_d2015(state):
             clear_screen()
             handle_look(state)
             
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
-
+            display_help(room_commands)
+        
         elif command.startswith("inspect "):
             clear_screen()
             inspect_object(state, command[8:].strip())

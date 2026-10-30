@@ -18,6 +18,7 @@ from utilities.clear_screen import clear_screen
 from utilities.display_menu import display_selection_menu
 from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
+from utilities.centralized_commands import display_help
 from utilities.print_helpers import (
     print_assembly_part_obtained,
     print_current_objective,
@@ -60,21 +61,6 @@ def enter_lobby(state):
         print()
         print_current_objective(state)
 
-    def handle_help():
-        """Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-        """
-        clear_screen()
-        print("Available commands:")
-        print("- look around         : See what's in the corridor and where you can go.")
-        print("- go <room name>      : Move to another room.'")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game.")
-        print("- inventory           : Show what items are in your inventory.")
-        print("- status              : Show current game status.")
-        print("- save                : Save the current game state.")
-
         print()
         print_current_objective(state)
 
@@ -85,7 +71,8 @@ def enter_lobby(state):
             handle_look()
 
         elif command in ["?", "help"]:
-            handle_help()
+            clear_screen()
+            display_help()
 
         elif command in ["g", "go", "goto", "move", "mv"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

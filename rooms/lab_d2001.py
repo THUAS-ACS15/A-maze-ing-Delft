@@ -22,6 +22,7 @@ from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_dialogue
 from utilities.save_gui import display_save_menu
 from utilities.story_animations import play_game_complete
+from utilities.centralized_commands import display_help
 
 # Vars used in puzzle
 available_boxes = [5, 95, 47, 53, 10, 90]
@@ -30,6 +31,17 @@ platforms:  list[list[int]]  = [[], [], []]
 
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["labd2001"]
+
+room_commands = [
+    (
+        "start stacking",
+        "Try your hand at stacking the boxes on the platforms."
+    ),
+    (
+        "assemble",
+        "Assemble A.I.G.I.S."
+    )
+]
 
 def enter_lab_d2001(state: dict) -> str:
     """Starter function for Lab D2.001."""
@@ -126,25 +138,6 @@ def enter_lab_d2001(state: dict) -> str:
         print(f"- Possible exits: {', '.join(valid_destinations)}")
         print(f"- Your current inventory: {state['inventory']}")
 
-    def handle_help() -> None:
-        """Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-        """
-
-        print("Available commands:")
-        print("- ?                   : Show this help message.")
-        print("- look around         : Examine the room for clues.")
-        if not state["completed"]["labd2001"]:
-            print("- start stacking      : Try stacking the boxes.")
-            print("- reset               : Reset the puzzle to its initial state.")
-        if state["current_objective_id"] >= 8:
-            print("- assemble            : Assemble A.I.G.I.S.")
-        print("- go lobby / back     : Leave the room and return to the corridor.")
-        print("- quit                : Quit the game completely or exit a puzzle if in progress.")
-        print("- status              : Show current game status.")
-        print("- save                : Save the current game state.")
-
     def handle_puzzle_start() -> None:
         """Handles starting the box stacking puzzle.
 
@@ -225,9 +218,9 @@ def enter_lab_d2001(state: dict) -> str:
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

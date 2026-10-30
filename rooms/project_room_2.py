@@ -26,6 +26,7 @@ from utilities.print_helpers import (
     print_dialogue,
 )
 from utilities.save_gui import display_save_menu
+from utilities.centralized_commands import display_help
 
 rainbow_colors_correct = [
     "Red",
@@ -43,6 +44,13 @@ while colors_on_projector == rainbow_colors_correct:
 
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom2"]
+
+room_commands = [
+    (
+        "start puzzle",
+        "Try creating a rainbow on the projector."
+    )
+]
 
 def enter_project_room2(state: dict) -> str:
     """Starter function for the Project Room."""
@@ -104,20 +112,6 @@ def enter_project_room2(state: dict) -> str:
         print()
         print_current_objective(state)
 
-    def handle_help() -> None:
-        """Lists available commands.
-
-        This function lists the available commands for the player to use in the room.
-        """
-
-        print("\nAvailable commands:")
-        print("- look around         : Examine the room for clues.")
-        if not state["completed"]["projectroom2"]:
-            print("- start puzzle        : Try arranging the colors on the projector.")
-        print("- go lobby / back     : Leave the room and return to the corridor.")
-        print("- ?                   : Show this help message.")
-        print("- quit                : Quit the game completely.")
-
     def handle_puzzle_start() -> None:
         """Handles starting the color ordering puzzle.
 
@@ -177,9 +171,9 @@ def enter_project_room2(state: dict) -> str:
             clear_screen()
             handle_look()
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            handle_help()
+            display_help(room_commands)
 
         elif command in ["g", "go", "goto", "move"] or command.startswith("go "):
             result = display_selection_menu("Choose room to go to:", valid_destinations)

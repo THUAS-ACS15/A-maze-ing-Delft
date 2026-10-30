@@ -23,6 +23,7 @@ from utilities.game_map import display_map
 from utilities.inventory_viewer import display_inventory
 from utilities.print_helpers import print_current_objective, print_dialogue
 from utilities.save_gui import display_save_menu
+from utilities.centralized_commands import display_help
 
 # The five lockers. For each locker: its code, the coins inside and the item inside.
 # A code of 0 means the locker has no code. It opens with the brass key instead.
@@ -39,16 +40,16 @@ room_loot: list[str] = []
 valid_destinations = ["studentwing"]
 room_dialogue_bank = story_dialogue_bank["rooms"]["projectroom1"]
 
-def show_help():
-    """Print the list of commands."""
-    print("Available commands:")
-    print("- look around         : Describe the room.")
-    print("- inspect <object>    : Look closer (try the lockers).")
-    print("- take <item>         : Pick up an item.")
-    print("- go lobby / back     : Leave the room.")
-    print("- status / save       : Show your status / open the save menu.")
-    print("- ?                   : Show this help message.")
-    print("- quit                : Quit the game entirely.")
+room_commands = [
+    (
+        "inspect <object>",
+        "Look closer (try the printer)."
+    ),
+    (
+        "take <item>",
+        "Pick up an item."
+    )
+]
 
 def handle_look(state):
     """Describe the room and what the player can do here."""
@@ -167,9 +168,9 @@ def enter_project_room1(state):
             clear_screen()
             handle_look(state)
 
-        elif command == "?":
+        elif command in ["?", "help"]:
             clear_screen()
-            show_help()
+            display_help(room_commands)
 
         elif command.startswith("inspect "):
             clear_screen()

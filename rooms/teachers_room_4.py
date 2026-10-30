@@ -35,6 +35,7 @@ from utilities.print_helpers import (
 )
 from utilities.save_gui import display_save_menu
 from utilities.shell import VirtualShell
+from utilities.centralized_commands import display_help
 
 header_style = "bold green"
 valid_destinations = ["eastcorridor"]
