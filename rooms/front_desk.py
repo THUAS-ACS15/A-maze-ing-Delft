@@ -146,7 +146,7 @@ def enter_front_desk(state):
             check_status(state, pause = True)
 
         elif command in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
 
         elif command == "pause" or command == "save":
             display_save_menu(state)

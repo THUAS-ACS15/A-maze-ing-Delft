@@ -285,7 +285,7 @@ def enter_teachers_room_4(state: dict) -> str:
             check_status(state)
 
         elif choice in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
 
         elif choice in ["inv", "inventory"]:
             display_inventory(state["inventory"])

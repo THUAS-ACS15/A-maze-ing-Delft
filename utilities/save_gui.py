@@ -18,7 +18,6 @@ from rich.table import Table
 from utilities.clear_screen import clear_screen
 from utilities.save_management import get_save_info, load_save, save_game
 from utilities.status_bar import display_top_bar
-from utilities.status_bar import time
 
 CHOOSE_SAVE_ART: str = """
 ██▀██ ██ ██ ██▀██ ██▀██ ██▀██ ██▀██      ██▀██ ██▀██ ██ ██ ██▀██      ██▀██ ██    ██▀██ ▀██▀

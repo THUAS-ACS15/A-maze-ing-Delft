@@ -192,7 +192,7 @@ def enter_classroom_d2035(state):
             check_status(state, pause = True)
 
         elif command in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
         
         elif command in ["pause", "save"]:
             display_save_menu(state)

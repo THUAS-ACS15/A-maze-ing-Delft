@@ -88,7 +88,7 @@ def enter_lobby(state):
             check_status(state)
 
         elif command in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
     
         elif command in ["pause", "save"]:
             display_save_menu(state)

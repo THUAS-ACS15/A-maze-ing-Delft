@@ -266,7 +266,7 @@ def enter_lab_d2001(state: dict) -> str:
             check_status(state, pause = True)
 
         elif command in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
 
         elif command in ["pause", "save"]:
             display_save_menu(state)

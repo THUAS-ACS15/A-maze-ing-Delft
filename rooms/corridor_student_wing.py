@@ -77,7 +77,7 @@ def enter_student_wing(state: dict) -> str:
             check_status(state, pause = True)
 
         elif command in ["scoreboard", "sb"]:
-            display_scoreboard(state)
+            display_scoreboard()
     
         elif command == "map":
             display_map(state)
