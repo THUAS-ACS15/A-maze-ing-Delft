@@ -110,7 +110,7 @@ def enter_classroom_d2031(state):
                 print("You have already completed this room. There is nothing else to do here.")
             elif play_cipher():
                 state["completed"]["classroomd2031"] = True
-                room_loot.append("Classroom 2.021 key")
+                room_loot.append("brass key")
                 print_dialogue(room_dialogue_bank["key_pickup"])
             else:
                 print("No worries, inspect the keybox again whenever you like to retry.")

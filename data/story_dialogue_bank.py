@@ -193,8 +193,8 @@ Congratulations! You have completed the game and escaped the school building!"""
             "cipher_intro": "The key box wants the real password. The board only shows it in code.",
             "cipher_read": "Read the board and the working monitor first (inspect board, inspect monitors).",
             "cipher_open": "Click. The key box opens.",
-            "cipher_key": "A tag on the key reads: 'Classroom 2.021. Also fits the Project Room 1 side door.'",
-            "key_pickup": "Inside the key box: the Classroom 2.021 key. Use 'take classroom 2.021 key' to pick it up.",
+            "cipher_key": "A tag on the brass key reads: 'Classroom 2.031. Also fits the Project Room 1 side door.'",
+            "key_pickup": "Inside the key box: the brass key. Use 'take brass key' to pick it up.",
             "quit": "👋 You leave the dark classroom and exit."
         },
         "classroomd2035": {
