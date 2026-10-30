@@ -31,4 +31,4 @@ def auto_color_print(*args, **kwargs):
     _original_print(f"{COLORS[color]}{text_str}{COLORS['reset']}", **kwargs)
 
 # This line turns it on automatically as soon as this file is loaded!
-builtins.print = auto_color_print
+# builtins.print = auto_color_print
