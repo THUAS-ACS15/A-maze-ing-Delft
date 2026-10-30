@@ -34,7 +34,7 @@ DEFAULT_COMMANDS = [
     (
         "map",
         "View the school's floor map."
-    )
+    ),
     (
         "inventory/inv",
         "Check your inventory."
