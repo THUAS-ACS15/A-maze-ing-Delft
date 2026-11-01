@@ -156,8 +156,8 @@ def enter_lab_d2001(state: dict) -> str:
         show_activity_animation("puzzle", text_delay = 0.002, final_delay = 1.0)
         print_puzzle_instructions()
 
-        # Loops until function returns 3, i.e. if puzzle is completed
-        while box_puzzle_check() != 3:
+        # Loops until function returns True, i.e. if puzzle is completed
+        while not box_puzzle_check():
             try:
                 box = input("\nChoose a box > ").strip().lower()
                 if box == "quit":
