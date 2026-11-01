@@ -74,7 +74,6 @@ def check_status(
 
         # 2. Gather data (tolerant of missing keys)
         completed = state.get("completed", {})
-        coin_balance = state.get("coin_balance", 0)
         has_id = state.get("student_id_obtained", False)
         inventory = state.get("inventory", [])
         current_room = state.get("current_room", "Unknown")
@@ -137,9 +136,6 @@ def check_status(
         print_line(text=completed_str)
         console.print()
 
-        print_line(
-            text=f"Coin balance: {coin_balance}",
-        )
         print_line(
             text=f"Student ID: {id_str}",
         )

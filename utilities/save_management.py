@@ -43,12 +43,6 @@ CREATE TABLE IF NOT EXISTS inventory (
     item TEXT NOT NULL,
     PRIMARY KEY (save_slot, item)
 );
-
-CREATE TABLE IF NOT EXISTS store_items (
-    save_slot INTEGER NOT NULL,
-    item TEXT NOT NULL,
-    PRIMARY KEY (save_slot, item)
-);
 """
 
 def update_elapsed_time(state: dict) -> None:
