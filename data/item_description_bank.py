@@ -20,7 +20,7 @@ item_description_bank = {
     "Memory Sticks": "A stack of four DDR5 memory sticks, totalling 256GB. I probably should find a way to sneak these out of the school.",
 
     # Keys, cards & navigation items
-    "Student ID card": "A student ID card, with your name on it! With this, you'll be able to swipe your way into the rest of the school",
+    "Student ID card": "A student ID card, with your name on it! With this, you'll be able to swipe your way into the rest of the school.",
     "Staff Keycard": "A keycard usually reserved to lecturers and workers at the school, but now you have one!",
 
     # Side activities
