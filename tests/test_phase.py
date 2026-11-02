@@ -1,62 +1,9 @@
 """Tests for the single-prompt phase handlers in ``src/phase.py``."""
 
-from unittest.mock import Mock
-
 import pytest
 
 from src import phase
 
-
-@pytest.fixture
-def mocks(monkeypatch):
-    """Replace every dependency phase.py resolves at module level."""
-    prompt = Mock(return_value="raw input")
-    parse = Mock(return_value=("GO", {}))
-    commands = Mock()
-    clear = Mock()
-    render = Mock()
-    header = Mock()
-    out = Mock()
-    respond = Mock()
-    workbench = Mock()
-    activate = Mock()
-
-    monkeypatch.setattr(phase, "prompt", prompt)
-    monkeypatch.setattr(phase, "parse", parse)
-    monkeypatch.setattr(phase, "commands", commands)
-    monkeypatch.setattr(phase, "clear", clear)
-    monkeypatch.setattr(phase, "render", render)
-    monkeypatch.setattr(phase, "header", header)
-    monkeypatch.setattr(phase, "out", out)
-    monkeypatch.setattr(phase, "respond", respond)
-    monkeypatch.setattr(phase, "workbench", workbench)
-    monkeypatch.setattr(phase, "activate", activate)
-    monkeypatch.setattr(phase, "colorize", lambda text, color_code=None: text)
-
-    state = {
-        "game_state": {
-            "phases": {
-                "assembly": {"activated": False},
-                "chat": {"activated": False, "robot": {"name": "A.I.G.I.S."}},
-            }
-        },
-        "player": {"current_room": "lab_d2_001"},
-    }
-    monkeypatch.setattr(phase, "state", state)
-
-    return {
-        "prompt": prompt,
-        "parse": parse,
-        "commands": commands,
-        "clear": clear,
-        "render": render,
-        "header": header,
-        "out": out,
-        "respond": respond,
-        "workbench": workbench,
-        "activate": activate,
-        "state": state,
-    }
 
 
 def test_exploration_valid_verb(mocks):

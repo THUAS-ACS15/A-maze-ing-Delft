@@ -1,6 +1,5 @@
 """Tests for ``src/display.py``."""
 
-import builtins
 import os
 from unittest.mock import Mock
 
@@ -10,16 +9,6 @@ import src.display as display
 import src.state as state_module
 
 
-def _block_rich_import(monkeypatch):
-    """Simulate rich not being installed for clear()'s fallback path."""
-    real_import = builtins.__import__
-
-    def fake_import(name, *args, **kwargs):
-        if name == "rich.console":
-            raise ModuleNotFoundError("No module named 'rich.console'")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", fake_import)
 
 
 @pytest.mark.parametrize(
@@ -102,8 +91,8 @@ def test_clear_uses_rich_console(monkeypatch):
     console_cls.return_value.clear.assert_called_once()
 
 
-def test_clear_pycharm_fallback(monkeypatch, capsys):
-    _block_rich_import(monkeypatch)
+def test_clear_pycharm_fallback(monkeypatch, capsys, block_rich_import):
+    block_rich_import(monkeypatch)
     monkeypatch.setenv("PYCHARM_HOSTED", "1")
 
     display.clear()
@@ -118,8 +107,8 @@ def test_clear_pycharm_fallback(monkeypatch, capsys):
         pytest.param("posix", "clear", id="posix"),
     ],
 )
-def test_clear_subprocess_fallback(monkeypatch, os_name, expected_cmd):
-    _block_rich_import(monkeypatch)
+def test_clear_subprocess_fallback(monkeypatch, os_name, expected_cmd, block_rich_import):
+    block_rich_import(monkeypatch)
     monkeypatch.delenv("PYCHARM_HOSTED", raising=False)
     monkeypatch.setattr(os, "name", os_name)
     run_mock = Mock()

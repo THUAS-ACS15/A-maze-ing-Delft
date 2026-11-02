@@ -186,8 +186,8 @@ def inspect_computer() -> None:
             mode="PROGRESS",
             sequence=computer_sequence,
         )
-        clear()
         time.sleep(1)
+        clear()
         console.print(nixos_logo())
         time.sleep(2)
         clear()
@@ -204,3 +204,10 @@ def inspect_computer() -> None:
         state["game_state"]["duration"]["pause"] = False
         clear()
         render()
+
+def inspect_note() -> None:
+    """Handle inspecting note in teachers room 4"""
+    current_room = state["player"]["current_room"]
+    desc = state["rooms"][current_room]["interactables"]["note"]
+    render(desc)
+    return None

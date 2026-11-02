@@ -360,6 +360,9 @@ def test_parse_take_no_args():
     [
         pytest.param("drop battery", "battery_pack", "battery", id="drop"),
         pytest.param("discard keycard", "keycard_lvl1", "keycard", id="discard-alias"),
+        pytest.param(
+            "drop supersecret", "secret_key", "supersecret", id="secret-key-alias"
+        ),
     ],
 )
 def test_parse_drop(raw_input, expected_target, expected_raw):

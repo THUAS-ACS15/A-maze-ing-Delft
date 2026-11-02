@@ -8,15 +8,6 @@ import db
 from src import model
 
 
-@pytest.fixture
-def database(monkeypatch, tmp_path):
-    """Point the db module at a throwaway database and create the schema."""
-    db_path = tmp_path / "game.db"
-    monkeypatch.setattr(db, "DATABASE_PATH", db_path)
-    db.init()
-    return db_path
-
-
 def test_create_user_persists_row(database):
     user_id = model.create_user("Alice")
 

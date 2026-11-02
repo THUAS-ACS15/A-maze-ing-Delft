@@ -5,31 +5,6 @@ from unittest.mock import Mock
 import src.utils.shell as shell_module
 from src.utils.shell import ShellResult, VirtualShell
 
-
-@pytest.fixture
-def shell():
-    return VirtualShell(
-        {
-            "etc": {"hostname": "teacher-pc"},
-            "home": {
-                "teacher": {
-                    "Documents": {
-                        "grades.csv": "grades",
-                        "notes.md": "notes",
-                        ".hidden.txt": "hidden",
-                    },
-                    "Downloads": {"manual.txt": "manual"},
-                    ".secret": {"super_secret_file.txt": "the key"},
-                    ".bashrc": "export PS1='$ '",
-                    "README.txt": "read me",
-                    "my notes.txt": "spaced",
-                }
-            },
-            "var": {"log": {"nixos.log": "log"}},
-        }
-    )
-
-
 def test_prompt_at_home(shell):
     assert shell.prompt == "teacher@teacher-pc:~$"
 

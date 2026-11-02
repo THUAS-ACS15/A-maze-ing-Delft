@@ -6,12 +6,8 @@ from unittest.mock import Mock, call
 
 import pytest
 
-import src.parser as parser_module
 import src.room as room_module
 import src.state as state_module
-
-DIRECTIONS = {"north": "north", "south": "south", "east": "east", "west": "west"}
-
 
 def _make_state(
     rooms=None,
@@ -103,19 +99,6 @@ def _move_state():
             "restricted_room": {"exits": {"north": "lobby"}, "restricted": True},
         },
     }
-
-
-@pytest.fixture
-def move_env(monkeypatch):
-    """Patch move()'s locally-imported dependencies."""
-    render_mock = Mock()
-    monkeypatch.setattr(
-        state_module, "colorize", lambda text=None, color_code=None: text
-    )
-    monkeypatch.setattr(room_module, "render", render_mock)
-    monkeypatch.setattr(parser_module, "resolve_room_target", lambda raw: raw)
-    monkeypatch.setattr(parser_module, "ROOM_ALIASES", DIRECTIONS)
-    return render_mock
 
 
 @pytest.mark.parametrize("precreate", [False, True], ids=["missing", "zero-byte"])
@@ -221,7 +204,7 @@ def test_auto_updates_duration(
     duration = game_state["game_state"]["duration"]
     assert duration["value"] == expected_duration
     assert duration["last_write"] is not None
-    assert json.loads(user_path.read_text()) == game_state
+    assert json.loads(user_path.read_text()) == {**game_state, "running": True}
 
 
 def test_auto_initializes_assembly_timer(monkeypatch, tmp_path):

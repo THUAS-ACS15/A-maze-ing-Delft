@@ -172,6 +172,12 @@ def init() -> None:
     state["game_state"]["duration"]["last_write"] = datetime.now(timezone.utc).isoformat()
     return None
 
+def persist() -> None:
+    snapshot = {**state, "running": True}
+    tmp = USER_STATE_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(snapshot, indent=4), encoding="utf-8")
+    tmp.replace(USER_STATE_PATH)
+
 def auto() -> None:
     """Advance the game clocks, autosave, and trigger the exploration-to-assembly transition.
 
@@ -210,8 +216,7 @@ def auto() -> None:
         assembly_duration["last_write"] = now
 
     if not duration["pause"]:
-        with open(USER_STATE_PATH, "w") as a:
-            json.dump(state, a, indent=4)
+        persist()
 
     # Transition happens after the save above, so the new phase is persisted on the next tick.
     if state["workbench"]["is_ready"] and state["game_state"]["phase"] == "EXPLORATION":
@@ -237,14 +242,14 @@ def save(details: Any = None) -> None:
     """
     from .room import render
     if not state["player"].get("id"):
-        render(colorize("You have to register to save, go to the front desk", RED))
+        render(colorize("You have to be registered and logged in to save, you can do this at the front desk", RED))
         return None
 
     filename = details["target"] if details else None
     if filename is None:
         filename = next_save_slot(state["player"]["name"])
 
-    # Sanitise to a safe file name: spaces become underscores, everything except word chars and '-' is dropped
+    # Sanitize to a safe file name: spaces become underscores, everything except word chars and '-' is dropped
     # (also prevents path traversal).
     filename =  re.sub(r"[^\w-]", "", filename.replace(" ", "_"))
     os.makedirs(SAVE_DIR, exist_ok=True)

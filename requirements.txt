@@ -58,6 +58,5 @@ pytest>=9.1.1
 # Coverage reporting for pytest (--cov / --cov-report)
 pytest-cov>=7.1.0
 
-
 google==3.0.0
 openai==3.24.0

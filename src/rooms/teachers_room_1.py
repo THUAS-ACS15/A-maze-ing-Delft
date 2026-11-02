@@ -2,7 +2,7 @@
 
 from ..display import colorize
 from ..room import render
-from ..utils.colors import RED, GREEN
+from ..utils.colors import RED, GREEN, BRIGHT_GREEN
 from ..state import state
 
 
@@ -50,5 +50,19 @@ def use_desk_code(item: str, target: str | None = None) -> None:
             f"Keypad buzzes red: Incorrect code entered.: {item}",
             color_code=RED
         )
+    )
+    return None
+
+def inspect_desk() -> None:
+    if not state["flags"]["tr1_desk_unlocked"]:
+
+        render(
+            text=state["rooms"]["teachers_room_1"]["interactables"]["desk"]["hint"]
+        )
+        return None
+    render(
+        text=colorize(
+            "The desk drawer is open. You already took the keycard.", BRIGHT_GREEN
+            )
     )
     return None

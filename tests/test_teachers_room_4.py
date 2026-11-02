@@ -1,29 +1,9 @@
 from io import StringIO
 from unittest.mock import Mock
 
-import pytest
 from rich.console import Console
 
 from src.rooms import teachers_room_4
-
-
-@pytest.fixture
-def terminal_state(monkeypatch):
-    state = {
-        "player": {"inventory": []},
-        "flags": {"tr4_secret_key_copied": False},
-        "items": {"secret_key": {"name": "Secret Key"}},
-        "game_state": {
-            "duration": {"pause": False, "last_write": None, "value": "00:00:00"},
-            "phase": "EXPLORATION",
-        },
-        "workbench": {"is_ready": False},
-        "rooms": {
-            "teachers_room_4": {"description": "The senior faculty office."}
-        },
-    }
-    monkeypatch.setattr(teachers_room_4, "state", state)
-    return state
 
 
 def test_filesystem_contains_secret_path():

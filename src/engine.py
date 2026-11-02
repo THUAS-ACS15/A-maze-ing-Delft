@@ -15,32 +15,33 @@ Attributes:
 
 from datetime import timezone, datetime
 import json
-import copy
 import textwrap
 
 from typing import Any
 
+from .rooms.front_desk import inspect_receptionist
+from .rooms.lobby import inspect_terminal
+from .rooms.teachers_room_2 import inspect_whiteboard
 from .display import header
 from .model import get_user, create_user, get_scoreboard_entries
 from .rooms.lab_d2_001 import use_on_workbench, workbench
-from .rooms.teachers_room_1 import use_desk_code
-from .rooms.teachers_room_4 import inspect_computer
+from .rooms.teachers_room_1 import use_desk_code, inspect_desk
+from .rooms.teachers_room_4 import inspect_computer, inspect_note
 from .state import (
     auto,
     help_commands,
     list_saves,
     load,
     normalize_state,
-    DEFAULT_GAME_STATE_PATH,
+    DEFAULT_GAME_STATE_PATH, persist,
 )
 from .room import render
 from .utils.colors import BRIGHT_CYAN, BOLD, BRIGHT_GREEN, BRIGHT_YELLOW, DIM, \
     BRIGHT_WHITE, RED, INFO, ERROR, SUCCESS
 from .display import out, colorize
-from .state import spawn,  \
+from .state import spawn, \
     save, move, state
 from .utils.format_timestamp import format_timestamp
-
 
 STATUS_FLAG_LABELS = {
     "fr1_user_registered": "Front desk registration",
@@ -68,6 +69,7 @@ def prompt(message: str | None = None) -> str:
         return input("\n> ").strip()
     return input(f"\n{message} >").strip()
 
+
 def inventory() -> None:
     """Show carried items and how many assembly parts are held. Pauses the game clock."""
     width = int(state["terminal_width"])
@@ -75,7 +77,11 @@ def inventory() -> None:
     header(colorize(text="INVENTORY", color_code=BRIGHT_CYAN + BOLD))
     if not state["player"]["inventory"]:
         out()
-        out(colorize(text="Your inventory is currently empty.".center(width), color_code=DIM))
+        out(
+            colorize(
+                text="Your inventory is currently empty.".center(width), color_code=DIM
+                )
+            )
         out()
         return
 
@@ -100,6 +106,7 @@ def inventory() -> None:
     )
     out()
 
+
 def helper() -> None:
     """Show the help menu. Pauses the game clock.
 
@@ -119,7 +126,9 @@ def helper() -> None:
         from rich.table import Table
 
         header(colorize(text="HELP MENU", color_code=INFO + BOLD))
-        console = Console(highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True)
+        console = Console(
+            highlight=False, force_terminal=None if os.getenv("NO_COLOR") else True
+            )
         for group in groups:
             table = Table(title=group["title"], show_header=True, header_style="bold")
             table.add_column("Command", style="cyan", no_wrap=True)
@@ -133,8 +142,11 @@ def helper() -> None:
         for group in groups:
             out(f"[{group['title']}]")
             for cmd in group["commands"]:
-                out(f"  {cmd['command']:<24} {cmd['description']}  e.g. {cmd['example']}")
+                out(
+                    f"  {cmd['command']:<24} {cmd['description']}  e.g. {cmd['example']}"
+                    )
         return None
+
 
 def inspect(details) -> None:
     """Inspect an interactable in the current room.
@@ -150,39 +162,35 @@ def inspect(details) -> None:
     target = details["target"]
     current_room = state["player"]["current_room"]
     if target == "terminal" and state["player"]["current_room"] == "lobby":
-        from .assets.logo import logo
-        render(text=state["rooms"]["lobby"]["interactables"]["terminal"], asset=logo)
+        inspect_terminal()
         return None
     elif target == "desk" and state["player"]["current_room"] == "teachers_room_1":
-
-        if not state["flags"]["tr1_desk_unlocked"]:
-
-            render(
-                text=state["rooms"]["teachers_room_1"]["interactables"]["desk"]["hint"]
-                )
-            return None
-        render(
-            text=colorize("The desk drawer is open. You already took the keycard.", BRIGHT_GREEN)
-        )
+        inspect_desk()
         return None
     elif target == "workbench" and state["player"]["current_room"] == "lab_d2_001":
         workbench()
         return None
-    elif target == "whiteboard" and state["player"]["current_room"] == "teachers_room_2":
-        state["flags"]["tr2_whiteboard_inspected"] = True
-        whiteboard = state["rooms"]["teachers_room_2"]["interactables"]["whiteboard"]
-        render(text=whiteboard)
+    elif target == "whiteboard" and state["player"][
+        "current_room"] == "teachers_room_2":
+        inspect_whiteboard()
         return None
     elif target == "receptionist" and state["player"]["current_room"] == "front_desk":
-        receptionist = state["rooms"]["front_desk"]["interactables"]["receptionist"]
-        render(text=receptionist)
+        inspect_receptionist()
         return None
     elif target == "computer" and current_room == "teachers_room_4":
         inspect_computer()
         return None
-    else:
-        render(text=colorize("The item you're trying to inspect is unavailable", color_code=RED))
+    elif target == "note" and current_room == "teachers_room_4":
+        inspect_note()
         return None
+    else:
+        render(
+            text=colorize(
+                "The item you're trying to inspect is unavailable", color_code=RED
+                )
+            )
+        return None
+
 
 def use(details: Any) -> None:
     """Use an item, with behaviour depending on the room.
@@ -208,8 +216,8 @@ def use(details: Any) -> None:
                 text=colorize(
                     f"You are currently do not have '{item}' in your inventory.",
                     color_code=RED
-                    )
                 )
+            )
             return None
         render(
             text=colorize(
@@ -217,6 +225,7 @@ def use(details: Any) -> None:
             )
         )
         return None
+
 
 def take(details: Any) -> None:
     """Move an item from the current room into the inventory.
@@ -236,33 +245,50 @@ def take(details: Any) -> None:
     render(colorize(f"You picked up {itm['name']}", BRIGHT_GREEN))
     return None
 
+
 def drop(details: Any) -> None:
     """Move an item from the inventory into the current room.
 
     Args:
-        details: Parsed details with ``"target"`` (item id). Renders an error if the item is not carried.
-
-    Raises:
-        KeyError: If the target is not a known item id.
+        details: Parsed details with ``"target"`` (item id). Renders an error if the item is unknown or not carried.
     """
     item = details["target"]
-    item_data = state["items"][item]
+    item_data = state["items"].get(item)
+    if item_data is None:
+        render(text=colorize(f"There is no item called '{item}'.", color_code=RED))
+        return None
     current_room = state["player"]["current_room"]
     room_data = state["rooms"][current_room]
     if item not in state["player"]["inventory"]:
-        render(text=colorize(f"You currently do not have '{item_data['name']}' here.", color_code=RED))
+        render(
+            text=colorize(
+                f"You currently do not have '{item_data['name']}' here.", color_code=RED
+                )
+            )
         return None
     state["player"]["inventory"].remove(item)
     state["rooms"][current_room]["items"].append(item)
-    render(colorize(f"You dropped {item_data['name']} in {room_data['name']}", BRIGHT_GREEN))
+    render(
+        colorize(
+            f"You dropped {item_data['name']} in {room_data['name']}", BRIGHT_GREEN
+            )
+        )
     return None
 
-def exit_game() -> None:
+
+def shutdown() -> None:
     """Stop the main loop, print the final status screen and a farewell message."""
-    state["running"] = False
     status()
-    out(colorize(text="Goodbye. see you again soon".center(state["terminal_width"]), color_code=BRIGHT_GREEN))
+    persist()
+    state["running"] = False
+    out(
+        colorize(
+            text="Goodbye. see you again soon".center(state["terminal_width"]),
+            color_code=BRIGHT_GREEN
+            )
+        )
     return None
+
 
 def register(details: Any) -> None:
     """Create a user profile and attach it to the player. Only works in ``front_desk``.
@@ -277,17 +303,28 @@ def register(details: Any) -> None:
         return None
     user = get_user(name)
     if not user:
-       try:
-           user_id = create_user(name)
-           state["player"]["name"] = name
-           state["player"]["id"] = user_id
-           render(text=colorize(f"You have successfully registered a profile as {name}", color_code=BRIGHT_GREEN))
-           return None
-       except Exception as e:
-           render(text=colorize(str(e), color_code=RED))
-           return None
-    render(text=colorize(f"The name '{name}' is already taken. Please try another one.", color_code=RED))
+        try:
+            user_id = create_user(name)
+            state["player"]["name"] = name
+            state["player"]["id"] = user_id
+            render(
+                text=colorize(
+                    f"You have successfully registered a profile as {name}",
+                    color_code=BRIGHT_GREEN
+                    )
+                )
+            return None
+        except Exception as e:
+            render(text=colorize(str(e), color_code=RED))
+            return None
+    render(
+        text=colorize(
+            f"The name '{name}' is already taken. Please try another one.",
+            color_code=RED
+            )
+        )
     return None
+
 
 def login(details: Any) -> None:
     """Attach an existing user profile to the player. Only works in ``front_desk``.
@@ -311,21 +348,31 @@ def login(details: Any) -> None:
     render(colorize(f"You are currently logged in as {name}", color_code=SUCCESS))
     return None
 
+
 def logout() -> None:
     """Detach the user profile from the player (back to ``guest``). Only works in ``front_desk`` while logged in.
 
     Game progress is kept; only the identity changes.
     """
     if state["player"]["current_room"] != "front_desk":
-        render(colorize(text="You can only complete this operation at the front desk", color_code=ERROR))
+        render(
+            colorize(
+                text="You can only complete this operation at the front desk",
+                color_code=ERROR
+                )
+            )
         return None
     if not state["player"]["id"]:
         render(colorize(text="You are currently not logged in!", color_code=ERROR))
         return None
-    snapshot = copy.deepcopy(state)
+    player = {**state["player"]}
     state["player"]["id"] = None
     state["player"]["name"] = "guest"
-    render(colorize(text=f"You have been logged out from {snapshot['player']['name']}", color_code=SUCCESS))
+    render(
+        colorize(
+            text=f"You have been logged out from {player['name']}", color_code=SUCCESS
+            )
+        )
     return None
 
 
@@ -335,20 +382,21 @@ def restart() -> None:
     The clock is restarted at ``00:00:00`` and unpaused.
     """
     # Keep a copy only to carry the player's identity across the reset below.
-    snapshot = copy.deepcopy(state)
+    player = {**state["player"]}
     # Reset in place (clear + update): other modules share a reference to the state dict.
     with open(DEFAULT_GAME_STATE_PATH) as df:
         state.clear()
         state.update(json.load(df))
         normalize_state(state)
-        state["player"]["name"] = snapshot["player"]["name"]
-        state["player"]["id"] = snapshot["player"]["id"]
+        state["player"]["name"] = player["name"]
+        state["player"]["id"] = player["id"]
         now = datetime.now(timezone.utc).isoformat()
         state["game_state"]["timestamp"] = now
         state["game_state"]["duration"]["last_write"] = now
         state["game_state"]["duration"]["value"] = "00:00:00"
         state["game_state"]["duration"]["pause"] = False
     render(text=colorize("New game!", color_code=BRIGHT_GREEN))
+
 
 def scoreboard() -> None:
     """Show the ranked scoreboard (best score first, then fastest total time)."""
@@ -378,6 +426,7 @@ def scoreboard() -> None:
         )
 
     return None
+
 
 def _wrap_status_text(text: str, width: int) -> list[str]:
     """Wrap status text, preferring comma-separated item boundaries.
@@ -443,7 +492,6 @@ def _print_status_row(label: str, value: str, width: int) -> None:
     for line in rest:
         for chunk in _wrap_status_text(line, available):
             out(f"{indent}{chunk}")
-
 
 
 def status() -> None:
@@ -520,7 +568,6 @@ def status() -> None:
         ("Assembly parts", str(assembly_parts)),
     ]
 
-
     for row in rows:
         if row is None:
             out()
@@ -543,7 +590,7 @@ def commands(verb, details) -> None:
         details: Details dict returned by :func:`src.parser.parse`.
     """
     if verb == "quit":
-        exit_game()
+        shutdown()
         return
     if verb == "restart":
         restart()

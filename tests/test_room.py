@@ -1,46 +1,8 @@
 """Tests for ``src/room.py``'s ``render()`` output."""
 
-import copy
-
 import pytest
 
-import src.state as state_module
 from src import room
-
-BASE_STATE = {
-    "enable_colors": False,
-    "terminal_width": 20,
-    "player": {"current_room": "lab", "name": "guest"},
-    "game_state": {
-        "phase": "EXPLORATION",
-        "duration": {"last_write": None, "value": "00:00:00", "pause": False},
-    },
-    "rooms": {
-        "lab": {
-            "name": "Lab",
-            "description": "A test lab.",
-            "exits": {"east": "hall"},
-            "items": [],
-            "interactables": {},
-        },
-        "hall": {"name": "Hall"},
-    },
-    "items": {},
-}
-
-
-@pytest.fixture
-def room_state(monkeypatch):
-    """Patch both state bindings that ``render()`` relies on.
-
-    ``room.render()`` reads the module-level ``room.state`` import, while the
-    ``display`` helpers resolve ``src.state.state`` freshly on each call.
-    Patching both to the same dict keeps them consistent.
-    """
-    state = copy.deepcopy(BASE_STATE)
-    monkeypatch.setattr(room, "state", state)
-    monkeypatch.setattr(state_module, "state", state)
-    return state
 
 
 def test_render_basic(room_state, capsys):

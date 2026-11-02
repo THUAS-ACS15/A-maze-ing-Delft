@@ -178,6 +178,7 @@ VERB_ALIASES = {
     "new game": "restart",
     "quit": "quit",
     "exit": "quit",
+    "shutdown": "quit",
     "q": "quit",
 
     # Activation
@@ -317,4 +318,13 @@ ITEM_ALIASES = {
     "customer_care" : "receptionist",
     "customer care" : "receptionist",
     "agent" : "receptionist",
+    "secret_key": "secret_key",
+    "supersecret": "secret_key",
+    "super_secret_key": "secret_key",
+    "secret key": "secret_key",
+    "super secret key": "secret_key",
+    "secretkey": "secret_key",
+    "sk": "secret_key",
+    "ssk": "secret_key",
+    "note": "note"
 }

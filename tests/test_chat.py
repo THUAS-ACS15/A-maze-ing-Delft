@@ -1,4 +1,3 @@
-import time
 from types import SimpleNamespace
 
 import pytest
@@ -10,26 +9,6 @@ MOCK_MESSAGE = (
     "Please check your input and try again. "
     "If the problem persists, try again later."
 )
-
-
-@pytest.fixture(autouse=True)
-def _fast_sleep(monkeypatch):
-    """mock() sleeps 0.05s per word; patch it out so tests stay fast."""
-    monkeypatch.setattr(time, "sleep", lambda *args, **kwargs: None)
-
-
-@pytest.fixture
-def robot_state():
-    return {
-        "game_state": {
-            "phases": {
-                "chat": {
-                    "robot": {"name": "TESTBOT"},
-                }
-            }
-        }
-    }
-
 
 def test_mock_yields_expected_words():
     words = list(chat._mock())

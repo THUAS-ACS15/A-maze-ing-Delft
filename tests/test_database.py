@@ -5,33 +5,24 @@ import pytest
 import db
 
 
-def _table_names(conn):
-    return {
-        row["name"]
-        for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table'"
-        )
-    }
-
-
-def test_init_creates_all_tables(tmp_path):
+def test_init_creates_all_tables(tmp_path, db_table_names):
     db_path = tmp_path / "game.db"
 
     db.init(db_path)
 
     assert db_path.exists()
     with db.connection(db_path) as conn:
-        assert {"users", "saves", "scoreboard"} <= _table_names(conn)
+        assert {"users", "saves", "scoreboard"} <= db_table_names(conn)
 
 
-def test_init_is_idempotent(tmp_path):
+def test_init_is_idempotent(tmp_path, db_table_names):
     db_path = tmp_path / "game.db"
 
     db.init(db_path)
     db.init(db_path)
 
     with db.connection(db_path) as conn:
-        assert {"users", "saves", "scoreboard"} <= _table_names(conn)
+        assert {"users", "saves", "scoreboard"} <= db_table_names(conn)
 
 
 def test_default_path_uses_database_path(monkeypatch, tmp_path):
@@ -43,14 +34,14 @@ def test_default_path_uses_database_path(monkeypatch, tmp_path):
     assert db_path.exists()
 
 
-def test_connection_does_not_create_tables(tmp_path):
+def test_connection_does_not_create_tables(tmp_path, db_table_names):
     db_path = tmp_path / "game.db"
 
     with db.connection(db_path):
         pass
 
     with db.connection(db_path) as conn:
-        assert _table_names(conn) == set()
+        assert db_table_names(conn) == set()
 
 
 def test_connection_commits(tmp_path):
