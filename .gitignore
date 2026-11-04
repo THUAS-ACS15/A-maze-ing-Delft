@@ -5,9 +5,9 @@
 .mypy_cache/
 .ruff_cache/
 *.pyc
-saves.db
-scoreboard.db
-data/*
+data/saves/*
+data/user_state.json
+data/game.db
 debug.py
 .env
 .coverage

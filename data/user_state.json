@@ -3,17 +3,83 @@
     "enable_colors": true,
     "terminal_width": 120,
     "player": {
-        "id": 1,
-        "name": "gift",
-        "current_room": "lobby",
-        "inventory": [],
-        "move": [],
-        "forward": [
-            "front_desk"
-        ]
+        "id": null,
+        "name": "guest",
+        "current_room": "lab_d2_001",
+        "inventory": [
+            "blueprint",
+            "paper_clip",
+            "coffee_cup",
+            "keycard_lvl1"
+        ],
+        "move": [
+            "lobby",
+            "front_desk",
+            "lobby",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "classroom_d_2035",
+            "project_room_1",
+            "teachers_room_2",
+            "project_room_2",
+            "teachers_room_4",
+            "lab_d2_001",
+            "teachers_room_4",
+            "project_room_2",
+            "teachers_room_2",
+            "project_room_2",
+            "teachers_room_2",
+            "project_room_1",
+            "classroom_d_2035",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "classroom_d_2035",
+            "project_room_1",
+            "teachers_room_2",
+            "project_room_2",
+            "teachers_room_4",
+            "lab_d2_001",
+            "teachers_room_4",
+            "project_room_2",
+            "teachers_room_2",
+            "project_room_1",
+            "classroom_d_2035",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "lobby",
+            "classroom_d_2015",
+            "lobby",
+            "front_desk",
+            "lobby",
+            "front_desk",
+            "lobby",
+            "teachers_room_1",
+            "classroom_d_2035",
+            "project_room_1",
+            "teachers_room_2",
+            "project_room_2",
+            "teachers_room_4"
+        ],
+        "forward": []
     },
     "workbench": {
-        "installed_parts": [],
+        "installed_parts": [
+            "battery_pack",
+            "mainboard",
+            "sensory_module",
+            "wifi_credentials",
+            "motors_speakers",
+            "api_usb",
+            "mega_phone",
+            "chassis_frame"
+        ],
         "required_parts": [
             "chassis_frame",
             "battery_pack",
@@ -24,14 +90,14 @@
             "api_usb",
             "mega_phone"
         ],
-        "is_ready": false
+        "is_ready": true
     },
     "flags": {
         "fr1_user_registered": false,
-        "tr1_desk_unlocked": false,
-        "tr2_whiteboard_inspected": false,
+        "tr1_desk_unlocked": true,
+        "tr2_whiteboard_inspected": true,
         "tr4_drawer_decrypted": false,
-        "tr4_secret_key_copied": false,
+        "tr4_secret_key_copied": true,
         "lab_power_on": false
     },
     "items": {
@@ -126,10 +192,7 @@
                 "east": "teachers_room_1",
                 "west": "front_desk"
             },
-            "items": [
-                "blueprint",
-                "chassis_frame"
-            ],
+            "items": [],
             "interactables": {
                 "terminal": "Displaying 'A-maze-ing-Delft ASSEMBLY REQUIRED'."
             }
@@ -143,10 +206,7 @@
             "exits": {
                 "east": "lobby"
             },
-            "items": [
-                "paper_clip",
-                "coffee_cup"
-            ],
+            "items": [],
             "interactables": {
                 "receptionist": "You can register a new profile by typing 'register <name>'"
             }
@@ -161,9 +221,7 @@
                 "south": "lobby",
                 "east": "classroom_d_2035"
             },
-            "items": [
-                "battery_pack"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_1": {
@@ -197,9 +255,7 @@
                 "south": "teachers_room_1",
                 "east": "project_room_1"
             },
-            "items": [
-                "mainboard"
-            ],
+            "items": [],
             "interactables": {}
         },
         "project_room_1": {
@@ -212,9 +268,7 @@
                 "west": "classroom_d_2035",
                 "south": "teachers_room_2"
             },
-            "items": [
-                "sensory_module"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_2": {
@@ -227,10 +281,7 @@
                 "north": "project_room_1",
                 "east": "project_room_2"
             },
-            "items": [
-                "wifi_credentials",
-                "mega_phone"
-            ],
+            "items": [],
             "interactables": {
                 "whiteboard": "Written in red marker: 'Lab Network Pass: Tr0janH0rse!'"
             }
@@ -245,9 +296,7 @@
                 "west": "teachers_room_2",
                 "south": "teachers_room_4"
             },
-            "items": [
-                "motors_speakers"
-            ],
+            "items": [],
             "interactables": {}
         },
         "teachers_room_4": {
@@ -261,7 +310,7 @@
                 "west": "lab_d2_001"
             },
             "items": [
-                "api_usb"
+                "secret_key"
             ],
             "interactables": {
                 "computer": "Nix OS computer",
@@ -290,11 +339,11 @@
         "save_version": "1.0.0",
         "timestamp": "2026-11-01T21:00:54.919890+00:00",
         "duration": {
-            "last_write": "2026-11-02T00:22:45.073059+00:00",
-            "value": "0:01:13",
-            "pause": false
+            "last_write": "2026-11-04T17:05:55.961849+00:00",
+            "value": "0:40:19",
+            "pause": true
         },
-        "phase": "EXPLORATION",
+        "phase": "CHAT",
         "phases": {
             "exploration": {
                 "activated": false,
@@ -306,21 +355,21 @@
                 }
             },
             "assembly": {
-                "activated": false,
+                "activated": true,
                 "timestamp": null,
                 "wifi_password": "Tr0janH0rse!",
                 "duration": {
-                    "last_write": null,
-                    "value": "00:00:00",
+                    "last_write": "2026-11-03T13:08:25.596451+00:00",
+                    "value": "0:01:51",
                     "pause": false
                 }
             },
             "chat": {
-                "activated": false,
+                "activated": true,
                 "mock": false,
                 "timestamp": null,
                 "robot": {
-                    "name": "Jarvis",
+                    "name": "Tonay",
                     "default": "Render a helpful message congratulating the user on completing the game and a welcome message(welcome to chat mode.",
                     "history": []
                 },

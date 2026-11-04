@@ -465,7 +465,7 @@ def _wrap_status_text(text: str, width: int) -> list[str]:
     return textwrap.wrap(text, width=width, break_long_words=True) or [""]
 
 
-def _print_status_row(label: str, value: str, width: int) -> None:
+def _print_status_row(label: str, value: str) -> None:
     """Print one status row, wrapping long values at ``width``.
 
     Short values are right-aligned; wrapped values continue on indented lines. Multi-line values are wrapped per line.
@@ -475,6 +475,8 @@ def _print_status_row(label: str, value: str, width: int) -> None:
         value: Row value, possibly containing newlines.
         width: Total terminal width.
     """
+
+    width = state["terminal_width"]
     prefix = f" {label}:"
     indent = " " * (len(prefix) + 1)
     available = max(1, width - len(prefix) - 2)
@@ -573,7 +575,7 @@ def status() -> None:
             out()
             continue
         label, value = row
-        _print_status_row(label, value, state["terminal_width"])
+        _print_status_row(label, value)
 
     out()
     return None

@@ -11,6 +11,7 @@ import config  # noqa: F401  (loads .env)
 
 from typing import cast
 
+from src.display import clear
 from src.engine import run, shutdown
 from src.room import render
 
@@ -21,4 +22,5 @@ if __name__ == "__main__":
         render()
         run()
     except (KeyboardInterrupt, EOFError):
+        clear()
         shutdown()
