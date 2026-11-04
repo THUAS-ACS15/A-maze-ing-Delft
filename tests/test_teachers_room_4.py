@@ -1,101 +1,136 @@
-"""Tests for Teacher Room 4's NixOS terminal challenge.
+from io import StringIO
+from unittest.mock import Mock
 
-The room computer boots a virtual shell over an in-memory filesystem. Reading
-the hidden secret file awards the Encrypted API & Prompt USB exactly once and
-advances the player's objective.
-"""
+from rich.console import Console
 
-from rooms import teachers_room_4
-from utilities.shell import VirtualShell
+from src.rooms import teachers_room_4
 
 
-def make_state():
-    """Build the minimal game state the room logic touches."""
-    return {
-        "inventory": [],
-        "current_objective_id": 4,
-        "completed": {"teachersroom4": False},
-        "is_gametime_paused": False,
-    }
+def test_filesystem_contains_secret_path():
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+    result = shell.execute(f"cat {teachers_room_4.SECRET_PATH}")
+    assert teachers_room_4.SECRET_PATH in result.read_paths
 
 
-def run_session(state, commands):
-    """Run one shell session with scripted input and no screen clearing."""
-    scripted = iter(commands)
+def test_secret_file_awards_key_once(terminal_state):
+    outputs = []
+    commands = iter([f"cat {teachers_room_4.SECRET_PATH}", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+
     teachers_room_4.run_shell(
-        state,
-        VirtualShell(teachers_room_4.FILESYSTEM),
-        read_input=lambda prompt: next(scripted),
-        write_output=lambda *args: None,
+        shell,
+        read_input=lambda _: next(commands),
+        write_output=outputs.append,
         clear_screen=lambda: None,
     )
 
-
-def test_secret_directory_hidden_from_plain_ls():
-    """Hide the secret directory from plain ls but show it with ls -a."""
-    shell = VirtualShell(teachers_room_4.FILESYSTEM)
-    assert ".secret" not in shell.execute("ls").output
-    assert ".secret" in shell.execute("ls -a").output
+    assert terminal_state["player"]["inventory"] == ["secret_key"]
+    assert terminal_state["flags"]["tr4_secret_key_copied"] is True
+    assert any("Secret Key" in line for line in outputs)
 
 
-def test_cat_secret_file_reports_read_path():
-    """Record the secret file path when it is read."""
-    shell = VirtualShell(teachers_room_4.FILESYSTEM)
-    result = shell.execute(f"cat {teachers_room_4.SECRET_PATH}")
-    assert result.read_paths == (teachers_room_4.SECRET_PATH,)
+def test_secret_file_does_not_duplicate(terminal_state):
+    terminal_state["player"]["inventory"] = ["secret_key"]
+    outputs = []
+    commands = iter([f"cat {teachers_room_4.SECRET_PATH}", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+
+    teachers_room_4.run_shell(
+        shell,
+        read_input=lambda _: next(commands),
+        write_output=outputs.append,
+        clear_screen=lambda: None,
+    )
+
+    assert terminal_state["player"]["inventory"] == ["secret_key"]
+    assert terminal_state["flags"]["tr4_secret_key_copied"] is True
 
 
-def test_run_shell_awards_usb_on_secret_read():
-    """Award the USB and advance the objective after reading the secret."""
-    state = make_state()
-    run_session(state, [f"cat {teachers_room_4.SECRET_PATH}", "exit"])
+def test_eof_exits_cleanly(terminal_state):
+    outputs = []
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
 
-    assert teachers_room_4.REWARD_ITEM in state["inventory"]
-    assert state["current_objective_id"] == 5
-    assert state["completed"]["teachersroom4"] is True
+    def eof(_prompt):
+        raise EOFError
 
+    teachers_room_4.run_shell(
+        shell,
+        read_input=eof,
+        write_output=outputs.append,
+        clear_screen=lambda: None,
+    )
 
-def test_run_shell_awards_usb_only_once():
-    """Award the USB at most once across repeated shell sessions."""
-    state = make_state()
-    for _ in range(2):
-        run_session(state, [f"cat {teachers_room_4.SECRET_PATH}", "exit"])
-
-    assert state["inventory"].count(teachers_room_4.REWARD_ITEM) == 1
-    assert state["current_objective_id"] == 5
+    assert outputs == [""]
 
 
-def test_run_shell_exits_cleanly():
-    """Leave inventory and objectives unchanged when exiting without the secret."""
-    state = make_state()
-    run_session(state, ["exit"])
+def test_clear_command_clears_screen(terminal_state):
+    commands = iter(["clear", "exit"])
+    clear_mock = Mock()
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
 
-    assert state["inventory"] == []
-    assert state["current_objective_id"] == 4
+    teachers_room_4.run_shell(
+        shell,
+        read_input=lambda _: next(commands),
+        write_output=lambda _: None,
+        clear_screen=clear_mock,
+    )
+
+    clear_mock.assert_called_once_with()
 
 
-def test_enter_teachers_room_4_is_callable():
-    """Expose the room entry point as a callable."""
-    assert callable(teachers_room_4.enter_teachers_room_4)
+def test_inspect_computer_rebases_timer_while_paused(
+    monkeypatch, terminal_state
+):
+    events = []
+    terminal_state["game_state"]["duration"]["pause"] = False
+    monkeypatch.setattr(teachers_room_4, "loader", Mock())
+    monkeypatch.setattr(teachers_room_4, "clear", Mock())
+    monkeypatch.setattr(teachers_room_4.time, "sleep", lambda _: None)
+    monkeypatch.setattr(teachers_room_4, "console", Mock())
+    monkeypatch.setattr(teachers_room_4, "run_shell", Mock())
+    monkeypatch.setattr(
+        teachers_room_4,
+        "auto",
+        Mock(
+            side_effect=lambda: events.append(
+                ("auto", terminal_state["game_state"]["duration"]["pause"])
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        teachers_room_4,
+        "render",
+        Mock(
+            side_effect=lambda: events.append(
+                ("render", terminal_state["game_state"]["duration"]["pause"])
+            )
+        ),
+    )
+
+    teachers_room_4.inspect_computer()
+
+    assert events == [("auto", True), ("render", False)]
+    assert terminal_state["game_state"]["duration"]["pause"] is False
 
 
-def test_enter_room_boots_computer_and_leaves(monkeypatch):
-    """Boot the computer on entry and return to the corridor on leave."""
-    state = make_state()
-    state.update({
-        "previous_room": None,
-        "visited": {"teachersroom4": False},
-        "current_room": "eastcorridor",
-    })
-    calls = []
-    monkeypatch.setattr(teachers_room_4, "inspect_computer", lambda s: calls.append(s))
-    monkeypatch.setattr(teachers_room_4, "clear_screen", lambda: None)
-    monkeypatch.setattr(teachers_room_4, "loader", lambda *args, **kwargs: None)
-    monkeypatch.setattr(teachers_room_4, "print_dialogue", lambda *args, **kwargs: None)
-    scripted = iter(["use computer", "leave"])
-    monkeypatch.setattr("builtins.input", lambda prompt="": next(scripted))
+def test_shell_output_is_rendered_literally(monkeypatch, terminal_state):
+    buffer = StringIO()
+    monkeypatch.setattr(teachers_room_4, "console", Console(file=buffer, force_terminal=False, width=200))
+    commands = iter(["cat /home/teacher/Downloads/lecture_slides.pdf", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
 
-    result = teachers_room_4.enter_teachers_room_4(state)
+    teachers_room_4.run_shell(shell, read_input=lambda _: next(commands), clear_screen=lambda: None)
 
-    assert result == "eastcorridor"
-    assert calls == [state]
+    assert "[binary data omitted]" in buffer.getvalue()
+
+
+def test_shell_output_has_no_emoji_conversion(monkeypatch, terminal_state):
+    buffer = StringIO()
+    monkeypatch.setattr(teachers_room_4, "console", Console(file=buffer, force_terminal=False, width=200))
+    commands = iter(["cat /etc/passwd", "exit"])
+    shell = teachers_room_4.VirtualShell(teachers_room_4.FILESYSTEM)
+
+    teachers_room_4.run_shell(shell, read_input=lambda _: next(commands), clear_screen=lambda: None)
+
+    assert "root:x:0:0" in buffer.getvalue()
+    assert "❌" not in buffer.getvalue()

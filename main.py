@@ -1,125 +1,26 @@
-# ruff: noqa: E402 -- dependencies must be installed before these imports.
-# -----------------------------------------------------------------------------
-# File: main.py
-# ACS Q1 Project - A-maze-ing Delft
-# Organization: THUAS (The Hague University of Applied Sciences)
-# Location: Delft
-# Date: October 2026
-# -----------------------------------------------------------------------------
-"""Game entry point: dependency check, menus, and the room dispatch loop."""
+"""Entry point for A-maze-ing Delft, a terminal text-adventure.
 
+Importing ``config`` first is required: it loads ``.env`` and runs ``db.init()`` and ``state.init()`` so the
+database schema and the in-memory game state exist before the engine starts. When executed as a script the
+current room is rendered once and the main loop in :func:`src.engine.run` takes over until the player quits.
+"""
 
-# this prevents ruff from erroring because of the below dependency check.
-# it's necessary to check deps before running any of the below imports
-# to ensure no crashes and correct installs
+import io
+import sys
+import config  # noqa: F401  (loads .env)
 
-# check dependencies before start
-from install_dependencies import check_dependencies
+from typing import cast
 
-check_dependencies()
+from src.display import clear
+from src.engine import run, shutdown
+from src.room import render
 
-import time
-import utilities.auto_color  # noqa: F401
-
-from rooms.dispatcher import enter_room
-from utilities.credits import display_credits
-from utilities.main_menu import display_main_menu
-from utilities.save_gui import display_load_menu
-from utilities.scoreboard import display_scoreboard
-from utilities.story_animations import play_intro
-
-state: dict = {
-    "player_name": "",
-    "current_room": "lobby",
-    "previous_room": None,
-    "time_elapsed": 0.0,
-    "start_time": time.time(),
-    "has_intro_played": False,
-    "is_gametime_paused": False,
-    "current_objective_id": 0,
-    "student_id_obtained": False,
-    "visited": {
-        "labd2001": False,
-        "projectroom1": False,
-        "projectroom2": False,
-        "teachersroom1": False,
-        "teachersroom2": False,
-        "teachersroom4": False,
-        "frontdesk": False,
-        "equinoxstudentsociety": False,
-        "classroomd2015": False,
-        "classroomd2031": False,
-        "classroomd2035": False,
-    },
-    "completed": {
-        "labd2001": False,
-        "projectroom1": False,
-        "projectroom2": False,
-        "teachersroom1": False,
-        "teachersroom2": False,
-        "teachersroom4": False,
-        "frontdesk": False,
-        "equinoxstudentsociety": False,
-        "classroomd2015": False,
-        "classroomd2031": False,
-        "classroomd2035": False,
-    },
-    "inventory": [],
-}
-
-def main() -> None:
-    """Entry point of the game.
-
-    Shows the main menu in a loop. NEW GAME and CONTINUE both go through a
-    save-slot selection screen first, then start the Engine with the right
-    state. CREDITS shows the credits and returns to the menu. EXIT stops
-    the loop. Picking "BACK" on the slot screen also returns to the menu.
-    """
-    global state
-
-    while True:
-        choice = display_main_menu()
-
-        if choice == "exit":
-            break
-
-        elif choice == "credits":
-            display_credits()
-            continue
-
-        elif choice in ("new game", "continue"):
-            if choice == "continue":
-                loaded_state = display_load_menu()
-                if loaded_state is None:
-                    continue
-                if isinstance(loaded_state, dict):
-                    state = loaded_state
-
-            if not state["has_intro_played"]:
-                state["is_gametime_paused"] = True
-                play_intro()
-                state["is_gametime_paused"] = False
-                state["has_intro_played"] = True
-            
-            # keep dispatching rooms until the player actually exits,
-            # so main menu doesn't take over
-            current = state.get("current_room", "lobby")
-            if not isinstance(current, str):
-                current = "lobby"
-
-            while current not in ("quit", "exit"):
-                next_room = enter_room(current, state)
-                if not isinstance(next_room, str):
-                    break
-                current = next_room
-                state["current_room"] = current
-
-            break
-        
-        elif choice == "scoreboard":
-            display_scoreboard()
-            continue
-
+cast(io.TextIOWrapper, sys.stdout).reconfigure(encoding="utf-8", errors="replace")
 
 if __name__ == "__main__":
-    main()
+    try:
+        render()
+        run()
+    except (KeyboardInterrupt, EOFError):
+        clear()
+        shutdown()
