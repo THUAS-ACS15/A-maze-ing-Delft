@@ -1,11 +1,11 @@
 .idea/
 .venv/
-./rooms/__pycache__/
-./utilities/__pycache__
 .mypy_cache/
 .ruff_cache/
 *.pyc
-saves.db
-scoreboard.db
+data/saves/*
+data/user_state.json
+data/game.db
+.mailmap
 .env
 debug.py
