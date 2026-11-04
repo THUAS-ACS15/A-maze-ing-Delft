@@ -5,23 +5,12 @@
 # Rich text formatting, colorized terminal output, and status spinners
 rich==15.0.0
 
-# ASCII art generation and stylized text rendering for CLI interfaces
-art==6.5
-
-# Image processing library (handling image manipulation, formats, and thumbnails)
-pillow==13.0.0
-
-rich-pyfiglet==2.0.1
-pyfiglet==1.0.4
-
-# readchar reads keys to navigate menus easier
-readchar==4.2.2
 
 # ==============================================================================
 # AI / LLM INTEGRATION (LangChain)
 # ==============================================================================
 
-langchain-core>=1.6.15
+langchain-core==1.6.13
 langchain-google-genai>=4.4.2
 langchain-groq>=1.1.3
 langchain-ollama>=1.1.0
@@ -35,12 +24,6 @@ langchain-openai>=1.7.2
 # Load environment variables from a .env file
 python-dotenv>=1.2.4
 
-# Read single keypresses for interactive terminal input
-readchar>=4.2.2
-
-# CLI framework for building command-line interfaces
-typer>=0.27.3
-
 
 # ==============================================================================
 # CODE QUALITY, LINTING & TESTING
@@ -49,9 +32,6 @@ typer>=0.27.3
 # Fast Python linter and code formatter (replaces flake8, isort, and pyflakes)
 ruff==0.16.9
 
-# Uncompromising code formatter (ensures consistent PEP 8 styling)
-black==26.5.1
-
 # Static type checker (verifies type hints and catches type mismatch errors)
 mypy>=1.0.0
 
@@ -59,6 +39,3 @@ pytest>=9.1.1
 
 # Coverage reporting for pytest (--cov / --cov-report)
 pytest-cov>=7.1.0
-
-google==3.0.0
-openai==3.24.0
