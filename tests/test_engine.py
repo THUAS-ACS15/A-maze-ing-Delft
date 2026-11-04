@@ -469,8 +469,9 @@ def test_status_wraps_single_long_item(monkeypatch, en_rendered, duration, out_t
 def test_print_status_row_wraps_multiline(monkeypatch, out_texts):
     out_mock = Mock()
     monkeypatch.setattr(engine, "out", out_mock)
+    monkeypatch.setattr(engine, "state", {"terminal_width": 40})
 
-    engine._print_status_row("Test", "first line\nsecond line", 40)
+    engine._print_status_row("Test", "first line\nsecond line")
 
     texts = out_texts(out_mock)
     assert texts[0].startswith(" Test:")
