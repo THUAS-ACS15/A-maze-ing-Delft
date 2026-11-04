@@ -1,10 +1,4 @@
 # Global owner for all files in the repository
-* @THUAS-ACS15/developers
 
 # Directory specific owners
 /.github/ @nwikeodigwe
-/rooms/teachers_room_4.py @nwikeodigwe
-# @sadanandpandit
-# @dominikknapek
-# @Brutuuss
-# @niilun
